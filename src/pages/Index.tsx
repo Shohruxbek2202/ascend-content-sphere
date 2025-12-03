@@ -1,85 +1,73 @@
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Hero } from '@/components/Hero';
 import { BlogCard } from '@/components/BlogCard';
 import { SubscribeSection } from '@/components/SubscribeSection';
+import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
 
-// Mock data (will be replaced with real data from database)
-const featuredPosts = [
-  {
-    id: '1',
-    title: 'Digital Marketing Strategiyalari 2024',
-    excerpt: 'Zamonaviy digital marketing tendentsiyalari va amaliy strategiyalar',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800',
-    category: 'Digital Marketing',
-    readTime: 8,
-    likes: 234,
-    comments: 45,
-    publishedAt: '2024-12-01',
-  },
-  {
-    id: '2',
-    title: 'SEO Optimization: A\'lo ko\'rsatkichlarga erishish',
-    excerpt: 'Google algoritmlari va SEO optimizatsiyasi bo\'yicha batafsil qo\'llanma',
-    image: 'https://images.unsplash.com/photo-1432888622747-4eb9a8f2c293?w=800',
-    category: 'SEO',
-    readTime: 12,
-    likes: 567,
-    comments: 89,
-    publishedAt: '2024-11-28',
-  },
-];
-
-const latestPosts = [
-  {
-    id: '3',
-    title: 'Content Marketing Asoslari',
-    excerpt: 'Samarali content yaratish va taqsimlash strategiyalari',
-    image: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800',
-    category: 'Content',
-    readTime: 6,
-    likes: 123,
-    comments: 23,
-    publishedAt: '2024-11-25',
-  },
-  {
-    id: '4',
-    title: 'Social Media Marketing 2024',
-    excerpt: 'Ijtimoiy tarmoqlarda brand yaratish va rivojlantirish',
-    image: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800',
-    category: 'Social Media',
-    readTime: 10,
-    likes: 456,
-    comments: 67,
-    publishedAt: '2024-11-22',
-  },
-  {
-    id: '5',
-    title: 'Email Marketing Strategiyalari',
-    excerpt: 'Yuqori konversiyali email kampaniyalarini yaratish',
-    image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800',
-    category: 'Email Marketing',
-    readTime: 7,
-    likes: 234,
-    comments: 34,
-    publishedAt: '2024-11-20',
-  },
-  {
-    id: '6',
-    title: 'Analytics va Data-Driven Marketing',
-    excerpt: 'Ma\'lumotlarga asoslangan marketing qarorlar qabul qilish',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800',
-    category: 'Analytics',
-    readTime: 9,
-    likes: 345,
-    comments: 56,
-    publishedAt: '2024-11-18',
-  },
-];
+interface Post {
+  id: string;
+  slug: string;
+  title_uz: string;
+  title_ru: string;
+  title_en: string;
+  excerpt_uz: string | null;
+  excerpt_ru: string | null;
+  excerpt_en: string | null;
+  featured_image: string | null;
+  reading_time: number | null;
+  likes: number | null;
+  published_at: string | null;
+  featured: boolean | null;
+  categories?: {
+    name_uz: string;
+    name_ru: string;
+    name_en: string;
+  };
+}
 
 const Index = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const [featuredPosts, setFeaturedPosts] = useState<Post[]>([]);
+  const [latestPosts, setLatestPosts] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      // Fetch featured posts
+      const { data: featured } = await supabase
+        .from('posts')
+        .select('*, categories(name_uz, name_ru, name_en)')
+        .eq('published', true)
+        .eq('featured', true)
+        .order('published_at', { ascending: false })
+        .limit(2);
+
+      // Fetch latest posts
+      const { data: latest } = await supabase
+        .from('posts')
+        .select('*, categories(name_uz, name_ru, name_en)')
+        .eq('published', true)
+        .order('published_at', { ascending: false })
+        .limit(6);
+
+      if (featured) setFeaturedPosts(featured);
+      if (latest) setLatestPosts(latest);
+      setIsLoading(false);
+    };
+
+    fetchPosts();
+  }, []);
+
+  const getTitle = (post: Post) => post[`title_${language}`] || post.title_en;
+  const getExcerpt = (post: Post) => post[`excerpt_${language}`] || post.excerpt_en || '';
+  const getCategoryName = (post: Post) => 
+    post.categories ? (post.categories[`name_${language}`] || post.categories.name_en) : '';
 
   return (
     <div className="min-h-screen bg-background">
@@ -89,18 +77,30 @@ const Index = () => {
         <Hero />
 
         {/* Featured Posts */}
-        <section className="container mx-auto px-4 py-16">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground">
+        {featuredPosts.length > 0 && (
+          <section className="container mx-auto px-4 py-16">
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-8">
               {t.blog.featured}
             </h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {featuredPosts.map((post) => (
-              <BlogCard key={post.id} {...post} featured />
-            ))}
-          </div>
-        </section>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {featuredPosts.map((post) => (
+                <BlogCard
+                  key={post.id}
+                  id={post.slug}
+                  title={getTitle(post)}
+                  excerpt={getExcerpt(post)}
+                  image={post.featured_image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'}
+                  category={getCategoryName(post)}
+                  readTime={post.reading_time || 5}
+                  likes={post.likes || 0}
+                  comments={0}
+                  publishedAt={post.published_at || ''}
+                  featured
+                />
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Latest Posts */}
         <section className="container mx-auto px-4 py-16">
@@ -108,12 +108,44 @@ const Index = () => {
             <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground">
               {t.blog.latest}
             </h2>
+            <Button variant="outline" asChild>
+              <Link to="/blog">
+                {t.nav.blog}
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </Button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {latestPosts.map((post) => (
-              <BlogCard key={post.id} {...post} />
-            ))}
-          </div>
+          
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-80 bg-muted animate-pulse rounded-lg" />
+              ))}
+            </div>
+          ) : latestPosts.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {latestPosts.map((post) => (
+                <BlogCard
+                  key={post.id}
+                  id={post.slug}
+                  title={getTitle(post)}
+                  excerpt={getExcerpt(post)}
+                  image={post.featured_image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'}
+                  category={getCategoryName(post)}
+                  readTime={post.reading_time || 5}
+                  likes={post.likes || 0}
+                  comments={0}
+                  publishedAt={post.published_at || ''}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16 text-muted-foreground">
+              {language === 'uz' && 'Hali maqolalar yo\'q. Admin paneldan qo\'shing!'}
+              {language === 'ru' && 'Статей пока нет. Добавьте в админ панели!'}
+              {language === 'en' && 'No articles yet. Add them in the admin panel!'}
+            </div>
+          )}
         </section>
 
         <SubscribeSection />
