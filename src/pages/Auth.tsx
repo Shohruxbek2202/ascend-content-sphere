@@ -12,28 +12,40 @@ import { z } from 'zod';
 const emailSchema = z.string().email('Email manzil noto\'g\'ri formatda');
 const passwordSchema = z.string().min(6, 'Parol kamida 6 ta belgidan iborat bo\'lishi kerak');
 
+// Admin email - faqat shu email admin panelga kirishi mumkin
+const ADMIN_EMAIL = 'Shoxruxcoder5@gmail.com';
+
 const Auth = () => {
   const navigate = useNavigate();
-  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFirstTimeSetup, setIsFirstTimeSetup] = useState(false);
 
   useEffect(() => {
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (session?.user) {
-          navigate('/admin');
+          // Faqat admin email bo'lsa ruxsat beramiz
+          if (session.user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+            navigate('/admin');
+          } else {
+            // Admin bo'lmagan foydalanuvchilarni chiqaramiz
+            supabase.auth.signOut();
+            toast.error('Sizga admin panelga kirish ruxsati yo\'q');
+          }
         }
       }
     );
 
-    // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        navigate('/admin');
+        if (session.user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+          navigate('/admin');
+        } else {
+          supabase.auth.signOut();
+        }
       }
     });
 
@@ -56,26 +68,17 @@ const Auth = () => {
       return;
     }
 
+    // Admin email tekshirish
+    if (email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+      toast.error('Sizga admin panelga kirish ruxsati yo\'q');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (error) {
-          if (error.message === 'Invalid login credentials') {
-            toast.error('Email yoki parol noto\'g\'ri');
-          } else {
-            toast.error(error.message);
-          }
-          return;
-        }
-
-        toast.success('Muvaffaqiyatli kirdingiz!');
-      } else {
+      if (isFirstTimeSetup) {
+        // Birinchi marta ro'yxatdan o'tish
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -86,7 +89,8 @@ const Auth = () => {
 
         if (error) {
           if (error.message.includes('already registered')) {
-            toast.error('Bu email allaqachon ro\'yxatdan o\'tgan');
+            toast.error('Bu email allaqachon ro\'yxatdan o\'tgan. Login qiling.');
+            setIsFirstTimeSetup(false);
           } else {
             toast.error(error.message);
           }
@@ -94,6 +98,23 @@ const Auth = () => {
         }
 
         toast.success('Muvaffaqiyatli ro\'yxatdan o\'tdingiz!');
+      } else {
+        // Login
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) {
+          if (error.message === 'Invalid login credentials') {
+            toast.error('Email yoki parol noto\'g\'ri. Agar birinchi marta kirmoqchi bo\'lsangiz, "Birinchi marta sozlash" tugmasini bosing.');
+          } else {
+            toast.error(error.message);
+          }
+          return;
+        }
+
+        toast.success('Muvaffaqiyatli kirdingiz!');
       }
     } catch (error) {
       toast.error('Kutilmagan xatolik yuz berdi');
@@ -129,12 +150,12 @@ const Auth = () => {
 
           <div className="text-center">
             <CardTitle className="text-2xl font-display">
-              {isLogin ? 'Admin Kirish' : 'Ro\'yxatdan o\'tish'}
+              {isFirstTimeSetup ? 'Birinchi marta sozlash' : 'Admin Kirish'}
             </CardTitle>
             <CardDescription>
-              {isLogin
-                ? 'Admin paneliga kirish uchun ma\'lumotlaringizni kiriting'
-                : 'Yangi admin hisobini yaratish'}
+              {isFirstTimeSetup 
+                ? 'Admin hisobini yaratish uchun ma\'lumotlaringizni kiriting'
+                : 'Admin paneliga kirish uchun ma\'lumotlaringizni kiriting'}
             </CardDescription>
           </div>
         </CardHeader>
@@ -189,36 +210,24 @@ const Auth = () => {
               className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90"
               disabled={isLoading}
             >
-              {isLoading
-                ? 'Kutilmoqda...'
-                : isLogin
-                ? 'Kirish'
-                : 'Ro\'yxatdan o\'tish'}
+              {isLoading 
+                ? 'Kutilmoqda...' 
+                : isFirstTimeSetup 
+                  ? 'Hisob yaratish' 
+                  : 'Kirish'}
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm">
-            {isLogin ? (
-              <p className="text-muted-foreground">
-                Hisobingiz yo'qmi?{' '}
-                <button
-                  onClick={() => setIsLogin(false)}
-                  className="text-primary hover:underline font-medium"
-                >
-                  Ro'yxatdan o'ting
-                </button>
-              </p>
-            ) : (
-              <p className="text-muted-foreground">
-                Hisobingiz bormi?{' '}
-                <button
-                  onClick={() => setIsLogin(true)}
-                  className="text-primary hover:underline font-medium"
-                >
-                  Kirish
-                </button>
-              </p>
-            )}
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              onClick={() => setIsFirstTimeSetup(!isFirstTimeSetup)}
+              className="text-sm text-muted-foreground hover:text-primary underline"
+            >
+              {isFirstTimeSetup 
+                ? 'Hisobingiz bormi? Kirish' 
+                : 'Birinchi marta kiryapsizmi? Hisob yarating'}
+            </button>
           </div>
         </CardContent>
       </Card>
