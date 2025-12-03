@@ -91,16 +91,15 @@ const Post = () => {
         // Increment views
         await supabase.rpc('increment_post_views', { post_id: postData.id });
 
-        // Fetch comments
+        // Fetch comments using secure view (excludes email)
         const { data: commentsData } = await supabase
-          .from('comments')
+          .from('public_comments' as any)
           .select('*')
           .eq('post_id', postData.id)
-          .eq('approved', true)
           .order('created_at', { ascending: false });
 
         if (commentsData) {
-          setComments(commentsData);
+          setComments(commentsData as unknown as Comment[]);
         }
 
         // Fetch related posts
@@ -185,16 +184,15 @@ const Post = () => {
       setAuthorName('');
       setCommentContent('');
       
-      // Refresh comments
+      // Refresh comments using secure view (excludes email)
       const { data: commentsData } = await supabase
-        .from('comments')
+        .from('public_comments' as any)
         .select('*')
         .eq('post_id', post.id)
-        .eq('approved', true)
         .order('created_at', { ascending: false });
 
       if (commentsData) {
-        setComments(commentsData);
+        setComments(commentsData as unknown as Comment[]);
       }
     }
 
