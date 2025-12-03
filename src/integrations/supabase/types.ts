@@ -280,7 +280,44 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_comments: {
+        Row: {
+          approved: boolean | null
+          author_name: string | null
+          content: string | null
+          created_at: string | null
+          id: string | null
+          post_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          approved?: boolean | null
+          author_name?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string | null
+          post_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          approved?: boolean | null
+          author_name?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string | null
+          post_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       has_role: {
