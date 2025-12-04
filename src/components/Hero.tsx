@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { DinoRunner } from '@/components/DinoRunner';
 
 export const Hero = () => {
   const { t } = useLanguage();
@@ -56,20 +57,9 @@ export const Hero = () => {
             </Button>
           </div>
 
-          {/* Stats */}
-          <div className="flex flex-wrap gap-8 justify-center pt-8 animate-fade-in delay-500">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary">500+</div>
-              <div className="text-sm text-muted-foreground">Articles</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-accent">50K+</div>
-              <div className="text-sm text-muted-foreground">Readers</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-secondary">3</div>
-              <div className="text-sm text-muted-foreground">Languages</div>
-            </div>
+          {/* Animated Dino Runner */}
+          <div className="flex justify-center pt-8 animate-fade-in delay-500">
+            <DinoRunner />
           </div>
         </div>
       </div>
