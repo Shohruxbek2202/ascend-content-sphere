@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Upload, X } from 'lucide-react';
+import { ArrowLeft, Save, Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -29,9 +29,11 @@ const PostEditor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditing = !!id;
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
 
   // Form state
@@ -115,6 +117,55 @@ const PostEditor = () => {
       [`title_${lang}`]: value,
       ...(lang === 'en' && !isEditing ? { slug: generateSlug(value) } : {}),
     }));
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Faqat rasm fayllari yuklanishi mumkin');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Rasm hajmi 5MB dan oshmasligi kerak');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `posts/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('post-images')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('post-images')
+        .getPublicUrl(filePath);
+
+      setFormData((prev) => ({ ...prev, featured_image: publicUrl }));
+      toast.success('Rasm muvaffaqiyatli yuklandi');
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      toast.error('Rasm yuklashda xatolik: ' + error.message);
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -357,7 +408,48 @@ const PostEditor = () => {
             <CardHeader>
               <CardTitle>Asosiy rasm</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
+              {/* Upload Button */}
+              <div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  id="image-upload"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Yuklanmoqda...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4 mr-2" />
+                      Rasm yuklash
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {/* Or URL input */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">yoki</span>
+                </div>
+              </div>
+
               <div>
                 <Label>Rasm URL</Label>
                 <Input
@@ -371,8 +463,10 @@ const PostEditor = () => {
                   placeholder="https://..."
                 />
               </div>
+
+              {/* Preview */}
               {formData.featured_image && (
-                <div className="mt-4 relative">
+                <div className="relative">
                   <img
                     src={formData.featured_image}
                     alt="Preview"
@@ -389,6 +483,15 @@ const PostEditor = () => {
                   >
                     <X className="w-4 h-4" />
                   </Button>
+                </div>
+              )}
+
+              {!formData.featured_image && (
+                <div className="border-2 border-dashed border-muted rounded-lg p-6 text-center">
+                  <ImageIcon className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    Rasm yuklanmagan
+                  </p>
                 </div>
               )}
             </CardContent>

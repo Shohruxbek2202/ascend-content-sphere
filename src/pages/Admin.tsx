@@ -24,6 +24,7 @@ import AdminCategories from '@/components/admin/AdminCategories';
 import AdminComments from '@/components/admin/AdminComments';
 import AdminSubscribers from '@/components/admin/AdminSubscribers';
 import AdminAnalytics from '@/components/admin/AdminAnalytics';
+import AdminSettings from '@/components/admin/AdminSettings';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
@@ -32,6 +33,7 @@ const menuItems = [
   { icon: MessageSquare, label: 'Izohlar', path: '/admin/comments' },
   { icon: Users, label: 'Obunchilar', path: '/admin/subscribers' },
   { icon: BarChart3, label: 'Analitika', path: '/admin/analytics' },
+  { icon: Settings, label: 'Sozlamalar', path: '/admin/settings' },
 ];
 
 const Admin = () => {
@@ -163,6 +165,7 @@ const Admin = () => {
             <Route path="/comments" element={<AdminComments />} />
             <Route path="/subscribers" element={<AdminSubscribers />} />
             <Route path="/analytics" element={<AdminAnalytics />} />
+            <Route path="/settings" element={<AdminSettings />} />
           </Routes>
         </div>
       </main>
