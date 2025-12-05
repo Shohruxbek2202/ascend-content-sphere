@@ -1,10 +1,21 @@
 import { Link } from 'react-router-dom';
-import { BookOpen, Facebook, Linkedin, Mail, Twitter } from 'lucide-react';
+import { BookOpen, Facebook, Instagram, Linkedin, Mail, Twitter, Youtube, Send } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useSiteSettings } from '@/hooks/useSiteSettings';
 
 export const Footer = () => {
   const { t } = useLanguage();
+  const { settings } = useSiteSettings();
   const currentYear = new Date().getFullYear();
+
+  const socialLinks = [
+    { url: settings.instagram_url, icon: Instagram, label: 'Instagram' },
+    { url: settings.telegram_url, icon: Send, label: 'Telegram' },
+    { url: settings.youtube_url, icon: Youtube, label: 'YouTube' },
+    { url: settings.facebook_url, icon: Facebook, label: 'Facebook' },
+    { url: settings.twitter_url, icon: Twitter, label: 'Twitter' },
+    { url: settings.linkedin_url, icon: Linkedin, label: 'LinkedIn' },
+  ].filter(link => link.url);
 
   return (
     <footer className="bg-muted/30 border-t mt-20">
@@ -42,6 +53,11 @@ export const Footer = () => {
                   {t.nav.about}
                 </Link>
               </li>
+              <li>
+                <Link to="/subscribe" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  {t.hero.subscribe}
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -70,35 +86,23 @@ export const Footer = () => {
           {/* Social */}
           <div>
             <h3 className="font-semibold mb-4">Social Media</h3>
-            <div className="flex gap-3">
-              <a
-                href="#"
-                className="w-10 h-10 rounded-lg bg-muted hover:bg-primary hover:text-white transition-colors flex items-center justify-center"
-                aria-label="Facebook"
-              >
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 rounded-lg bg-muted hover:bg-primary hover:text-white transition-colors flex items-center justify-center"
-                aria-label="Twitter"
-              >
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 rounded-lg bg-muted hover:bg-primary hover:text-white transition-colors flex items-center justify-center"
-                aria-label="LinkedIn"
-              >
-                <Linkedin className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 rounded-lg bg-muted hover:bg-primary hover:text-white transition-colors flex items-center justify-center"
-                aria-label="Email"
-              >
-                <Mail className="w-5 h-5" />
-              </a>
+            <div className="flex flex-wrap gap-3">
+              {socialLinks.length > 0 ? (
+                socialLinks.map((social) => (
+                  <a
+                    key={social.label}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-lg bg-muted hover:bg-primary hover:text-white transition-colors flex items-center justify-center"
+                    aria-label={social.label}
+                  >
+                    <social.icon className="w-5 h-5" />
+                  </a>
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">Havolalar mavjud emas</p>
+              )}
             </div>
           </div>
         </div>
