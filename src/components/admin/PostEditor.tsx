@@ -168,6 +168,37 @@ const PostEditor = () => {
     }
   };
 
+  const sendNewsletter = async (postId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('send-newsletter', {
+        body: {
+          postId,
+          title: {
+            uz: formData.title_uz,
+            ru: formData.title_ru,
+            en: formData.title_en,
+          },
+          excerpt: {
+            uz: formData.excerpt_uz || formData.title_uz,
+            ru: formData.excerpt_ru || formData.title_ru,
+            en: formData.excerpt_en || formData.title_en,
+          },
+          slug: formData.slug || generateSlug(formData.title_en),
+          featuredImage: formData.featured_image || undefined,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.sent > 0) {
+        toast.success(`${data.sent} ta obunachiga xabar yuborildi`);
+      }
+    } catch (error: any) {
+      console.error('Newsletter error:', error);
+      // Don't show error to user - newsletter is secondary
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -182,6 +213,10 @@ const PostEditor = () => {
     }
 
     setIsSaving(true);
+
+    // Check if this is a new publish
+    const wasPublished = isEditing ? await checkIfWasPublished() : false;
+    const isNewlyPublished = formData.published && !wasPublished;
 
     const postData = {
       slug: formData.slug || generateSlug(formData.title_en),
@@ -204,6 +239,7 @@ const PostEditor = () => {
     };
 
     let error;
+    let postId = id;
 
     if (isEditing) {
       const result = await supabase
@@ -212,18 +248,38 @@ const PostEditor = () => {
         .eq('id', id);
       error = result.error;
     } else {
-      const result = await supabase.from('posts').insert(postData);
+      const result = await supabase.from('posts').insert(postData).select('id').single();
       error = result.error;
+      if (result.data) {
+        postId = result.data.id;
+      }
     }
 
     if (error) {
       toast.error('Xatolik yuz berdi: ' + error.message);
     } else {
       toast.success(isEditing ? 'Post yangilandi' : 'Post yaratildi');
+      
+      // Send newsletter to subscribers if post is newly published
+      if (isNewlyPublished && postId) {
+        toast.info('Obunachilarga xabar yuborilmoqda...');
+        await sendNewsletter(postId);
+      }
+      
       navigate('/admin/posts');
     }
 
     setIsSaving(false);
+  };
+
+  const checkIfWasPublished = async (): Promise<boolean> => {
+    if (!id) return false;
+    const { data } = await supabase
+      .from('posts')
+      .select('published')
+      .eq('id', id)
+      .single();
+    return data?.published || false;
   };
 
   if (isLoading) {

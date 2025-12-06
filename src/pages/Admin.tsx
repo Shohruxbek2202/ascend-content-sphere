@@ -12,6 +12,7 @@ import {
   BookOpen,
   Menu,
   X,
+  Mail,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,12 +26,14 @@ import AdminComments from '@/components/admin/AdminComments';
 import AdminSubscribers from '@/components/admin/AdminSubscribers';
 import AdminAnalytics from '@/components/admin/AdminAnalytics';
 import AdminSettings from '@/components/admin/AdminSettings';
+import AdminMessages from '@/components/admin/AdminMessages';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
   { icon: FileText, label: 'Postlar', path: '/admin/posts' },
   { icon: Folder, label: 'Kategoriyalar', path: '/admin/categories' },
   { icon: MessageSquare, label: 'Izohlar', path: '/admin/comments' },
+  { icon: Mail, label: 'Xabarlar', path: '/admin/messages' },
   { icon: Users, label: 'Obunchilar', path: '/admin/subscribers' },
   { icon: BarChart3, label: 'Analitika', path: '/admin/analytics' },
   { icon: Settings, label: 'Sozlamalar', path: '/admin/settings' },
@@ -163,6 +166,7 @@ const Admin = () => {
             <Route path="/posts/*" element={<AdminPosts />} />
             <Route path="/categories" element={<AdminCategories />} />
             <Route path="/comments" element={<AdminComments />} />
+            <Route path="/messages" element={<AdminMessages />} />
             <Route path="/subscribers" element={<AdminSubscribers />} />
             <Route path="/analytics" element={<AdminAnalytics />} />
             <Route path="/settings" element={<AdminSettings />} />
