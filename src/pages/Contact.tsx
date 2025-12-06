@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, MessageSquare, Send } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { MessageSquare, Send } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 const Contact = () => {
   const { language } = useLanguage();
@@ -71,12 +72,26 @@ const Contact = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate sending
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast.success(t.success);
-    setFormData({ name: '', email: '', subject: '', message: '' });
-    setIsLoading(false);
+    try {
+      const { error } = await supabase
+        .from('contact_messages')
+        .insert({
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message
+        });
+
+      if (error) throw error;
+
+      toast.success(t.success);
+      setFormData({ name: '', email: '', subject: '', message: '' });
+    } catch (error) {
+      console.error('Contact form error:', error);
+      toast.error(t.error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

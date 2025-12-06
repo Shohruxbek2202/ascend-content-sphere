@@ -4,9 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 export const SubscribeSection = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -14,18 +15,54 @@ export const SubscribeSection = () => {
     e.preventDefault();
     
     if (!email || !/\S+@\S+\.\S+/.test(email)) {
-      toast.error('Iltimos, to\'g\'ri email kiriting');
+      toast.error(language === 'uz' ? 'Iltimos, to\'g\'ri email kiriting' : 
+                  language === 'ru' ? 'Пожалуйста, введите правильный email' : 
+                  'Please enter a valid email');
       return;
     }
 
     setIsLoading(true);
 
-    // Simulated subscription (will be replaced with actual API call)
-    setTimeout(() => {
-      toast.success(t.subscribe.success);
+    try {
+      // Check if email already exists
+      const { data: existing } = await supabase
+        .from('subscribers')
+        .select('id, active')
+        .eq('email', email)
+        .maybeSingle();
+
+      if (existing) {
+        if (existing.active) {
+          toast.info(language === 'uz' ? 'Bu email allaqachon obuna bo\'lgan' : 
+                     language === 'ru' ? 'Этот email уже подписан' : 
+                     'This email is already subscribed');
+        } else {
+          // Reactivate subscription
+          await supabase
+            .from('subscribers')
+            .update({ active: true, unsubscribed_at: null })
+            .eq('id', existing.id);
+          toast.success(t.subscribe.success);
+        }
+      } else {
+        // Insert new subscriber
+        const { error } = await supabase
+          .from('subscribers')
+          .insert({ email, language, active: true });
+
+        if (error) throw error;
+        toast.success(t.subscribe.success);
+      }
+
       setEmail('');
+    } catch (error) {
+      console.error('Subscribe error:', error);
+      toast.error(language === 'uz' ? 'Xatolik yuz berdi' : 
+                  language === 'ru' ? 'Произошла ошибка' : 
+                  'An error occurred');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -68,7 +105,8 @@ export const SubscribeSection = () => {
               disabled={isLoading}
             >
               {isLoading ? (
-                'Yuborilmoqda...'
+                language === 'uz' ? 'Yuborilmoqda...' : 
+                language === 'ru' ? 'Отправка...' : 'Sending...'
               ) : (
                 <>
                   <Send className="w-4 h-4 mr-2" />
@@ -79,7 +117,9 @@ export const SubscribeSection = () => {
           </form>
 
           <p className="text-white/60 text-sm">
-            🔒 Email manzilingiz xavfsiz saqlanadi
+            🔒 {language === 'uz' ? 'Email manzilingiz xavfsiz saqlanadi' : 
+                language === 'ru' ? 'Ваш email надёжно защищён' : 
+                'Your email is securely protected'}
           </p>
         </div>
       </div>
