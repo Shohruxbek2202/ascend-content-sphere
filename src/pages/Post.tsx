@@ -15,6 +15,8 @@ import { Separator } from '@/components/ui/separator';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import SEOHead from '@/components/SEOHead';
+import PostStructuredData from '@/components/PostStructuredData';
 
 interface Post {
   id: string;
@@ -246,8 +248,40 @@ const Post = () => {
     );
   }
 
+  const categoryName = post.categories
+    ? language === 'uz'
+      ? post.categories.name_uz
+      : language === 'ru'
+      ? post.categories.name_ru
+      : post.categories.name_en
+    : '';
+
+  const seoTitle = getLocalizedContent('title') + ' | Shohruxbek Foziljonov';
+  const seoDescription = getLocalizedContent('excerpt') || getLocalizedContent('content').substring(0, 160);
+  const seoUrl = typeof window !== 'undefined' ? window.location.href : '';
+
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={seoTitle}
+        description={seoDescription}
+        keywords={post.tags || []}
+        image={post.featured_image || undefined}
+        url={seoUrl}
+        type="article"
+        publishedTime={post.published_at || undefined}
+        section={categoryName}
+        tags={post.tags || []}
+      />
+      <PostStructuredData
+        title={getLocalizedContent('title')}
+        description={seoDescription}
+        image={post.featured_image || undefined}
+        publishedTime={post.published_at || undefined}
+        url={seoUrl}
+        tags={post.tags || []}
+        category={categoryName}
+      />
       <Header />
 
       <main className="pt-24 pb-16">

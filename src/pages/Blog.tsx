@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/select';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
+import SEOHead from '@/components/SEOHead';
 
 interface Post {
   id: string;
@@ -143,8 +144,26 @@ const Blog = () => {
     return title.includes(query) || excerpt.includes(query);
   });
 
+  const seoTitle = language === 'uz' 
+    ? 'Blog - Barcha Maqolalar | Shohruxbek Foziljonov'
+    : language === 'ru'
+    ? 'Блог - Все статьи | Шохрухбек Фозилжонов'
+    : 'Blog - All Articles | Shohruxbek Foziljonov';
+
+  const seoDescription = language === 'uz'
+    ? 'Digital marketing, SMM, SEO va shaxsiy rivojlanish bo\'yicha barcha maqolalar'
+    : language === 'ru'
+    ? 'Все статьи о цифровом маркетинге, SMM, SEO и личностном развитии'
+    : 'All articles on digital marketing, SMM, SEO and personal development';
+
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={seoTitle}
+        description={seoDescription}
+        url={typeof window !== 'undefined' ? window.location.href : ''}
+        type="website"
+      />
       <Header />
 
       <main className="pt-24 pb-16">

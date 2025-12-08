@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
+import SEOHead from '@/components/SEOHead';
 
 interface Post {
   id: string;
@@ -69,8 +70,26 @@ const Index = () => {
   const getCategoryName = (post: Post) => 
     post.categories ? (post.categories[`name_${language}`] || post.categories.name_en) : '';
 
+  const seoTitle = language === 'uz' 
+    ? 'Shohruxbek Foziljonov - Digital Marketing va Shaxsiy Rivojlanish'
+    : language === 'ru'
+    ? 'Шохрухбек Фозилжонов - Цифровой маркетинг и личностное развитие'
+    : 'Shohruxbek Foziljonov - Digital Marketing and Personal Development';
+
+  const seoDescription = language === 'uz'
+    ? 'Digital marketing, SMM, SEO va shaxsiy rivojlanish bo\'yicha eng so\'nggi maqolalar va qo\'llanmalar'
+    : language === 'ru'
+    ? 'Последние статьи и руководства по цифровому маркетингу, SMM, SEO и личностному развитию'
+    : 'Latest articles and guides on digital marketing, SMM, SEO and personal development';
+
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={seoTitle}
+        description={seoDescription}
+        url={typeof window !== 'undefined' ? window.location.origin : ''}
+        type="website"
+      />
       <Header />
       
       <main>
