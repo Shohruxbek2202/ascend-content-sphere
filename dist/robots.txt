@@ -12,3 +12,20 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+# Sitemaps
+Sitemap: https://shohruxbek.uz/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Disallow admin pages
+Disallow: /admin
+Disallow: /auth
+
+# Allow all post pages
+Allow: /post/*
+Allow: /blog
+Allow: /categories
+Allow: /about
+Allow: /contact
