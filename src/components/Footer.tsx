@@ -27,7 +27,7 @@ export const Footer = () => {
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
                 <BookOpen className="w-6 h-6 text-white" />
               </div>
-              <span className="font-display text-xl font-bold">InsightHub</span>
+              <span className="font-display text-xl font-bold">ShohruxDigital</span>
             </Link>
             <p className="text-sm text-muted-foreground">
               Digital marketing va shaxsiy rivojlanish bo'yicha professional blog platformasi.
@@ -108,7 +108,7 @@ export const Footer = () => {
         </div>
 
         <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
-          © {currentYear} InsightHub. {t.footer.rights}
+          © {currentYear} ShohruxDigital. {t.footer.rights}
         </div>
       </div>
     </footer>
