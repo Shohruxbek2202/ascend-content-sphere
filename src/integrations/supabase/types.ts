@@ -177,6 +177,7 @@ export type Database = {
       posts: {
         Row: {
           author_id: string | null
+          canonical_url: string | null
           category_id: string | null
           content_en: string
           content_ru: string
@@ -187,8 +188,15 @@ export type Database = {
           excerpt_uz: string | null
           featured: boolean | null
           featured_image: string | null
+          focus_keywords: string[] | null
           id: string
           likes: number | null
+          meta_description_en: string | null
+          meta_description_ru: string | null
+          meta_description_uz: string | null
+          meta_title_en: string | null
+          meta_title_ru: string | null
+          meta_title_uz: string | null
           published: boolean | null
           published_at: string | null
           reading_time: number | null
@@ -202,6 +210,7 @@ export type Database = {
         }
         Insert: {
           author_id?: string | null
+          canonical_url?: string | null
           category_id?: string | null
           content_en: string
           content_ru: string
@@ -212,8 +221,15 @@ export type Database = {
           excerpt_uz?: string | null
           featured?: boolean | null
           featured_image?: string | null
+          focus_keywords?: string[] | null
           id?: string
           likes?: number | null
+          meta_description_en?: string | null
+          meta_description_ru?: string | null
+          meta_description_uz?: string | null
+          meta_title_en?: string | null
+          meta_title_ru?: string | null
+          meta_title_uz?: string | null
           published?: boolean | null
           published_at?: string | null
           reading_time?: number | null
@@ -227,6 +243,7 @@ export type Database = {
         }
         Update: {
           author_id?: string | null
+          canonical_url?: string | null
           category_id?: string | null
           content_en?: string
           content_ru?: string
@@ -237,8 +254,15 @@ export type Database = {
           excerpt_uz?: string | null
           featured?: boolean | null
           featured_image?: string | null
+          focus_keywords?: string[] | null
           id?: string
           likes?: number | null
+          meta_description_en?: string | null
+          meta_description_ru?: string | null
+          meta_description_uz?: string | null
+          meta_title_en?: string | null
+          meta_title_ru?: string | null
+          meta_title_uz?: string | null
           published?: boolean | null
           published_at?: string | null
           reading_time?: number | null
@@ -259,6 +283,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      seo_keywords: {
+        Row: {
+          created_at: string
+          id: string
+          keyword: string
+          keyword_group: string | null
+          language: string | null
+          priority: number | null
+          updated_at: string
+          url: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          keyword: string
+          keyword_group?: string | null
+          language?: string | null
+          priority?: number | null
+          updated_at?: string
+          url?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          keyword?: string
+          keyword_group?: string | null
+          language?: string | null
+          priority?: number | null
+          updated_at?: string
+          url?: string | null
+        }
+        Relationships: []
       }
       site_settings: {
         Row: {
