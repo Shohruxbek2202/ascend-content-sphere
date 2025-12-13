@@ -26,7 +26,7 @@ export const Hero = () => {
           </div>
 
           {/* Title */}
-          <h1 className="font-display text-5xl md:text-7xl font-bold text-foreground leading-tight animate-slide-up delay-100">
+          <h1 className="font-display text-5xl md:text-7xl font-bold text-foreground leading-tight animate-slide-up delay-100" id="main-heading">
             {t.hero.title}
           </h1>
 

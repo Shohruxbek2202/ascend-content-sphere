@@ -6,10 +6,12 @@ import { Hero } from '@/components/Hero';
 import { BlogCard } from '@/components/BlogCard';
 import { SubscribeSection } from '@/components/SubscribeSection';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, BookOpen, Users, TrendingUp } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import SEOHead from '@/components/SEOHead';
+import HomeStructuredData from '@/components/HomeStructuredData';
+import { useSiteSettings } from '@/hooks/useSiteSettings';
 
 interface Post {
   id: string;
@@ -34,6 +36,7 @@ interface Post {
 
 const Index = () => {
   const { t, language } = useLanguage();
+  const { settings } = useSiteSettings();
   const [featuredPosts, setFeaturedPosts] = useState<Post[]>([]);
   const [latestPosts, setLatestPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,34 +74,105 @@ const Index = () => {
     post.categories ? (post.categories[`name_${language}`] || post.categories.name_en) : '';
 
   const seoTitle = language === 'uz' 
-    ? 'Shohruxbek Foziljonov - Digital Marketing va Shaxsiy Rivojlanish'
+    ? 'ShohruxDigital - Digital Marketing, SMM, SEO va Shaxsiy Rivojlanish Blogi | Shohruxbek Foziljonov'
     : language === 'ru'
-    ? 'Шохрухбек Фозилжонов - Цифровой маркетинг и личностное развитие'
-    : 'Shohruxbek Foziljonov - Digital Marketing and Personal Development';
+    ? 'ShohruxDigital - Блог о Цифровом Маркетинге, SMM, SEO и Личностном Развитии | Шохрухбек Фозилжонов'
+    : 'ShohruxDigital - Digital Marketing, SMM, SEO and Personal Development Blog | Shohruxbek Foziljonov';
 
   const seoDescription = language === 'uz'
-    ? 'Digital marketing, SMM, SEO va shaxsiy rivojlanish bo\'yicha eng so\'nggi maqolalar va qo\'llanmalar'
+    ? 'Shohruxbek Foziljonov tomonidan digital marketing, SMM, SEO, kontekstli reklama va shaxsiy rivojlanish bo\'yicha professional maqolalar, amaliy maslahatlar va zamonaviy strategiyalar. Bepul o\'quv materiallari.'
     : language === 'ru'
-    ? 'Последние статьи и руководства по цифровому маркетингу, SMM, SEO и личностному развитию'
-    : 'Latest articles and guides on digital marketing, SMM, SEO and personal development';
+    ? 'Профессиональные статьи, практические советы и современные стратегии по цифровому маркетингу, SMM, SEO, контекстной рекламе и личностному развитию от Шохрухбека Фозилжонова. Бесплатные учебные материалы.'
+    : 'Professional articles, practical tips and modern strategies on digital marketing, SMM, SEO, PPC advertising and personal development by Shohruxbek Foziljonov. Free learning materials.';
+
+  const seoKeywords = language === 'uz'
+    ? ['digital marketing', 'SMM', 'SEO', 'shaxsiy rivojlanish', 'marketing strategiya', 'Shohruxbek Foziljonov', 'kontekstli reklama', 'Instagram reklama', 'Facebook reklama']
+    : language === 'ru'
+    ? ['цифровой маркетинг', 'SMM', 'SEO', 'личностное развитие', 'маркетинговая стратегия', 'Шохрухбек Фозилжонов', 'контекстная реклама', 'реклама в Instagram', 'реклама в Facebook']
+    : ['digital marketing', 'SMM', 'SEO', 'personal development', 'marketing strategy', 'Shohruxbek Foziljonov', 'PPC advertising', 'Instagram ads', 'Facebook ads'];
+
+  const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://shohruxdigital.uz';
+
+  const socialLinks = [
+    settings.instagram_url,
+    settings.telegram_url,
+    settings.twitter_url,
+    settings.youtube_url,
+    settings.facebook_url,
+    settings.linkedin_url,
+  ].filter(Boolean) as string[];
 
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
         title={seoTitle}
         description={seoDescription}
-        url={typeof window !== 'undefined' ? window.location.origin : ''}
+        keywords={seoKeywords}
+        url={siteUrl}
         type="website"
+        image={`${siteUrl}/og-image.png`}
+        siteName="ShohruxDigital"
+      />
+      <HomeStructuredData
+        siteName="ShohruxDigital"
+        siteUrl={siteUrl}
+        description={seoDescription}
+        socialLinks={socialLinks}
       />
       <Header />
       
       <main>
         <Hero />
 
+        {/* Quick Stats Section for SEO */}
+        <section className="container mx-auto px-4 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Link to="/blog" className="group flex items-center gap-4 p-6 bg-card rounded-xl border border-border hover:border-primary/50 transition-colors">
+              <div className="p-3 rounded-lg bg-primary/10 text-primary">
+                <BookOpen className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                  {language === 'uz' ? 'Maqolalar' : language === 'ru' ? 'Статьи' : 'Articles'}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {language === 'uz' ? 'Foydali kontentlar' : language === 'ru' ? 'Полезный контент' : 'Useful content'}
+                </p>
+              </div>
+            </Link>
+            <Link to="/categories" className="group flex items-center gap-4 p-6 bg-card rounded-xl border border-border hover:border-primary/50 transition-colors">
+              <div className="p-3 rounded-lg bg-accent/10 text-accent">
+                <TrendingUp className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                  {language === 'uz' ? 'Kategoriyalar' : language === 'ru' ? 'Категории' : 'Categories'}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {language === 'uz' ? 'Marketing va shaxsiy o\'sish' : language === 'ru' ? 'Маркетинг и рост' : 'Marketing & growth'}
+                </p>
+              </div>
+            </Link>
+            <Link to="/subscribe" className="group flex items-center gap-4 p-6 bg-card rounded-xl border border-border hover:border-primary/50 transition-colors">
+              <div className="p-3 rounded-lg bg-secondary/10 text-secondary">
+                <Users className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                  {language === 'uz' ? 'Obuna bo\'lish' : language === 'ru' ? 'Подписаться' : 'Subscribe'}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {language === 'uz' ? 'Yangiliklar va maqolalar' : language === 'ru' ? 'Новости и статьи' : 'News & articles'}
+                </p>
+              </div>
+            </Link>
+          </div>
+        </section>
+
         {/* Featured Posts */}
         {featuredPosts.length > 0 && (
-          <section className="container mx-auto px-4 py-16">
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-8">
+          <section className="container mx-auto px-4 py-16" aria-labelledby="featured-heading">
+            <h2 id="featured-heading" className="font-display text-3xl md:text-4xl font-bold text-foreground mb-8">
               {t.blog.featured}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -122,15 +196,15 @@ const Index = () => {
         )}
 
         {/* Latest Posts */}
-        <section className="container mx-auto px-4 py-16">
+        <section className="container mx-auto px-4 py-16" aria-labelledby="latest-heading">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground">
+            <h2 id="latest-heading" className="font-display text-3xl md:text-4xl font-bold text-foreground">
               {t.blog.latest}
             </h2>
             <Button variant="outline" asChild>
-              <Link to="/blog">
+              <Link to="/blog" aria-label={language === 'uz' ? 'Barcha maqolalarni ko\'rish' : language === 'ru' ? 'Просмотреть все статьи' : 'View all articles'}>
                 {t.nav.blog}
-                <ArrowRight className="w-4 h-4 ml-2" />
+                <ArrowRight className="w-4 h-4 ml-2" aria-hidden="true" />
               </Link>
             </Button>
           </div>
