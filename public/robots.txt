@@ -1,3 +1,6 @@
+# robots.txt for ShohruxDigital
+# https://shohruxdigital.uz
+
 User-agent: Googlebot
 Allow: /
 
@@ -12,20 +15,16 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /auth
+Disallow: /auth/*
 
-# Sitemaps
-Sitemap: https://shohruxbek.uz/sitemap.xml
-
-# Crawl-delay
+# Crawl-delay for responsible crawling
 Crawl-delay: 1
 
-# Disallow admin pages
-Disallow: /admin
-Disallow: /auth
+# Sitemap location
+Sitemap: https://shohruxdigital.uz/sitemap.xml
 
-# Allow all post pages
-Allow: /post/*
-Allow: /blog
-Allow: /categories
-Allow: /about
-Allow: /contact
+# Host directive (for Yandex)
+Host: https://shohruxdigital.uz

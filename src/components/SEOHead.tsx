@@ -13,6 +13,7 @@ interface SEOHeadProps {
   author?: string;
   section?: string;
   tags?: string[];
+  siteName?: string;
 }
 
 const SEOHead = ({
@@ -26,6 +27,7 @@ const SEOHead = ({
   author,
   section,
   tags = [],
+  siteName = 'ShohruxDigital',
 }: SEOHeadProps) => {
   const { language } = useLanguage();
   const [siteKeywords, setSiteKeywords] = useState<string[]>([]);
@@ -77,7 +79,10 @@ const SEOHead = ({
       updateMeta('keywords', allKeywords.join(', '));
     }
 
-    // Open Graph
+    // Robots meta
+    updateMeta('robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
+
+    // Open Graph - all required tags
     if (title) {
       updateMeta('og:title', title, true);
     }
@@ -86,15 +91,23 @@ const SEOHead = ({
     }
     if (image) {
       updateMeta('og:image', image, true);
+      updateMeta('og:image:width', '1200', true);
+      updateMeta('og:image:height', '630', true);
+      updateMeta('og:image:type', 'image/jpeg', true);
     }
-    if (url) {
-      updateMeta('og:url', url, true);
+    
+    const currentUrl = url || (typeof window !== 'undefined' ? window.location.href : '');
+    if (currentUrl) {
+      updateMeta('og:url', currentUrl, true);
     }
     updateMeta('og:type', type, true);
+    updateMeta('og:site_name', siteName, true);
     updateMeta('og:locale', language === 'uz' ? 'uz_UZ' : language === 'ru' ? 'ru_RU' : 'en_US', true);
 
     // Twitter Card
     updateMeta('twitter:card', 'summary_large_image');
+    updateMeta('twitter:site', '@F_Shohruxbek');
+    updateMeta('twitter:creator', '@F_Shohruxbek');
     if (title) {
       updateMeta('twitter:title', title);
     }
@@ -122,37 +135,47 @@ const SEOHead = ({
     }
 
     // Canonical URL
-    if (url) {
-      let canonical = document.querySelector('link[rel="canonical"]');
+    if (currentUrl) {
+      let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
       if (!canonical) {
         canonical = document.createElement('link');
         canonical.setAttribute('rel', 'canonical');
         document.head.appendChild(canonical);
       }
-      canonical.setAttribute('href', url);
+      // Clean URL for canonical (remove trailing slashes, query params for homepage)
+      const cleanUrl = currentUrl.split('?')[0].replace(/\/$/, '') || currentUrl;
+      canonical.setAttribute('href', cleanUrl);
     }
 
     // Language alternates
-    const currentUrl = url || window.location.href;
-    const baseUrl = currentUrl.replace(/\/(uz|ru|en)\//, '/');
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+    
+    // Remove existing alternates
+    document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(el => el.remove());
     
     ['uz', 'ru', 'en'].forEach((lang) => {
-      const hreflang = lang === 'uz' ? 'uz' : lang === 'ru' ? 'ru' : 'en';
-      const langUrl = baseUrl.replace(/^(https?:\/\/[^\/]+)/, `$1/${lang}`);
-      
-      let alternate = document.querySelector(`link[hreflang="${hreflang}"]`);
-      if (!alternate) {
-        alternate = document.createElement('link');
-        alternate.setAttribute('rel', 'alternate');
-        alternate.setAttribute('hreflang', hreflang);
-        document.head.appendChild(alternate);
-      }
+      const alternate = document.createElement('link');
+      alternate.setAttribute('rel', 'alternate');
+      alternate.setAttribute('hreflang', lang);
+      // For homepage, just use base URL with language
+      const langUrl = pathname === '/' || pathname === '' 
+        ? `${baseUrl}/${lang}` 
+        : `${baseUrl}/${lang}${pathname}`;
       alternate.setAttribute('href', langUrl);
+      document.head.appendChild(alternate);
     });
 
-  }, [title, description, keywords, image, url, type, publishedTime, author, section, tags, language, siteKeywords]);
+    // x-default for language selector
+    const xDefault = document.createElement('link');
+    xDefault.setAttribute('rel', 'alternate');
+    xDefault.setAttribute('hreflang', 'x-default');
+    xDefault.setAttribute('href', baseUrl);
+    document.head.appendChild(xDefault);
 
-  return null; // This component doesn't render anything
+  }, [title, description, keywords, image, url, type, publishedTime, author, section, tags, language, siteKeywords, siteName]);
+
+  return null;
 };
 
 export default SEOHead;
