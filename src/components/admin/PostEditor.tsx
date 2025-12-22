@@ -17,6 +17,9 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import AIPostGenerator from './AIPostGenerator';
+import SEOAnalyzer from './SEOAnalyzer';
+import GooglePingButton from './GooglePingButton';
 
 interface Category {
   id: string;
@@ -54,6 +57,13 @@ const PostEditor = () => {
     reading_time: 5,
     published: false,
     featured: false,
+    meta_title_uz: '',
+    meta_title_ru: '',
+    meta_title_en: '',
+    meta_description_uz: '',
+    meta_description_ru: '',
+    meta_description_en: '',
+    focus_keywords: '',
   });
 
   useEffect(() => {
@@ -93,6 +103,13 @@ const PostEditor = () => {
             reading_time: data.reading_time || 5,
             published: data.published,
             featured: data.featured,
+            meta_title_uz: data.meta_title_uz || '',
+            meta_title_ru: data.meta_title_ru || '',
+            meta_title_en: data.meta_title_en || '',
+            meta_description_uz: data.meta_description_uz || '',
+            meta_description_ru: data.meta_description_ru || '',
+            meta_description_en: data.meta_description_en || '',
+            focus_keywords: (data.focus_keywords || []).join(', '),
           });
         }
         setIsLoading(false);
@@ -294,15 +311,41 @@ const PostEditor = () => {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <Button type="button" variant="ghost" onClick={() => navigate('/admin/posts')}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           Orqaga
         </Button>
-        <Button type="submit" disabled={isSaving}>
-          <Save className="w-4 h-4 mr-2" />
-          {isSaving ? 'Saqlanmoqda...' : 'Saqlash'}
-        </Button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <AIPostGenerator onGenerated={(post) => {
+            setFormData(prev => ({
+              ...prev,
+              ...post,
+              tags: post.tags?.join(', ') || '',
+              focus_keywords: post.focus_keywords?.join(', ') || '',
+            }));
+          }} />
+          <SEOAnalyzer 
+            title={formData.title_uz}
+            content={formData.content_uz}
+            metaDescription={formData.meta_description_uz}
+            slug={formData.slug}
+            keywords={formData.focus_keywords}
+            onApplyOptimized={(opt) => {
+              setFormData(prev => ({
+                ...prev,
+                title_uz: opt.title,
+                meta_description_uz: opt.meta_description,
+                slug: opt.slug,
+              }));
+            }}
+          />
+          <GooglePingButton postSlug={formData.slug} disabled={!formData.slug} />
+          <Button type="submit" disabled={isSaving}>
+            <Save className="w-4 h-4 mr-2" />
+            {isSaving ? 'Saqlanmoqda...' : 'Saqlash'}
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
