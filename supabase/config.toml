@@ -2,3 +2,6 @@ project_id = "shfnpzfqtrfzdklnhatf"
 
 [functions.send-newsletter]
 verify_jwt = true
+
+[functions.create-post]
+verify_jwt = false
