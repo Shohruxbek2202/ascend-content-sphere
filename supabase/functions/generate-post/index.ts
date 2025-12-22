@@ -1,9 +1,93 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+async function generateImage(prompt: string, apiKey: string): Promise<string | null> {
+  try {
+    console.log('Generating image for prompt:', prompt);
+    
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash-image-preview',
+        messages: [
+          { 
+            role: 'user', 
+            content: `Generate a professional, high-quality blog post featured image for this topic: "${prompt}". 
+            The image should be:
+            - Modern and visually appealing
+            - Suitable for a professional blog
+            - 16:9 aspect ratio
+            - Clean and not too busy
+            - No text in the image`
+          }
+        ],
+        modalities: ['image', 'text']
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('Image generation failed:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    const imageData = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    
+    if (!imageData) {
+      console.log('No image in response');
+      return null;
+    }
+
+    console.log('Image generated successfully');
+    return imageData;
+  } catch (error) {
+    console.error('Image generation error:', error);
+    return null;
+  }
+}
+
+async function uploadImageToStorage(base64Data: string, supabaseUrl: string, serviceKey: string): Promise<string | null> {
+  try {
+    const supabase = createClient(supabaseUrl, serviceKey);
+    
+    // Extract base64 content
+    const base64Content = base64Data.replace(/^data:image\/\w+;base64,/, '');
+    const imageBuffer = Uint8Array.from(atob(base64Content), c => c.charCodeAt(0));
+    
+    const fileName = `ai-generated/${Date.now()}-${Math.random().toString(36).substring(7)}.png`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from('post-images')
+      .upload(fileName, imageBuffer, {
+        contentType: 'image/png',
+        upsert: false
+      });
+
+    if (uploadError) {
+      console.error('Upload error:', uploadError);
+      return null;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('post-images')
+      .getPublicUrl(fileName);
+
+    console.log('Image uploaded:', publicUrl);
+    return publicUrl;
+  } catch (error) {
+    console.error('Upload error:', error);
+    return null;
+  }
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -11,7 +95,7 @@ serve(async (req) => {
   }
 
   try {
-    const { topic, keywords, language = 'uz' } = await req.json();
+    const { topic, keywords, language = 'uz', generateImage: shouldGenerateImage = true } = await req.json();
     
     if (!topic) {
       return new Response(
@@ -74,7 +158,8 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure:
   "slug": "url-slug",
   "tags": ["tag1", "tag2"],
   "reading_time": 5,
-  "focus_keywords": ["keyword1", "keyword2"]
+  "focus_keywords": ["keyword1", "keyword2"],
+  "image_prompt": "A detailed description for generating the featured image"
 }`;
 
     const userPrompt = `Create a comprehensive SEO-optimized blog post about: "${topic}"
@@ -86,6 +171,8 @@ Generate the content in all three languages (Uzbek, Russian, English). Make sure
 2. SEO-optimized with proper keyword placement
 3. Engaging and readable
 4. Properly formatted with HTML tags (h2, h3, p, ul, ol, strong, etc.)
+
+Also provide an "image_prompt" field with a detailed description for generating a professional featured image for this blog post.
 
 Return ONLY the JSON object, no markdown code blocks or explanations.`;
 
@@ -135,6 +222,27 @@ Return ONLY the JSON object, no markdown code blocks or explanations.`;
       console.error('JSON parse error:', parseError);
       throw new Error('Failed to parse AI response as JSON');
     }
+
+    // Generate image if requested
+    let featuredImageUrl = null;
+    if (shouldGenerateImage) {
+      const imagePrompt = postData.image_prompt || topic;
+      const base64Image = await generateImage(imagePrompt, LOVABLE_API_KEY);
+      
+      if (base64Image) {
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+        const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+        featuredImageUrl = await uploadImageToStorage(base64Image, supabaseUrl, supabaseServiceKey);
+      }
+    }
+
+    // Add featured image to post data
+    if (featuredImageUrl) {
+      postData.featured_image = featuredImageUrl;
+    }
+
+    // Clean up internal field
+    delete postData.image_prompt;
 
     console.log('Generated post data:', Object.keys(postData));
 
