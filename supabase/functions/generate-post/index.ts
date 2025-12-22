@@ -188,7 +188,7 @@ Return ONLY the JSON object, no markdown code blocks or explanations.`;
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        temperature: 0.7,
+        max_tokens: 8000,
       }),
     });
 
@@ -207,20 +207,31 @@ Return ONLY the JSON object, no markdown code blocks or explanations.`;
 
     console.log('Raw AI response:', content.substring(0, 500));
 
-    // Parse JSON from response (handle markdown code blocks)
+    // Parse JSON from response (handle markdown code blocks and truncation)
     let postData;
     try {
       let jsonString = content.trim();
+      
       // Remove markdown code blocks if present
       if (jsonString.startsWith('```json')) {
-        jsonString = jsonString.replace(/^```json\n?/, '').replace(/\n?```$/, '');
+        jsonString = jsonString.replace(/^```json\s*\n?/, '').replace(/\n?\s*```\s*$/, '');
       } else if (jsonString.startsWith('```')) {
-        jsonString = jsonString.replace(/^```\n?/, '').replace(/\n?```$/, '');
+        jsonString = jsonString.replace(/^```\s*\n?/, '').replace(/\n?\s*```\s*$/, '');
       }
+      
+      // Try to find JSON object boundaries
+      const firstBrace = jsonString.indexOf('{');
+      const lastBrace = jsonString.lastIndexOf('}');
+      
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        jsonString = jsonString.substring(firstBrace, lastBrace + 1);
+      }
+      
       postData = JSON.parse(jsonString);
     } catch (parseError) {
       console.error('JSON parse error:', parseError);
-      throw new Error('Failed to parse AI response as JSON');
+      console.error('Content that failed to parse:', content.substring(0, 1000));
+      throw new Error('Failed to parse AI response as JSON. The AI may have returned incomplete content. Please try again.');
     }
 
     // Generate image if requested
