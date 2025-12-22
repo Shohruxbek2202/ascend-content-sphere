@@ -89,8 +89,12 @@ const handler = async (req: Request): Promise<Response> => {
     let sentCount = 0;
     const errors: string[] = [];
 
-    // Send emails to each subscriber
-    for (const subscriber of subscribers) {
+    // Helper function to delay between emails (Resend limit: 2/sec)
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+    // Send emails to each subscriber with rate limiting
+    for (let i = 0; i < subscribers.length; i++) {
+      const subscriber = subscribers[i];
       const lang = subscriber.language || "uz";
       const postTitle = title[lang as keyof typeof title] || title.uz;
       const postExcerpt = excerpt[lang as keyof typeof excerpt] || excerpt.uz;
@@ -164,6 +168,11 @@ const handler = async (req: Request): Promise<Response> => {
       } catch (emailError: any) {
         console.error(`Error sending email to ${subscriber.email}:`, emailError);
         errors.push(`${subscriber.email}: ${emailError.message}`);
+      }
+
+      // Rate limiting: wait 600ms between emails (allows ~1.6 emails/sec, safely under 2/sec limit)
+      if (i < subscribers.length - 1) {
+        await delay(600);
       }
     }
 
