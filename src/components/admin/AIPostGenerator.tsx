@@ -42,6 +42,7 @@ interface GeneratedPost {
   tags: string[];
   reading_time: number;
   focus_keywords: string[];
+  featured_image?: string;
 }
 
 interface AIPostGeneratorProps {
@@ -148,12 +149,12 @@ const AIPostGenerator = ({ onGenerated }: AIPostGeneratorProps) => {
             {isGenerating ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Yaratilmoqda... (30-60 soniya)
+                Yaratilmoqda... (1-2 daqiqa)
               </>
             ) : (
               <>
                 <Sparkles className="w-4 h-4 mr-2" />
-                Post yaratish
+                Post va rasm yaratish
               </>
             )}
           </Button>
