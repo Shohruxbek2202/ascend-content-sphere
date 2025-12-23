@@ -111,162 +111,173 @@ serve(async (req) => {
 
     console.log('Generating post for topic:', topic);
 
-    const systemPrompt = `You are an expert SEO content writer and digital marketing specialist. Create comprehensive, SEO-optimized blog posts in multiple languages.
+    const systemPrompt = `You are an expert SEO content writer and digital marketing specialist. You create SEO-optimized blog posts.
 
-Your task is to generate a complete blog post with the following structure:
-1. Title (compelling, 50-60 characters, include primary keyword)
-2. Meta title (50-60 characters)
-3. Meta description (150-160 characters, compelling, include keyword)
-4. Excerpt (2-3 sentences summary)
-5. Full content in HTML format with:
-   - Introduction with hook (100-150 words)
-   - 4-6 H2 sections with H3 subsections
-   - Short paragraphs (2-3 sentences)
-   - Bullet points and numbered lists
-   - Statistics and examples where applicable
-   - Conclusion with CTA (100-150 words)
-6. URL slug (short, descriptive, keyword-rich)
-7. Tags (5-7 relevant tags)
-8. Reading time estimate
-9. Focus keywords (3-5 keywords)
+Rules:
+- Follow the requested language exactly.
+- Output must be complete (no truncation, no "...", no placeholders).
+- Use semantic HTML: <article>, <section>, <h2>, <h3>, <p>, <ul>, <ol>, <strong>.
+- Do not wrap responses in markdown code fences unless explicitly asked.`;
 
-Content Quality Requirements:
-- Write for humans first, search engines second
-- Use transition words for readability
-- Include actionable tips and takeaways
-- Focus on E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness)
-- Flesch Reading Ease: 60+
-- Active voice preferred
+    const callAI = async (payload: Record<string, unknown>) => {
+      const r = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          ...payload,
+        }),
+      });
 
-IMPORTANT: Return ONLY a valid JSON object with this exact structure:
-{
-  "title_uz": "O'zbek sarlavha",
-  "title_ru": "Русский заголовок",
-  "title_en": "English title",
-  "meta_title_uz": "Meta sarlavha",
-  "meta_title_ru": "Мета заголовок",
-  "meta_title_en": "Meta title",
-  "meta_description_uz": "Meta tavsif",
-  "meta_description_ru": "Мета описание",
-  "meta_description_en": "Meta description",
-  "excerpt_uz": "Qisqa tavsif",
-  "excerpt_ru": "Краткое описание",
-  "excerpt_en": "Short description",
-  "content_uz": "<article>HTML kontent</article>",
-  "content_ru": "<article>HTML контент</article>",
-  "content_en": "<article>HTML content</article>",
-  "slug": "url-slug",
-  "tags": ["tag1", "tag2"],
-  "reading_time": 5,
-  "focus_keywords": ["keyword1", "keyword2"],
-  "image_prompt": "A detailed description for generating the featured image"
-}`;
+      if (!r.ok) {
+        const t = await r.text();
+        console.error('AI API error:', r.status, t);
+        throw new Error(`AI API error: ${r.status}`);
+      }
 
-    const userPrompt = `Create a comprehensive SEO-optimized blog post about: "${topic}"
-${keywords ? `Primary keywords to focus on: ${keywords}` : ''}
-Primary language: ${language}
+      return await r.json();
+    };
 
-Generate the content in all three languages (Uzbek, Russian, English). Make sure the content is:
-1. Well-researched and informative
-2. SEO-optimized with proper keyword placement
-3. Engaging and readable
-4. Properly formatted with HTML tags (h2, h3, p, ul, ol, strong, etc.)
+    // 1) Generate compact structured metadata via tool-calling (keeps response small and parse-safe)
+    const metaPrompt = `Create blog post metadata for topic: "${topic}"
+${keywords ? `Primary keywords: ${keywords}` : ''}
+Return values for Uzbek, Russian, English where applicable.
 
-Also provide an "image_prompt" field with a detailed description for generating a professional featured image for this blog post.
+Requirements:
+- Title: compelling, ~50-60 chars, include primary keyword when possible
+- Meta title: ~50-60 chars
+- Meta description: 150-160 chars
+- Excerpt: 2-3 sentences
+- Slug: short, descriptive, keyword-rich, latin lowercase with hyphens
+- Tags: 5-7 tags
+- Focus keywords: 3-5
+- Reading time: integer minutes (estimate)
+- image_prompt: detailed prompt for 16:9 featured image, no text
 
-Return ONLY the JSON object, no markdown code blocks or explanations.`;
+Important: return ONLY via the tool call arguments.`;
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        max_tokens: 8000,
-      }),
+    const metaRes = await callAI({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: metaPrompt },
+      ],
+      max_tokens: 2500,
+      tools: [
+        {
+          type: 'function',
+          function: {
+            name: 'create_post_meta',
+            description: 'Return blog post meta fields for three languages.',
+            parameters: {
+              type: 'object',
+              additionalProperties: false,
+              required: [
+                'title_uz',
+                'title_ru',
+                'title_en',
+                'meta_title_uz',
+                'meta_title_ru',
+                'meta_title_en',
+                'meta_description_uz',
+                'meta_description_ru',
+                'meta_description_en',
+                'excerpt_uz',
+                'excerpt_ru',
+                'excerpt_en',
+                'slug',
+                'tags',
+                'reading_time',
+                'focus_keywords',
+                'image_prompt',
+              ],
+              properties: {
+                title_uz: { type: 'string' },
+                title_ru: { type: 'string' },
+                title_en: { type: 'string' },
+                meta_title_uz: { type: 'string' },
+                meta_title_ru: { type: 'string' },
+                meta_title_en: { type: 'string' },
+                meta_description_uz: { type: 'string' },
+                meta_description_ru: { type: 'string' },
+                meta_description_en: { type: 'string' },
+                excerpt_uz: { type: 'string' },
+                excerpt_ru: { type: 'string' },
+                excerpt_en: { type: 'string' },
+                slug: { type: 'string' },
+                tags: { type: 'array', items: { type: 'string' } },
+                reading_time: { type: 'number' },
+                focus_keywords: { type: 'array', items: { type: 'string' } },
+                image_prompt: { type: 'string' },
+              },
+            },
+          },
+        },
+      ],
+      tool_choice: { type: 'function', function: { name: 'create_post_meta' } },
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('AI API error:', response.status, errorText);
-      throw new Error(`AI API error: ${response.status}`);
+    const toolArgs =
+      metaRes?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments ??
+      metaRes?.choices?.[0]?.message?.function_call?.arguments;
+    if (!toolArgs) {
+      console.error('Tool call missing. Raw:', JSON.stringify(metaRes)?.substring(0, 1500));
+      throw new Error('AI did not return structured metadata. Please try again.');
     }
 
-    const aiData = await response.json();
-    const content = aiData.choices?.[0]?.message?.content;
+    const postData = JSON.parse(toolArgs);
 
-    if (!content) {
-      throw new Error('No content generated');
+    // 2) Generate FULL HTML content per language in separate calls to avoid truncation
+    const contentPrompt = (langLabel: 'Uzbek' | 'Russian' | 'English', title: string) => `Write the FULL blog post in ${langLabel} for topic: "${topic}".
+Use this title: "${title}".
+${keywords ? `Primary keywords: ${keywords}` : ''}
+
+Structure requirements:
+- Return ONLY valid HTML wrapped in a single <article>...</article>
+- Include: intro 100-150 words, 4-6 H2 sections each with at least one H3, short paragraphs, lists, examples, conclusion with CTA 100-150 words
+- No markdown fences.
+- Must be complete and not truncated.`;
+
+    const uzRes = await callAI({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: contentPrompt('Uzbek', postData.title_uz) },
+      ],
+      max_tokens: 5000,
+    });
+    const ruRes = await callAI({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: contentPrompt('Russian', postData.title_ru) },
+      ],
+      max_tokens: 5000,
+    });
+    const enRes = await callAI({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: contentPrompt('English', postData.title_en) },
+      ],
+      max_tokens: 5000,
+    });
+
+    const content_uz = uzRes?.choices?.[0]?.message?.content;
+    const content_ru = ruRes?.choices?.[0]?.message?.content;
+    const content_en = enRes?.choices?.[0]?.message?.content;
+
+    if (!content_uz || !content_ru || !content_en) {
+      throw new Error('AI did not return full content. Please try again.');
     }
 
-    console.log('Raw AI response:', content.substring(0, 500));
+    // Remove accidental code fences if any
+    const stripFences = (s: string) => s.trim().replace(/^```html\s*\n?/, '').replace(/^```\s*\n?/, '').replace(/\n?\s*```\s*$/, '').trim();
 
-    // Parse JSON from response (handle markdown code blocks and control characters)
-    let postData;
-    try {
-      let jsonString = content.trim();
-      
-      // Remove markdown code blocks if present
-      if (jsonString.startsWith('```json')) {
-        jsonString = jsonString.replace(/^```json\s*\n?/, '').replace(/\n?\s*```\s*$/, '');
-      } else if (jsonString.startsWith('```')) {
-        jsonString = jsonString.replace(/^```\s*\n?/, '').replace(/\n?\s*```\s*$/, '');
-      }
-      
-      // Try to find JSON object boundaries
-      const firstBrace = jsonString.indexOf('{');
-      const lastBrace = jsonString.lastIndexOf('}');
-      
-      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-        jsonString = jsonString.substring(firstBrace, lastBrace + 1);
-      }
-      
-      // Fix common JSON issues - escape control characters in string values
-      // Replace unescaped newlines and tabs inside JSON strings
-      jsonString = jsonString
-        .replace(/[\x00-\x1F\x7F]/g, (char: string) => {
-          // Keep valid JSON whitespace characters
-          if (char === '\n') return '\\n';
-          if (char === '\r') return '\\r';
-          if (char === '\t') return '\\t';
-          // Remove other control characters
-          return '';
-        });
-      
-      postData = JSON.parse(jsonString);
-    } catch (parseError) {
-      console.error('JSON parse error:', parseError);
-      console.error('Content that failed to parse:', content.substring(0, 1000));
-      
-      // Try a more aggressive cleanup
-      try {
-        let cleanedContent = content.trim();
-        // Remove code blocks
-        cleanedContent = cleanedContent.replace(/```json\s*/g, '').replace(/```\s*/g, '');
-        // Find JSON boundaries
-        const start = cleanedContent.indexOf('{');
-        const end = cleanedContent.lastIndexOf('}');
-        if (start !== -1 && end !== -1 && end > start) {
-          cleanedContent = cleanedContent.substring(start, end + 1);
-        }
-        // Remove all control characters except spaces
-        cleanedContent = cleanedContent.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
-        // Replace actual newlines with escaped ones in string values
-        cleanedContent = cleanedContent.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
-        
-        postData = JSON.parse(cleanedContent);
-        console.log('Successfully parsed with aggressive cleanup');
-      } catch (secondError) {
-        console.error('Second parse attempt failed:', secondError);
-        throw new Error('Failed to parse AI response as JSON. Please try again with a simpler topic.');
-      }
-    }
+    postData.content_uz = stripFences(content_uz);
+    postData.content_ru = stripFences(content_ru);
+    postData.content_en = stripFences(content_en);
+
+    console.log('Generated post data:', Object.keys(postData));
 
     // Generate image if requested
     let featuredImageUrl = null;
