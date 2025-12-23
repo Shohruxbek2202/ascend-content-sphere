@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { MessageSquare, Mail, Trash2, Check, Eye } from 'lucide-react';
+import { MessageSquare, Mail, Trash2, Check, Eye, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import {
   Table,
   TableBody,
@@ -45,6 +47,8 @@ const AdminMessages = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [viewMessage, setViewMessage] = useState<ContactMessage | null>(null);
+  const [replyText, setReplyText] = useState('');
+  const [isSending, setIsSending] = useState(false);
 
   const fetchMessages = async () => {
     setIsLoading(true);
@@ -76,8 +80,43 @@ const AdminMessages = () => {
 
   const handleView = (message: ContactMessage) => {
     setViewMessage(message);
+    setReplyText('');
     if (!message.read) {
       markAsRead(message.id);
+    }
+  };
+
+  const handleSendReply = async () => {
+    if (!viewMessage || !replyText.trim()) {
+      toast.error('Javob matnini kiriting');
+      return;
+    }
+
+    setIsSending(true);
+
+    try {
+      const response = await supabase.functions.invoke('reply-message', {
+        body: {
+          to: viewMessage.email,
+          toName: viewMessage.name,
+          subject: `Re: ${viewMessage.subject}`,
+          message: replyText,
+          originalMessage: viewMessage.message,
+        },
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      toast.success('Javob muvaffaqiyatli yuborildi!');
+      setReplyText('');
+      setViewMessage(null);
+    } catch (error: any) {
+      console.error('Error sending reply:', error);
+      toast.error('Javob yuborishda xatolik: ' + error.message);
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -216,9 +255,9 @@ const AdminMessages = () => {
         </div>
       )}
 
-      {/* View Message Dialog */}
+      {/* View Message Dialog with Reply */}
       <Dialog open={!!viewMessage} onOpenChange={() => setViewMessage(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{viewMessage?.subject}</DialogTitle>
           </DialogHeader>
@@ -230,9 +269,9 @@ const AdminMessages = () => {
               </div>
               <div>
                 <span className="text-muted-foreground">Email: </span>
-                <a href={`mailto:${viewMessage?.email}`} className="font-medium text-primary">
+                <span className="font-medium text-primary">
                   {viewMessage?.email}
-                </a>
+                </span>
               </div>
               <div className="col-span-2">
                 <span className="text-muted-foreground">Sana: </span>
@@ -243,15 +282,48 @@ const AdminMessages = () => {
             </div>
             <div className="border-t pt-4">
               <p className="text-muted-foreground text-sm mb-2">Xabar:</p>
-              <p className="whitespace-pre-wrap">{viewMessage?.message}</p>
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <p className="whitespace-pre-wrap">{viewMessage?.message}</p>
+              </div>
             </div>
-            <div className="flex justify-end">
-              <Button asChild>
-                <a href={`mailto:${viewMessage?.email}?subject=Re: ${viewMessage?.subject}`}>
-                  <Mail className="w-4 h-4 mr-2" />
-                  Javob yozish
-                </a>
-              </Button>
+
+            {/* Reply Section */}
+            <div className="border-t pt-4 space-y-3">
+              <Label htmlFor="reply" className="text-sm font-medium">
+                Javob yozish
+              </Label>
+              <Textarea
+                id="reply"
+                placeholder="Javob matnini yozing..."
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                rows={5}
+                className="resize-none"
+              />
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setViewMessage(null)}
+                >
+                  Yopish
+                </Button>
+                <Button
+                  onClick={handleSendReply}
+                  disabled={isSending || !replyText.trim()}
+                >
+                  {isSending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Yuborilmoqda...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4 mr-2" />
+                      Javob yuborish
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>
