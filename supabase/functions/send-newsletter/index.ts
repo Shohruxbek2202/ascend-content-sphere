@@ -1,7 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -24,27 +23,37 @@ interface NewsletterRequest {
   featuredImage?: string;
 }
 
+// SMTP Configuration
+const SMTP_HOST = "mail.shohruxdigital.uz";
+const SMTP_PORT = 465;
+const SMTP_USERNAME = "shohruxbek@shohruxdigital.uz";
+const SMTP_PASSWORD = Deno.env.get("SMTP_PASSWORD");
+
 async function sendEmail(to: string, subject: string, html: string) {
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${RESEND_API_KEY}`,
-      "Content-Type": "application/json",
+  const client = new SMTPClient({
+    connection: {
+      hostname: SMTP_HOST,
+      port: SMTP_PORT,
+      tls: true,
+      auth: {
+        username: SMTP_USERNAME,
+        password: SMTP_PASSWORD!,
+      },
     },
-    body: JSON.stringify({
-      from: "Shohrux Blog <shohruxbek@shohruxdigital.uz>",
-      to: [to],
-      subject,
-      html,
-    }),
   });
 
-  if (!response.ok) {
-    const errorData = await response.text();
-    throw new Error(`Resend API error: ${errorData}`);
+  try {
+    await client.send({
+      from: `Shohrux Blog <${SMTP_USERNAME}>`,
+      to: to,
+      subject: subject,
+      content: "auto",
+      html: html,
+    });
+    console.log(`Email sent successfully to ${to}`);
+  } finally {
+    await client.close();
   }
-
-  return response.json();
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -89,7 +98,7 @@ const handler = async (req: Request): Promise<Response> => {
     let sentCount = 0;
     const errors: string[] = [];
 
-    // Helper function to delay between emails (Resend limit: 2/sec)
+    // Helper function to delay between emails
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
     // Send emails to each subscriber with rate limiting
@@ -157,22 +166,20 @@ const handler = async (req: Request): Promise<Response> => {
       `;
 
       try {
-        const emailResponse = await sendEmail(
+        await sendEmail(
           subscriber.email,
           subject[lang as keyof typeof subject],
           html
         );
-
-        console.log(`Email sent to ${subscriber.email}:`, emailResponse);
         sentCount++;
       } catch (emailError: any) {
         console.error(`Error sending email to ${subscriber.email}:`, emailError);
         errors.push(`${subscriber.email}: ${emailError.message}`);
       }
 
-      // Rate limiting: wait 600ms between emails (allows ~1.6 emails/sec, safely under 2/sec limit)
+      // Rate limiting: wait 1 second between emails
       if (i < subscribers.length - 1) {
-        await delay(600);
+        await delay(1000);
       }
     }
 
