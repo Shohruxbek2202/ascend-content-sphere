@@ -174,6 +174,47 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_logs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          post_id: string | null
+          sent_at: string
+          status: string
+          subscriber_email: string
+          subscriber_language: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          post_id?: string | null
+          sent_at?: string
+          status?: string
+          subscriber_email: string
+          subscriber_language?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          post_id?: string | null
+          sent_at?: string
+          status?: string
+          subscriber_email?: string
+          subscriber_language?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "newsletter_logs_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           author_id: string | null
