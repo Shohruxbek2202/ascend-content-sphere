@@ -31,6 +31,7 @@ import AdminSettings from '@/components/admin/AdminSettings';
 import AdminMessages from '@/components/admin/AdminMessages';
 import AdminSEO from '@/components/admin/AdminSEO';
 import AdminNewsletterLogs from '@/components/admin/AdminNewsletterLogs';
+import AdminSEOAudit from '@/components/admin/AdminSEOAudit';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
@@ -40,7 +41,8 @@ const menuItems = [
   { icon: Mail, label: 'Xabarlar', path: '/admin/messages' },
   { icon: Users, label: 'Obunchilar', path: '/admin/subscribers' },
   { icon: Send, label: 'Newsletter', path: '/admin/newsletter' },
-  { icon: Search, label: 'SEO', path: '/admin/seo' },
+  { icon: Search, label: 'SEO Audit', path: '/admin/seo-audit' },
+  { icon: Search, label: 'SEO Keywords', path: '/admin/seo' },
   { icon: BarChart3, label: 'Analitika', path: '/admin/analytics' },
   { icon: Settings, label: 'Sozlamalar', path: '/admin/settings' },
 ];
@@ -175,6 +177,7 @@ const Admin = () => {
             <Route path="/messages" element={<AdminMessages />} />
             <Route path="/subscribers" element={<AdminSubscribers />} />
             <Route path="/newsletter" element={<AdminNewsletterLogs />} />
+            <Route path="/seo-audit" element={<AdminSEOAudit />} />
             <Route path="/seo" element={<AdminSEO />} />
             <Route path="/analytics" element={<AdminAnalytics />} />
             <Route path="/settings" element={<AdminSettings />} />
