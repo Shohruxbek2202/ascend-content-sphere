@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -29,30 +28,83 @@ const SMTP_PORT = 465;
 const SMTP_USERNAME = "shohruxbek@shohruxdigital.uz";
 const SMTP_PASSWORD = Deno.env.get("SMTP_PASSWORD");
 
+// Base64 encoding helper
+function base64Encode(str: string): string {
+  return btoa(unescape(encodeURIComponent(str)));
+}
+
 async function sendEmail(to: string, subject: string, html: string) {
-  const client = new SMTPClient({
-    connection: {
-      hostname: SMTP_HOST,
-      port: SMTP_PORT,
-      tls: true,
-      auth: {
-        username: SMTP_USERNAME,
-        password: SMTP_PASSWORD!,
-      },
-    },
+  // Create email content with Base64 encoding to avoid quoted-printable issues
+  const boundary = `----=_Part_${Date.now()}`;
+  const emailContent = [
+    `From: Shohrux Blog <${SMTP_USERNAME}>`,
+    `To: ${to}`,
+    `Subject: =?UTF-8?B?${base64Encode(subject)}?=`,
+    `MIME-Version: 1.0`,
+    `Content-Type: multipart/alternative; boundary="${boundary}"`,
+    ``,
+    `--${boundary}`,
+    `Content-Type: text/html; charset=UTF-8`,
+    `Content-Transfer-Encoding: base64`,
+    ``,
+    base64Encode(html),
+    ``,
+    `--${boundary}--`,
+  ].join('\r\n');
+
+  // Connect to SMTP server
+  const conn = await Deno.connectTls({
+    hostname: SMTP_HOST,
+    port: SMTP_PORT,
   });
 
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+
+  async function sendCommand(command: string): Promise<string> {
+    await conn.write(encoder.encode(command + '\r\n'));
+    const buffer = new Uint8Array(1024);
+    const n = await conn.read(buffer);
+    return decoder.decode(buffer.subarray(0, n || 0));
+  }
+
+  async function readResponse(): Promise<string> {
+    const buffer = new Uint8Array(1024);
+    const n = await conn.read(buffer);
+    return decoder.decode(buffer.subarray(0, n || 0));
+  }
+
   try {
-    await client.send({
-      from: `Shohrux Blog <${SMTP_USERNAME}>`,
-      to: to,
-      subject: subject,
-      content: "auto",
-      html: html,
-    });
+    // Read greeting
+    await readResponse();
+    
+    // EHLO
+    await sendCommand(`EHLO ${SMTP_HOST}`);
+    
+    // AUTH LOGIN
+    await sendCommand('AUTH LOGIN');
+    await sendCommand(btoa(SMTP_USERNAME));
+    await sendCommand(btoa(SMTP_PASSWORD!));
+    
+    // MAIL FROM
+    await sendCommand(`MAIL FROM:<${SMTP_USERNAME}>`);
+    
+    // RCPT TO
+    await sendCommand(`RCPT TO:<${to}>`);
+    
+    // DATA
+    await sendCommand('DATA');
+    
+    // Send email content
+    await conn.write(encoder.encode(emailContent + '\r\n.\r\n'));
+    await readResponse();
+    
+    // QUIT
+    await sendCommand('QUIT');
+    
     console.log(`Email sent successfully to ${to}`);
   } finally {
-    await client.close();
+    conn.close();
   }
 }
 
@@ -126,44 +178,36 @@ const handler = async (req: Request): Promise<Response> => {
         en: "Unsubscribe",
       };
 
-      const html = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        </head>
-        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #f4f4f5;">
-          <table width="100%" cellpadding="0" cellspacing="0" style="padding: 40px 20px;">
-            <tr>
-              <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                  ${featuredImage ? `
-                  <tr>
-                    <td>
-                      <img src="${featuredImage}" alt="${postTitle}" style="width: 100%; height: 250px; object-fit: cover;">
-                    </td>
-                  </tr>
-                  ` : ''}
-                  <tr>
-                    <td style="padding: 32px;">
-                      <h1 style="margin: 0 0 16px; font-size: 24px; color: #1a1a1a;">${postTitle}</h1>
-                      <p style="margin: 0 0 24px; color: #666; line-height: 1.6;">${postExcerpt}</p>
-                      <a href="${siteUrl}/post/${slug}" style="display: inline-block; background: linear-gradient(135deg, #1E3A5F 0%, #F97316 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600;">${buttonText[lang as keyof typeof buttonText]}</a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 24px 32px; background: #f9fafb; text-align: center;">
-                      <a href="${siteUrl}/unsubscribe?email=${encodeURIComponent(subscriber.email)}" style="color: #999; font-size: 12px; text-decoration: underline;">${unsubscribeText[lang as keyof typeof unsubscribeText]}</a>
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-          </table>
-        </body>
-        </html>
-      `;
+      const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #f4f4f5;">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding: 40px 20px;">
+<tr>
+<td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+${featuredImage ? `<tr><td><img src="${featuredImage}" alt="${postTitle}" style="width: 100%; height: 250px; object-fit: cover;"></td></tr>` : ''}
+<tr>
+<td style="padding: 32px;">
+<h1 style="margin: 0 0 16px; font-size: 24px; color: #1a1a1a;">${postTitle}</h1>
+<p style="margin: 0 0 24px; color: #666; line-height: 1.6;">${postExcerpt}</p>
+<a href="${siteUrl}/post/${slug}" style="display: inline-block; background: linear-gradient(135deg, #1E3A5F 0%, #F97316 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600;">${buttonText[lang as keyof typeof buttonText]}</a>
+</td>
+</tr>
+<tr>
+<td style="padding: 24px 32px; background: #f9fafb; text-align: center;">
+<a href="${siteUrl}/unsubscribe?email=${encodeURIComponent(subscriber.email)}" style="color: #999; font-size: 12px; text-decoration: underline;">${unsubscribeText[lang as keyof typeof unsubscribeText]}</a>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</body>
+</html>`;
 
       try {
         await sendEmail(
