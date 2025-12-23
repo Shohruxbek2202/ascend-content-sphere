@@ -216,9 +216,26 @@ ${featuredImage ? `<tr><td><img src="${featuredImage}" alt="${postTitle}" style=
           html
         );
         sentCount++;
+        
+        // Log successful send
+        await supabase.from('newsletter_logs').insert({
+          post_id: postId,
+          subscriber_email: subscriber.email,
+          subscriber_language: lang,
+          status: 'sent'
+        });
       } catch (emailError: any) {
         console.error(`Error sending email to ${subscriber.email}:`, emailError);
         errors.push(`${subscriber.email}: ${emailError.message}`);
+        
+        // Log failed send
+        await supabase.from('newsletter_logs').insert({
+          post_id: postId,
+          subscriber_email: subscriber.email,
+          subscriber_language: lang,
+          status: 'failed',
+          error_message: emailError.message
+        });
       }
 
       // Rate limiting: wait 1 second between emails
