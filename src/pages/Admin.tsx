@@ -32,6 +32,7 @@ import AdminMessages from '@/components/admin/AdminMessages';
 import AdminSEO from '@/components/admin/AdminSEO';
 import AdminNewsletterLogs from '@/components/admin/AdminNewsletterLogs';
 import AdminSEOAudit from '@/components/admin/AdminSEOAudit';
+import AdminSitemapRobots from '@/components/admin/AdminSitemapRobots';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
@@ -43,6 +44,7 @@ const menuItems = [
   { icon: Send, label: 'Newsletter', path: '/admin/newsletter' },
   { icon: Search, label: 'SEO Audit', path: '/admin/seo-audit' },
   { icon: Search, label: 'SEO Keywords', path: '/admin/seo' },
+  { icon: Search, label: 'Sitemap', path: '/admin/sitemap' },
   { icon: BarChart3, label: 'Analitika', path: '/admin/analytics' },
   { icon: Settings, label: 'Sozlamalar', path: '/admin/settings' },
 ];
@@ -179,6 +181,7 @@ const Admin = () => {
             <Route path="/newsletter" element={<AdminNewsletterLogs />} />
             <Route path="/seo-audit" element={<AdminSEOAudit />} />
             <Route path="/seo" element={<AdminSEO />} />
+            <Route path="/sitemap" element={<AdminSitemapRobots />} />
             <Route path="/analytics" element={<AdminAnalytics />} />
             <Route path="/settings" element={<AdminSettings />} />
           </Routes>
