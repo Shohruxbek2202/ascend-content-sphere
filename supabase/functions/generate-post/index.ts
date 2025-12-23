@@ -207,7 +207,7 @@ Return ONLY the JSON object, no markdown code blocks or explanations.`;
 
     console.log('Raw AI response:', content.substring(0, 500));
 
-    // Parse JSON from response (handle markdown code blocks and truncation)
+    // Parse JSON from response (handle markdown code blocks and control characters)
     let postData;
     try {
       let jsonString = content.trim();
@@ -227,11 +227,45 @@ Return ONLY the JSON object, no markdown code blocks or explanations.`;
         jsonString = jsonString.substring(firstBrace, lastBrace + 1);
       }
       
+      // Fix common JSON issues - escape control characters in string values
+      // Replace unescaped newlines and tabs inside JSON strings
+      jsonString = jsonString
+        .replace(/[\x00-\x1F\x7F]/g, (char: string) => {
+          // Keep valid JSON whitespace characters
+          if (char === '\n') return '\\n';
+          if (char === '\r') return '\\r';
+          if (char === '\t') return '\\t';
+          // Remove other control characters
+          return '';
+        });
+      
       postData = JSON.parse(jsonString);
     } catch (parseError) {
       console.error('JSON parse error:', parseError);
       console.error('Content that failed to parse:', content.substring(0, 1000));
-      throw new Error('Failed to parse AI response as JSON. The AI may have returned incomplete content. Please try again.');
+      
+      // Try a more aggressive cleanup
+      try {
+        let cleanedContent = content.trim();
+        // Remove code blocks
+        cleanedContent = cleanedContent.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+        // Find JSON boundaries
+        const start = cleanedContent.indexOf('{');
+        const end = cleanedContent.lastIndexOf('}');
+        if (start !== -1 && end !== -1 && end > start) {
+          cleanedContent = cleanedContent.substring(start, end + 1);
+        }
+        // Remove all control characters except spaces
+        cleanedContent = cleanedContent.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+        // Replace actual newlines with escaped ones in string values
+        cleanedContent = cleanedContent.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
+        
+        postData = JSON.parse(cleanedContent);
+        console.log('Successfully parsed with aggressive cleanup');
+      } catch (secondError) {
+        console.error('Second parse attempt failed:', secondError);
+        throw new Error('Failed to parse AI response as JSON. Please try again with a simpler topic.');
+      }
     }
 
     // Generate image if requested
