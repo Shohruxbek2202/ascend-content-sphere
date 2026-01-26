@@ -21,7 +21,12 @@ export const LanguageSwitcher = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-2">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="gap-2"
+          aria-label={language === 'uz' ? 'Tilni tanlash' : language === 'ru' ? 'Выбрать язык' : 'Select language'}
+        >
           <Globe className="h-4 w-4" />
           <span className="hidden sm:inline">
             {languages.find((l) => l.code === language)?.flag}
