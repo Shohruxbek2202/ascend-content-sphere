@@ -1,15 +1,10 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-
-// SMTP Configuration
-const SMTP_HOST = "mail.shohruxdigital.uz";
-const SMTP_PORT = 465;
-const SMTP_USERNAME = "shohruxbek@shohruxdigital.uz";
-const SMTP_PASSWORD = Deno.env.get("SMTP_PASSWORD");
 
 interface ReplyRequest {
   to: string;
@@ -19,10 +14,7 @@ interface ReplyRequest {
   originalMessage: string;
 }
 
-// Simple Base64 encoding for auth
-function base64Encode(str: string): string {
-  return btoa(str);
-}
+const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
@@ -34,10 +26,6 @@ const handler = async (req: Request): Promise<Response> => {
     const { to, toName, subject, message, originalMessage }: ReplyRequest = await req.json();
 
     console.log(`Sending reply to ${to}`);
-
-    if (!SMTP_PASSWORD) {
-      throw new Error("SMTP_PASSWORD is not configured");
-    }
 
     const html = `<!DOCTYPE html>
 <html>
@@ -67,78 +55,14 @@ const handler = async (req: Request): Promise<Response> => {
 </body>
 </html>`;
 
-    // Create email content with proper headers to avoid quoted-printable encoding
-    const boundary = `----=_Part_${Date.now()}`;
-    const emailContent = [
-      `From: Shohrux Blog <${SMTP_USERNAME}>`,
-      `To: ${to}`,
-      `Subject: =?UTF-8?B?${base64Encode(subject)}?=`,
-      `MIME-Version: 1.0`,
-      `Content-Type: multipart/alternative; boundary="${boundary}"`,
-      ``,
-      `--${boundary}`,
-      `Content-Type: text/html; charset=UTF-8`,
-      `Content-Transfer-Encoding: base64`,
-      ``,
-      base64Encode(html),
-      ``,
-      `--${boundary}--`,
-    ].join('\r\n');
-
-    // Connect to SMTP server
-    const conn = await Deno.connectTls({
-      hostname: SMTP_HOST,
-      port: SMTP_PORT,
+    const emailResponse = await resend.emails.send({
+      from: "Shohrux Blog <noreply@shohruxdigital.uz>",
+      to: [to],
+      subject: subject,
+      html: html,
     });
 
-    const encoder = new TextEncoder();
-    const decoder = new TextDecoder();
-
-    async function sendCommand(command: string): Promise<string> {
-      await conn.write(encoder.encode(command + '\r\n'));
-      const buffer = new Uint8Array(1024);
-      const n = await conn.read(buffer);
-      return decoder.decode(buffer.subarray(0, n || 0));
-    }
-
-    async function readResponse(): Promise<string> {
-      const buffer = new Uint8Array(1024);
-      const n = await conn.read(buffer);
-      return decoder.decode(buffer.subarray(0, n || 0));
-    }
-
-    try {
-      // Read greeting
-      await readResponse();
-      
-      // EHLO
-      await sendCommand(`EHLO ${SMTP_HOST}`);
-      
-      // AUTH LOGIN
-      await sendCommand('AUTH LOGIN');
-      await sendCommand(base64Encode(SMTP_USERNAME));
-      await sendCommand(base64Encode(SMTP_PASSWORD));
-      
-      // MAIL FROM
-      await sendCommand(`MAIL FROM:<${SMTP_USERNAME}>`);
-      
-      // RCPT TO
-      await sendCommand(`RCPT TO:<${to}>`);
-      
-      // DATA
-      await sendCommand('DATA');
-      
-      // Send email content
-      await conn.write(encoder.encode(emailContent + '\r\n.\r\n'));
-      await readResponse();
-      
-      // QUIT
-      await sendCommand('QUIT');
-      
-      console.log(`Reply sent successfully to ${to}`);
-    } finally {
-      conn.close();
-    }
+    console.log("Reply sent successfully:", emailResponse);
 
     return new Response(
       JSON.stringify({ success: true, message: "Reply sent successfully" }),
@@ -147,10 +71,11 @@ const handler = async (req: Request): Promise<Response> => {
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error("Error sending reply:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

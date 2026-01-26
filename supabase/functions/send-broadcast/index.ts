@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -16,167 +17,7 @@ interface BroadcastRequest {
   include_inactive: boolean;
 }
 
-// SMTP Helper Functions
-function parseSmtpResponse(response: string): { code: number; message: string } {
-  const match = response.match(/^(\d{3})\s/);
-  if (match) {
-    return { code: parseInt(match[1], 10), message: response };
-  }
-  const multilineMatch = response.match(/^(\d{3})-/);
-  if (multilineMatch) {
-    return { code: parseInt(multilineMatch[1], 10), message: response };
-  }
-  return { code: 0, message: response };
-}
-
-function isSuccessResponse(code: number): boolean {
-  return code >= 200 && code < 400;
-}
-
-async function sendEmail(
-  to: string,
-  subject: string,
-  htmlContent: string
-): Promise<{ success: boolean; error?: string }> {
-  const SMTP_HOST = 'mail.shohruxdigital.uz';
-  const SMTP_PORT = 465;
-  const SMTP_USER = 'shohruxbek@shohruxdigital.uz';
-  const SMTP_PASSWORD = Deno.env.get('SMTP_PASSWORD');
-
-  if (!SMTP_PASSWORD) {
-    return { success: false, error: 'SMTP_PASSWORD not configured' };
-  }
-
-  try {
-    const conn = await Deno.connectTls({
-      hostname: SMTP_HOST,
-      port: SMTP_PORT,
-    });
-
-    const encoder = new TextEncoder();
-    const decoder = new TextDecoder();
-
-    const read = async (): Promise<string> => {
-      const buffer = new Uint8Array(4096);
-      const n = await conn.read(buffer);
-      if (n === null) return '';
-      return decoder.decode(buffer.subarray(0, n));
-    };
-
-    const write = async (data: string): Promise<void> => {
-      await conn.write(encoder.encode(data + '\r\n'));
-    };
-
-    // Read greeting
-    const greeting = await read();
-    console.log(`SMTP Greeting: ${greeting.trim()}`);
-    const greetingParsed = parseSmtpResponse(greeting);
-    if (!isSuccessResponse(greetingParsed.code)) {
-      conn.close();
-      return { success: false, error: `SMTP greeting failed: ${greeting.trim()}` };
-    }
-
-    // EHLO
-    await write(`EHLO ${SMTP_HOST}`);
-    const ehloResponse = await read();
-    console.log(`EHLO Response: ${ehloResponse.trim()}`);
-    const ehloParsed = parseSmtpResponse(ehloResponse);
-    if (!isSuccessResponse(ehloParsed.code)) {
-      conn.close();
-      return { success: false, error: `EHLO failed: ${ehloResponse.trim()}` };
-    }
-
-    // AUTH LOGIN
-    await write('AUTH LOGIN');
-    const authResponse = await read();
-    console.log(`AUTH Response: ${authResponse.trim()}`);
-
-    // Send username (base64)
-    await write(btoa(SMTP_USER));
-    const userResponse = await read();
-    console.log(`User Response: ${userResponse.trim()}`);
-
-    // Send password (base64)
-    await write(btoa(SMTP_PASSWORD));
-    const passResponse = await read();
-    console.log(`Pass Response code: ${parseSmtpResponse(passResponse).code}`);
-    const passParsed = parseSmtpResponse(passResponse);
-    if (!isSuccessResponse(passParsed.code)) {
-      conn.close();
-      return { success: false, error: `Authentication failed: ${passResponse.trim()}` };
-    }
-
-    // MAIL FROM
-    await write(`MAIL FROM:<${SMTP_USER}>`);
-    const mailFromResponse = await read();
-    console.log(`MAIL FROM Response: ${mailFromResponse.trim()}`);
-    const mailFromParsed = parseSmtpResponse(mailFromResponse);
-    if (!isSuccessResponse(mailFromParsed.code)) {
-      conn.close();
-      return { success: false, error: `MAIL FROM failed: ${mailFromResponse.trim()}` };
-    }
-
-    // RCPT TO
-    await write(`RCPT TO:<${to}>`);
-    const rcptResponse = await read();
-    console.log(`RCPT TO Response: ${rcptResponse.trim()}`);
-    const rcptParsed = parseSmtpResponse(rcptResponse);
-    if (!isSuccessResponse(rcptParsed.code)) {
-      conn.close();
-      return { success: false, error: `RCPT TO failed for ${to}: ${rcptResponse.trim()}` };
-    }
-
-    // DATA
-    await write('DATA');
-    const dataResponse = await read();
-    console.log(`DATA Response: ${dataResponse.trim()}`);
-    const dataParsed = parseSmtpResponse(dataResponse);
-    if (dataParsed.code !== 354 && !isSuccessResponse(dataParsed.code)) {
-      conn.close();
-      return { success: false, error: `DATA command failed: ${dataResponse.trim()}` };
-    }
-
-    // Email headers and body
-    const boundary = `boundary_${Date.now()}`;
-    const emailContent = [
-      `From: Shohrux Blog <${SMTP_USER}>`,
-      `To: ${to}`,
-      `Subject: ${subject}`,
-      `MIME-Version: 1.0`,
-      `Content-Type: multipart/alternative; boundary="${boundary}"`,
-      `Date: ${new Date().toUTCString()}`,
-      ``,
-      `--${boundary}`,
-      `Content-Type: text/html; charset=UTF-8`,
-      `Content-Transfer-Encoding: 8bit`,
-      ``,
-      htmlContent,
-      ``,
-      `--${boundary}--`,
-      `.`,
-    ].join('\r\n');
-
-    await conn.write(encoder.encode(emailContent + '\r\n'));
-    const sendResponse = await read();
-    console.log(`Send Response: ${sendResponse.trim()}`);
-    const sendParsed = parseSmtpResponse(sendResponse);
-    if (!isSuccessResponse(sendParsed.code)) {
-      conn.close();
-      return { success: false, error: `Email send failed: ${sendResponse.trim()}` };
-    }
-
-    // QUIT
-    await write('QUIT');
-    conn.close();
-
-    console.log(`Email successfully sent to ${to}`);
-    return { success: true };
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown SMTP error';
-    console.error(`SMTP Error for ${to}:`, error);
-    return { success: false, error: errorMessage };
-  }
-}
+const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 function generateEmailHtml(message: string, language: string): string {
   const unsubscribeText = {
@@ -318,7 +159,7 @@ Deno.serve(async (req) => {
     let sent = 0;
     let failed = 0;
 
-    // Rate limiting: 50ms delay between emails
+    // Send emails using Resend API
     for (const subscriber of subscribers || []) {
       const lang = subscriber.language || 'uz';
       
@@ -334,25 +175,43 @@ Deno.serve(async (req) => {
       }
 
       const htmlContent = generateEmailHtml(message, lang);
-      const result = await sendEmail(subscriber.email, subject, htmlContent);
+      
+      try {
+        const emailResponse = await resend.emails.send({
+          from: "Shohrux Blog <noreply@shohruxdigital.uz>",
+          to: [subscriber.email],
+          subject: subject,
+          html: htmlContent,
+        });
 
-      // Log to newsletter_logs
-      await adminClient.from('newsletter_logs').insert({
-        subscriber_email: subscriber.email,
-        subscriber_language: lang,
-        status: result.success ? 'sent' : 'failed',
-        error_message: result.error || null,
-      });
+        console.log(`Email sent to ${subscriber.email}:`, emailResponse);
 
-      if (result.success) {
+        // Log to newsletter_logs
+        await adminClient.from('newsletter_logs').insert({
+          subscriber_email: subscriber.email,
+          subscriber_language: lang,
+          status: 'sent',
+          error_message: null,
+        });
+
         sent++;
-      } else {
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error(`Failed to send to ${subscriber.email}:`, errorMessage);
+        
+        // Log failed send
+        await adminClient.from('newsletter_logs').insert({
+          subscriber_email: subscriber.email,
+          subscriber_language: lang,
+          status: 'failed',
+          error_message: errorMessage,
+        });
+
         failed++;
-        console.error(`Failed to send to ${subscriber.email}: ${result.error}`);
       }
 
-      // Rate limiting delay
-      await new Promise(resolve => setTimeout(resolve, 50));
+      // Delay to respect rate limits (2 requests/second max for Resend)
+      await new Promise(resolve => setTimeout(resolve, 600));
     }
 
     console.log(`Broadcast complete: ${sent} sent, ${failed} failed`);
