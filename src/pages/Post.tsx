@@ -287,23 +287,26 @@ const Post = () => {
       <main className="pt-24 pb-16">
         <article className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
-            {/* Back Link */}
-            <Link
-              to="/blog"
-              className="inline-flex items-center text-muted-foreground hover:text-primary mb-6 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              {t.nav.blog}
-            </Link>
-
-            {/* Category Badge */}
-            {post.categories && (
-              <Badge className="mb-4 bg-primary">
-                {language === 'uz' && post.categories.name_uz}
-                {language === 'ru' && post.categories.name_ru}
-                {language === 'en' && post.categories.name_en}
-              </Badge>
-            )}
+            {/* Breadcrumb and Category */}
+            <div className="flex items-center gap-3 mb-6 flex-wrap">
+              <Link
+                to="/blog"
+                className="inline-flex items-center text-muted-foreground hover:text-primary transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                {t.nav.blog}
+              </Link>
+              
+              {post.categories && (
+                <Link to={`/blog?category=${post.categories.slug}`}>
+                  <Badge className="bg-primary hover:bg-primary/90 cursor-pointer transition-colors">
+                    {language === 'uz' && post.categories.name_uz}
+                    {language === 'ru' && post.categories.name_ru}
+                    {language === 'en' && post.categories.name_en}
+                  </Badge>
+                </Link>
+              )}
+            </div>
 
             {/* Title */}
             <h1 className="font-display text-3xl md:text-5xl font-bold text-foreground leading-tight mb-6">
