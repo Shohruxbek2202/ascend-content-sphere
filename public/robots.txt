@@ -23,8 +23,9 @@ Disallow: /auth/*
 # Crawl-delay for responsible crawling
 Crawl-delay: 1
 
-# Sitemap location
-Sitemap: https://shohruxdigital.uz/sitemap.xml
+# IMPORTANT: Dynamic sitemap with all posts
+# Submit this URL to Google Search Console and Bing Webmaster Tools:
+Sitemap: https://shfnpzfqtrfzdklnhatf.supabase.co/functions/v1/sitemap
 
 # Host directive (for Yandex)
 Host: https://shohruxdigital.uz
