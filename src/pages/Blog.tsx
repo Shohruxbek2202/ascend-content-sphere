@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, X } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { BlogCard } from '@/components/BlogCard';
@@ -156,6 +156,8 @@ const Blog = () => {
     ? 'Все статьи о цифровом маркетинге, SMM, SEO и личностном развитии'
     : 'All articles on digital marketing, SMM, SEO and personal development';
 
+  const hasActiveFilters = searchQuery || selectedCategory !== 'all';
+
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
@@ -166,14 +168,14 @@ const Blog = () => {
       />
       <Header />
 
-      <main className="pt-24 pb-16">
+      <main className="pt-20 md:pt-24 pb-12 md:pb-16">
         <div className="container mx-auto px-4">
           {/* Page Header */}
-          <div className="text-center mb-12">
-            <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
+          <div className="text-center mb-8 md:mb-12">
+            <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 md:mb-4">
               {t.nav.blog}
             </h1>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto">
               {language === 'uz' && 'Barcha maqolalar va qo\'llanmalar'}
               {language === 'ru' && 'Все статьи и руководства'}
               {language === 'en' && 'All articles and guides'}
@@ -181,70 +183,137 @@ const Blog = () => {
           </div>
 
           {/* Search and Filters */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-8">
-            <div className="relative flex-1">
+          <div className="flex flex-col gap-3 mb-6 md:mb-8">
+            {/* Search Input */}
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder={t.blog.search}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-10 pr-10 h-12"
               />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full transition-colors"
+                >
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              )}
             </div>
 
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full sm:w-[200px]">
-                <Filter className="w-4 h-4 mr-2" />
-                <SelectValue placeholder={t.blog.filterByCategory} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t.blog.allCategories}</SelectItem>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.slug}>
-                    {getLocalizedCategoryName(category)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {/* Category Filter */}
+            <div className="flex gap-2">
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="flex-1 h-12">
+                  <Filter className="w-4 h-4 mr-2 shrink-0" />
+                  <SelectValue placeholder={t.blog.filterByCategory} />
+                </SelectTrigger>
+                <SelectContent className="bg-background border border-border z-50">
+                  <SelectItem value="all">{t.blog.allCategories}</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.slug}>
+                      {getLocalizedCategoryName(category)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {hasActiveFilters && (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-12 w-12 shrink-0"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSelectedCategory('all');
+                  }}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+
+            {/* Active Filters Display */}
+            {hasActiveFilters && (
+              <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+                {searchQuery && (
+                  <span className="bg-muted px-3 py-1 rounded-full flex items-center gap-1">
+                    "{searchQuery}"
+                    <button onClick={() => setSearchQuery('')}>
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+                {selectedCategory !== 'all' && (
+                  <span className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full flex items-center gap-1">
+                    {getLocalizedCategoryName(categories.find(c => c.slug === selectedCategory))}
+                    <button onClick={() => setSelectedCategory('all')}>
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+              </div>
+            )}
           </div>
+
+          {/* Results Count */}
+          {!isLoading && (
+            <p className="text-sm text-muted-foreground mb-4">
+              {filteredPosts.length} {language === 'uz' ? 'ta maqola topildi' : language === 'ru' ? 'статей найдено' : 'articles found'}
+            </p>
+          )}
 
           {/* Posts Grid */}
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
                   key={i}
-                  className="h-80 bg-muted animate-pulse rounded-lg"
+                  className="h-72 md:h-80 bg-muted animate-pulse rounded-lg"
                 />
               ))}
             </div>
           ) : filteredPosts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPosts.map((post) => (
-                <BlogCard
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              {filteredPosts.map((post, index) => (
+                <div 
                   key={post.id}
-                  id={post.slug}
-                  title={getLocalizedTitle(post)}
-                  excerpt={getLocalizedExcerpt(post)}
-                  image={
-                    post.featured_image ||
-                    'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800'
-                  }
-                  category={getLocalizedCategoryName(post.categories as Category | undefined)}
-                  readTime={post.reading_time || 5}
-                  likes={post.likes || 0}
-                  comments={0}
-                  publishedAt={post.published_at || ''}
-                />
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <BlogCard
+                    id={post.slug}
+                    title={getLocalizedTitle(post)}
+                    excerpt={getLocalizedExcerpt(post)}
+                    image={
+                      post.featured_image ||
+                      'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800'
+                    }
+                    category={getLocalizedCategoryName(post.categories as Category | undefined)}
+                    readTime={post.reading_time || 5}
+                    likes={post.likes || 0}
+                    comments={0}
+                    publishedAt={post.published_at || ''}
+                  />
+                </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-16">
-              <p className="text-muted-foreground text-lg">{t.blog.noResults}</p>
+            <div className="text-center py-12 md:py-16">
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="w-8 h-8 text-muted-foreground" />
+              </div>
+              <p className="text-muted-foreground text-lg mb-2">{t.blog.noResults}</p>
+              <p className="text-sm text-muted-foreground mb-4">
+                {language === 'uz' && 'Qidiruv so\'rovingiz bo\'yicha maqola topilmadi'}
+                {language === 'ru' && 'По вашему запросу статей не найдено'}
+                {language === 'en' && 'No articles found for your search'}
+              </p>
               <Button
                 variant="outline"
-                className="mt-4"
                 onClick={() => {
                   setSearchQuery('');
                   setSelectedCategory('all');
