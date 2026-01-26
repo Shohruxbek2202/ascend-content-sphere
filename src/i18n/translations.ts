@@ -14,6 +14,11 @@ export const translations = {
       subtitle: 'Professional maqolalar, amaliy maslahatlar va zamonaviy strategiyalar',
       cta: 'Blogni ko\'rish',
       subscribe: 'Obuna bo\'lish',
+      stats: {
+        posts: 'Maqolalar',
+        subscribers: 'Obunachilar',
+        categories: 'Kategoriyalar',
+      },
     },
     blog: {
       featured: 'Tanlangan Maqolalar',
@@ -61,6 +66,11 @@ export const translations = {
       subtitle: 'Профессиональные статьи, практические советы и современные стратегии',
       cta: 'Смотреть блог',
       subscribe: 'Подписаться',
+      stats: {
+        posts: 'Статьи',
+        subscribers: 'Подписчики',
+        categories: 'Категории',
+      },
     },
     blog: {
       featured: 'Избранные Статьи',
@@ -108,6 +118,11 @@ export const translations = {
       subtitle: 'Professional articles, practical tips, and modern strategies',
       cta: 'View Blog',
       subscribe: 'Subscribe',
+      stats: {
+        posts: 'Articles',
+        subscribers: 'Subscribers',
+        categories: 'Categories',
+      },
     },
     blog: {
       featured: 'Featured Posts',
