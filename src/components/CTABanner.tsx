@@ -64,7 +64,7 @@ export const CTABanner = () => {
             <div className="flex-shrink-0">
               <Button
                 size="lg"
-                className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold px-6 py-6 rounded-xl shadow-lg shadow-secondary/20 hover:shadow-xl hover:shadow-secondary/30 transition-all duration-300 group"
+                className="bg-secondary hover:bg-secondary/90 text-primary font-bold px-6 py-6 rounded-xl shadow-lg shadow-secondary/30 hover:shadow-xl hover:shadow-secondary/40 transition-all duration-300 group"
                 asChild
               >
                 <a 
@@ -72,9 +72,10 @@ export const CTABanner = () => {
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex items-center gap-2"
+                  aria-label={t.button}
                 >
                   {t.button}
-                  <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" aria-hidden="true" />
                 </a>
               </Button>
             </div>

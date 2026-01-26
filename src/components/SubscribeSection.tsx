@@ -108,7 +108,7 @@ export const SubscribeSection = () => {
             </Button>
           </form>
 
-          <p className="text-background/50 text-xs md:text-sm">
+          <p className="text-background/70 text-xs md:text-sm">
             {language === 'uz' ? 'Email manzilingiz xavfsiz saqlanadi' : 
                 language === 'ru' ? 'Ваш email надёжно защищён' : 
                 'Your email is securely protected'}
