@@ -13,9 +13,11 @@ export const NewsletterPopup = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    // Check if user already subscribed
+    // Check if user already subscribed or dismissed 3 times
     const alreadySubscribed = localStorage.getItem('newsletter_subscribed');
-    if (alreadySubscribed) return;
+    const dismissCount = parseInt(localStorage.getItem('newsletter_dismiss_count') || '0');
+    
+    if (alreadySubscribed || dismissCount >= 3) return;
 
     // First popup after 5 seconds
     const firstTimer = setTimeout(() => {
@@ -25,7 +27,8 @@ export const NewsletterPopup = () => {
     // Then show every 30 seconds
     const intervalTimer = setInterval(() => {
       const stillSubscribed = localStorage.getItem('newsletter_subscribed');
-      if (!stillSubscribed) {
+      const currentDismissCount = parseInt(localStorage.getItem('newsletter_dismiss_count') || '0');
+      if (!stillSubscribed && currentDismissCount < 3) {
         setIsOpen(true);
       }
     }, 30000);
@@ -37,6 +40,8 @@ export const NewsletterPopup = () => {
   }, []);
 
   const handleClose = () => {
+    const currentCount = parseInt(localStorage.getItem('newsletter_dismiss_count') || '0');
+    localStorage.setItem('newsletter_dismiss_count', String(currentCount + 1));
     setIsOpen(false);
   };
 
