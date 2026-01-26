@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, BookOpen, Users, FolderOpen, Sparkles } from 'lucide-react';
+import { ArrowRight, BookOpen, Users, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useEffect, useState } from 'react';
@@ -51,13 +51,13 @@ export const Hero = () => {
   const titleParts = getTitleParts();
 
   const statItems = [
-    { icon: BookOpen, value: stats.posts, label: t.hero.stats?.posts || "Maqolalar", desc: "Foydali kontentlar" },
-    { icon: FolderOpen, value: stats.categories, label: t.hero.stats?.categories || "Kategoriyalar", desc: "Marketing va shaxsiy o'sish" },
-    { icon: Users, value: stats.subscribers, label: t.hero.stats?.subscribers || "Obunachilar", desc: "Yangiliklar va maqolalar" },
+    { icon: BookOpen, value: stats.posts, label: t.hero.stats?.posts || "Maqolalar" },
+    { icon: FolderOpen, value: stats.categories, label: t.hero.stats?.categories || "Kategoriyalar" },
+    { icon: Users, value: stats.subscribers, label: t.hero.stats?.subscribers || "Obunachilar" },
   ];
 
   return (
-   <section className="relative min-h-[60vh] md:min-h-[80vh] flex flex-col overflow-hidden bg-background pt-12 md:pt-16">
+    <section className="relative min-h-[60vh] md:min-h-[80vh] flex flex-col overflow-hidden bg-background pt-12 md:pt-16">
       {/* Pro-code.uz inspired gradient background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Main gradient overlay */}
@@ -74,18 +74,18 @@ export const Hero = () => {
 
       {/* Main Hero Content */}
       <div className="flex-1 flex items-center justify-center relative z-10">
-       <div className="container mx-auto px-4 py-4 md:py-8">
-         <div className={`max-w-5xl mx-auto text-center space-y-4 md:space-y-8 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+        <div className="container mx-auto px-4 py-4 md:py-8">
+          <div className={`max-w-5xl mx-auto text-center space-y-4 md:space-y-8 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             
-            {/* Pro-code style badge */}
-           <div className="inline-flex items-center gap-2 px-4 py-2 md:px-5 md:py-2.5 rounded-full pro-card group cursor-default">
-             <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4 text-secondary group-hover:animate-spin" style={{ animationDuration: '2s' }} />
-             <span className="text-xs md:text-sm font-medium text-foreground/90">⚡ Professional Blog Platform</span>
+            {/* Professional badge - no emoji */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 md:px-5 md:py-2.5 rounded-full bg-secondary/10 border border-secondary/20 backdrop-blur-sm">
+              <div className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+              <span className="text-xs md:text-sm font-medium text-foreground/90">Professional Blog Platform</span>
             </div>
 
             {/* iOS Style Title with Selection Effect */}
             <h1 
-             className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold leading-tight tracking-tight px-2"
+              className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold leading-tight tracking-tight px-2"
               id="main-heading"
             >
               {/* Highlighted part - iOS selection style with animation */}
@@ -114,50 +114,48 @@ export const Hero = () => {
             </h1>
 
             {/* Subtitle */}
-           <p className="text-sm md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed px-4">
+            <p className="text-sm md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed px-4">
               {t.hero.subtitle}
             </p>
 
-            {/* Pro-code style CTA Buttons */}
-           <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center pt-2 md:pt-4">
+            {/* Pro-code style CTA Buttons - no emoji */}
+            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center pt-2 md:pt-4">
               <Button
                 size="lg"
-               className="pro-button px-6 py-4 md:px-8 md:py-6 text-sm md:text-base group"
+                className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-6 py-4 md:px-8 md:py-6 text-sm md:text-base font-semibold rounded-xl shadow-lg shadow-secondary/20 hover:shadow-xl hover:shadow-secondary/30 hover:-translate-y-0.5 transition-all duration-300 group"
                 asChild
               >
                 <Link to="/blog">
-                 <span className="relative z-10 flex items-center gap-1.5 md:gap-2">
-                    ⚡ {t.hero.cta}
-                   <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
-                  </span>
+                  {t.hero.cta}
+                  <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
               
               <Button
                 size="lg"
-                variant="ghost"
-               className="pro-card px-6 py-4 md:px-8 md:py-6 text-sm md:text-base font-semibold hover:bg-card/50"
+                variant="outline"
+                className="px-6 py-4 md:px-8 md:py-6 text-sm md:text-base font-semibold rounded-xl border-border/50 hover:bg-accent/50 transition-all duration-300"
                 asChild
               >
                 <Link to="/about">
-                  🎯 {t.nav.about}
+                  {t.nav.about}
                 </Link>
               </Button>
             </div>
 
-           {/* Pro-code style Stats Row - compact on mobile */}
-           <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center gap-3 md:gap-6 pt-4 md:pt-8 px-4">
+            {/* Pro-code style Stats Row - compact on mobile */}
+            <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center gap-3 md:gap-6 pt-4 md:pt-8 px-4">
               {statItems.map((stat, index) => (
                 <div 
                   key={index}
-                 className="pro-card pro-glow group flex items-center gap-3 md:gap-4 px-4 py-3 md:px-6 md:py-4 w-full sm:w-auto"
+                  className="group flex items-center gap-3 md:gap-4 px-4 py-3 md:px-6 md:py-4 w-full sm:w-auto rounded-xl bg-card/50 border border-border/50 hover:border-secondary/30 hover:shadow-lg hover:shadow-secondary/5 transition-all duration-300"
                 >
-                 <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-secondary/30 to-secondary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                   <stat.icon className="w-5 h-5 md:w-6 md:h-6 text-secondary" />
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-secondary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors duration-300">
+                    <stat.icon className="w-5 h-5 md:w-6 md:h-6 text-secondary" />
                   </div>
                   <div className="text-left">
-                   <div className="text-xl md:text-2xl font-bold text-foreground">{stat.value}+</div>
-                   <div className="text-xs md:text-sm font-medium text-muted-foreground">{stat.label}</div>
+                    <div className="text-xl md:text-2xl font-bold text-foreground">{stat.value}+</div>
+                    <div className="text-xs md:text-sm font-medium text-muted-foreground">{stat.label}</div>
                   </div>
                 </div>
               ))}
