@@ -33,7 +33,21 @@ function base64Encode(str: string): string {
   return btoa(unescape(encodeURIComponent(str)));
 }
 
-async function sendEmail(to: string, subject: string, html: string) {
+// Parse SMTP response code
+function parseSmtpResponse(response: string): { code: number; message: string } {
+  const match = response.match(/^(\d{3})/);
+  const code = match ? parseInt(match[1], 10) : 0;
+  return { code, message: response.trim() };
+}
+
+// Check if SMTP response indicates success
+function isSuccessResponse(code: number): boolean {
+  return code >= 200 && code < 400;
+}
+
+async function sendEmail(to: string, subject: string, html: string): Promise<{ success: boolean; details: string }> {
+  const smtpLogs: string[] = [];
+  
   // Create email content with Base64 encoding to avoid quoted-printable issues
   const boundary = `----=_Part_${Date.now()}`;
   const emailContent = [
@@ -52,59 +66,115 @@ async function sendEmail(to: string, subject: string, html: string) {
     `--${boundary}--`,
   ].join('\r\n');
 
-  // Connect to SMTP server
-  const conn = await Deno.connectTls({
-    hostname: SMTP_HOST,
-    port: SMTP_PORT,
-  });
-
-  const encoder = new TextEncoder();
-  const decoder = new TextDecoder();
-
-  async function sendCommand(command: string): Promise<string> {
-    await conn.write(encoder.encode(command + '\r\n'));
-    const buffer = new Uint8Array(1024);
-    const n = await conn.read(buffer);
-    return decoder.decode(buffer.subarray(0, n || 0));
-  }
-
-  async function readResponse(): Promise<string> {
-    const buffer = new Uint8Array(1024);
-    const n = await conn.read(buffer);
-    return decoder.decode(buffer.subarray(0, n || 0));
-  }
-
+  let conn: Deno.TlsConn | null = null;
+  
   try {
+    // Connect to SMTP server
+    conn = await Deno.connectTls({
+      hostname: SMTP_HOST,
+      port: SMTP_PORT,
+    });
+
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+
+    async function sendCommand(command: string): Promise<{ code: number; message: string }> {
+      const displayCommand = command.startsWith('AUTH') || command === btoa(SMTP_USERNAME) || command === btoa(SMTP_PASSWORD!) 
+        ? '[AUTH DATA]' 
+        : command;
+      smtpLogs.push(`C: ${displayCommand}`);
+      
+      await conn!.write(encoder.encode(command + '\r\n'));
+      const buffer = new Uint8Array(2048);
+      const n = await conn!.read(buffer);
+      const response = decoder.decode(buffer.subarray(0, n || 0));
+      
+      const parsed = parseSmtpResponse(response);
+      smtpLogs.push(`S: ${parsed.message}`);
+      
+      return parsed;
+    }
+
+    async function readResponse(): Promise<{ code: number; message: string }> {
+      const buffer = new Uint8Array(2048);
+      const n = await conn!.read(buffer);
+      const response = decoder.decode(buffer.subarray(0, n || 0));
+      const parsed = parseSmtpResponse(response);
+      smtpLogs.push(`S: ${parsed.message}`);
+      return parsed;
+    }
+
     // Read greeting
-    await readResponse();
+    const greeting = await readResponse();
+    if (!isSuccessResponse(greeting.code)) {
+      throw new Error(`SMTP greeting failed: ${greeting.message}`);
+    }
     
     // EHLO
-    await sendCommand(`EHLO ${SMTP_HOST}`);
+    const ehlo = await sendCommand(`EHLO ${SMTP_HOST}`);
+    if (!isSuccessResponse(ehlo.code)) {
+      throw new Error(`EHLO failed: ${ehlo.message}`);
+    }
     
     // AUTH LOGIN
-    await sendCommand('AUTH LOGIN');
-    await sendCommand(btoa(SMTP_USERNAME));
-    await sendCommand(btoa(SMTP_PASSWORD!));
+    const authStart = await sendCommand('AUTH LOGIN');
+    if (authStart.code !== 334) {
+      throw new Error(`AUTH LOGIN failed: ${authStart.message}`);
+    }
+    
+    const authUser = await sendCommand(btoa(SMTP_USERNAME));
+    if (authUser.code !== 334) {
+      throw new Error(`AUTH username failed: ${authUser.message}`);
+    }
+    
+    const authPass = await sendCommand(btoa(SMTP_PASSWORD!));
+    if (!isSuccessResponse(authPass.code)) {
+      throw new Error(`AUTH password failed: ${authPass.message}`);
+    }
     
     // MAIL FROM
-    await sendCommand(`MAIL FROM:<${SMTP_USERNAME}>`);
+    const mailFrom = await sendCommand(`MAIL FROM:<${SMTP_USERNAME}>`);
+    if (!isSuccessResponse(mailFrom.code)) {
+      throw new Error(`MAIL FROM failed: ${mailFrom.message}`);
+    }
     
-    // RCPT TO
-    await sendCommand(`RCPT TO:<${to}>`);
+    // RCPT TO - This is where recipient rejection happens!
+    const rcptTo = await sendCommand(`RCPT TO:<${to}>`);
+    if (!isSuccessResponse(rcptTo.code)) {
+      throw new Error(`RCPT TO failed (recipient rejected): ${rcptTo.message}`);
+    }
     
     // DATA
-    await sendCommand('DATA');
+    const dataStart = await sendCommand('DATA');
+    if (dataStart.code !== 354) {
+      throw new Error(`DATA command failed: ${dataStart.message}`);
+    }
     
     // Send email content
     await conn.write(encoder.encode(emailContent + '\r\n.\r\n'));
-    await readResponse();
+    const dataEnd = await readResponse();
+    if (!isSuccessResponse(dataEnd.code)) {
+      throw new Error(`Email data rejected: ${dataEnd.message}`);
+    }
     
     // QUIT
     await sendCommand('QUIT');
     
     console.log(`Email sent successfully to ${to}`);
+    console.log(`SMTP session log:\n${smtpLogs.join('\n')}`);
+    
+    return { success: true, details: `Sent successfully. Server response: ${dataEnd.message}` };
+    
+  } catch (error: any) {
+    console.error(`SMTP error for ${to}:`, error.message);
+    console.error(`SMTP session log:\n${smtpLogs.join('\n')}`);
+    return { success: false, details: `${error.message}. SMTP log: ${smtpLogs.slice(-3).join(' | ')}` };
   } finally {
-    conn.close();
+    if (conn) {
+      try {
+        conn.close();
+      } catch (_) {}
+    }
   }
 }
 
@@ -148,7 +218,9 @@ const handler = async (req: Request): Promise<Response> => {
     const siteUrl = Deno.env.get("SITE_URL") || "https://shfnpzfqtrfzdklnhatf.lovableproject.com";
 
     let sentCount = 0;
+    let failedCount = 0;
     const errors: string[] = [];
+    const successDetails: string[] = [];
 
     // Helper function to delay between emails
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -160,7 +232,7 @@ const handler = async (req: Request): Promise<Response> => {
       const postTitle = title[lang as keyof typeof title] || title.uz;
       const postExcerpt = excerpt[lang as keyof typeof excerpt] || excerpt.uz;
 
-      const subject = {
+      const subjectText = {
         uz: `Yangi maqola: ${postTitle}`,
         ru: `Новая статья: ${postTitle}`,
         en: `New article: ${postTitle}`,
@@ -210,23 +282,40 @@ ${featuredImage ? `<tr><td><img src="${featuredImage}" alt="${postTitle}" style=
 </html>`;
 
       try {
-        await sendEmail(
+        const result = await sendEmail(
           subscriber.email,
-          subject[lang as keyof typeof subject],
+          subjectText[lang as keyof typeof subjectText],
           html
         );
-        sentCount++;
         
-        // Log successful send
-        await supabase.from('newsletter_logs').insert({
-          post_id: postId,
-          subscriber_email: subscriber.email,
-          subscriber_language: lang,
-          status: 'sent'
-        });
+        if (result.success) {
+          sentCount++;
+          successDetails.push(`${subscriber.email}: ${result.details}`);
+          
+          // Log successful send
+          await supabase.from('newsletter_logs').insert({
+            post_id: postId,
+            subscriber_email: subscriber.email,
+            subscriber_language: lang,
+            status: 'sent'
+          });
+        } else {
+          failedCount++;
+          errors.push(`${subscriber.email}: ${result.details}`);
+          
+          // Log failed send with detailed error
+          await supabase.from('newsletter_logs').insert({
+            post_id: postId,
+            subscriber_email: subscriber.email,
+            subscriber_language: lang,
+            status: 'failed',
+            error_message: result.details
+          });
+        }
       } catch (emailError: any) {
-        console.error(`Error sending email to ${subscriber.email}:`, emailError);
-        errors.push(`${subscriber.email}: ${emailError.message}`);
+        console.error(`Unexpected error sending email to ${subscriber.email}:`, emailError);
+        failedCount++;
+        errors.push(`${subscriber.email}: Unexpected error - ${emailError.message}`);
         
         // Log failed send
         await supabase.from('newsletter_logs').insert({
@@ -238,20 +327,25 @@ ${featuredImage ? `<tr><td><img src="${featuredImage}" alt="${postTitle}" style=
         });
       }
 
-      // Rate limiting: wait 1 second between emails
+      // Rate limiting: wait 1.5 seconds between emails
       if (i < subscribers.length - 1) {
-        await delay(1000);
+        await delay(1500);
       }
     }
 
-    console.log(`Newsletter sent: ${sentCount}/${subscribers.length}`);
+    console.log(`Newsletter completed: ${sentCount} sent, ${failedCount} failed out of ${subscribers.length} total`);
+    if (errors.length > 0) {
+      console.log(`Errors: ${errors.join('; ')}`);
+    }
 
     return new Response(
       JSON.stringify({ 
-        message: "Newsletter sent", 
-        sent: sentCount, 
+        message: "Newsletter sending completed", 
+        sent: sentCount,
+        failed: failedCount,
         total: subscribers.length,
-        errors: errors.length > 0 ? errors : undefined 
+        errors: errors.length > 0 ? errors : undefined,
+        successDetails: successDetails.length > 0 ? successDetails : undefined
       }),
       {
         status: 200,
