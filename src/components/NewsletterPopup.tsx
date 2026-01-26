@@ -13,19 +13,27 @@ export const NewsletterPopup = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    // Check if popup was already shown in this session or user already subscribed
-    const popupShown = sessionStorage.getItem('newsletter_popup_shown');
+    // Check if user already subscribed
     const alreadySubscribed = localStorage.getItem('newsletter_subscribed');
-    
-    if (popupShown || alreadySubscribed) return;
+    if (alreadySubscribed) return;
 
-    // Show popup after 10 seconds
-    const timer = setTimeout(() => {
+    // First popup after 5 seconds
+    const firstTimer = setTimeout(() => {
       setIsOpen(true);
-      sessionStorage.setItem('newsletter_popup_shown', 'true');
-    }, 10000);
+    }, 5000);
 
-    return () => clearTimeout(timer);
+    // Then show every 30 seconds
+    const intervalTimer = setInterval(() => {
+      const stillSubscribed = localStorage.getItem('newsletter_subscribed');
+      if (!stillSubscribed) {
+        setIsOpen(true);
+      }
+    }, 30000);
+
+    return () => {
+      clearTimeout(firstTimer);
+      clearInterval(intervalTimer);
+    };
   }, []);
 
   const handleClose = () => {
