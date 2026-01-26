@@ -68,7 +68,7 @@ export const CTABanner = () => {
                 asChild
               >
                 <a 
-                  href="https://mpbs.uz/" 
+                  href="https://mpbs.uz/?utm_source=shohruxdigital&utm_medium=cta_banner&utm_campaign=blog_referral"
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex items-center gap-2"
