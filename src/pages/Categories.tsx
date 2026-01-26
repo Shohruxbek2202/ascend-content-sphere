@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, Search, FileText, Share2, Users, Tag } from 'lucide-react';
+import { TrendingUp, Search, FileText, Share2, Users, Tag, ArrowRight } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { Card } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -111,50 +110,74 @@ const Categories = () => {
             </p>
           </div>
 
-          {/* Categories Grid */}
+          {/* Categories Grid - Liquid Glass */}
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5].map((i) => (
                 <div
                   key={i}
-                  className="h-48 bg-muted animate-pulse rounded-xl"
+                  className="h-48 bg-white/10 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 animate-pulse rounded-2xl"
                 />
               ))}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {categories.map((category) => {
+              {categories.map((category, index) => {
                 const IconComponent = iconMap[category.icon || 'Tag'] || Tag;
 
                 return (
-                  <Link key={category.id} to={`/blog?category=${category.slug}`}>
-                    <Card className="h-full p-6 hover:shadow-xl transition-all duration-300 group cursor-pointer border-2 hover:border-primary/20">
+                  <Link 
+                    key={category.id} 
+                    to={`/blog?category=${category.slug}`}
+                    className="group"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    <div className="h-full p-6 bg-white/10 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-2xl shadow-lg shadow-black/5 hover:shadow-xl hover:shadow-black/10 transition-all duration-500 hover:-translate-y-2 hover:bg-white/15 dark:hover:bg-white/10">
                       <div className="flex items-start gap-4">
+                        {/* Icon - Glass Style */}
                         <div
-                          className="w-14 h-14 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
-                          style={{ backgroundColor: `${category.color}20` }}
+                          className="w-14 h-14 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 backdrop-blur-sm"
+                          style={{ 
+                            backgroundColor: `${category.color}20`,
+                            boxShadow: `0 4px 20px ${category.color}30`
+                          }}
                         >
                           <IconComponent
                             className="w-7 h-7"
                             style={{ color: category.color || '#3B82F6' }}
                           />
                         </div>
+                        
                         <div className="flex-1">
-                          <h3 className="font-display text-xl font-bold text-foreground group-hover:text-primary transition-colors mb-2">
+                          <h3 className="font-display text-xl font-bold text-foreground group-hover:text-secondary transition-colors duration-300 mb-2">
                             {getLocalizedName(category)}
                           </h3>
-                          <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+                          <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
                             {getLocalizedDescription(category)}
                           </p>
-                          <div className="text-sm font-medium" style={{ color: category.color || '#3B82F6' }}>
-                            {category.post_count}{' '}
-                            {language === 'uz' && 'ta maqola'}
-                            {language === 'ru' && 'статей'}
-                            {language === 'en' && 'articles'}
+                          
+                          {/* Stats & Arrow */}
+                          <div className="flex items-center justify-between">
+                            <div 
+                              className="text-sm font-semibold px-3 py-1 rounded-full"
+                              style={{ 
+                                color: category.color || '#3B82F6',
+                                backgroundColor: `${category.color}15`
+                              }}
+                            >
+                              {category.post_count}{' '}
+                              {language === 'uz' && 'ta maqola'}
+                              {language === 'ru' && 'статей'}
+                              {language === 'en' && 'articles'}
+                            </div>
+                            
+                            <ArrowRight 
+                              className="w-5 h-5 text-muted-foreground group-hover:text-secondary group-hover:translate-x-1 transition-all duration-300" 
+                            />
                           </div>
                         </div>
                       </div>
-                    </Card>
+                    </div>
                   </Link>
                 );
               })}

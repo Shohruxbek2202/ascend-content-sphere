@@ -81,22 +81,26 @@ export const Hero = () => {
               className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight"
               id="main-heading"
             >
-              {/* Highlighted part - iOS selection style */}
-              <span className="relative inline-block">
+              {/* Highlighted part - iOS selection style with animation */}
+              <span className="relative inline-block ios-selection-container">
                 <span className="relative z-10 text-foreground">{titleParts.highlighted}</span>
-                {/* iOS Selection highlight background */}
+                {/* iOS Selection highlight background with shimmer */}
                 <span 
-                  className="absolute inset-0 -inset-x-2 -inset-y-1 bg-[#007AFF]/20 dark:bg-[#0A84FF]/25 rounded-lg"
+                  className="absolute inset-0 -inset-x-3 -inset-y-1 rounded-lg ios-selection-bg"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(0,122,255,0.15) 0%, rgba(0,122,255,0.25) 50%, rgba(0,122,255,0.15) 100%)',
+                    background: 'linear-gradient(135deg, rgba(0,122,255,0.12) 0%, rgba(0,122,255,0.25) 50%, rgba(0,122,255,0.12) 100%)',
                   }}
                 />
-                {/* iOS Selection handles */}
-                <span className="absolute -left-1 top-0 bottom-0 w-0.5 bg-[#007AFF] rounded-full" />
-                <span className="absolute -right-1 top-0 bottom-0 w-0.5 bg-[#007AFF] rounded-full" />
-                {/* iOS Selection dots */}
-                <span className="absolute -left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-[#007AFF] rounded-full shadow-lg shadow-[#007AFF]/30" />
-                <span className="absolute -right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-[#007AFF] rounded-full shadow-lg shadow-[#007AFF]/30" />
+                {/* Shimmer effect overlay */}
+                <span className="absolute inset-0 -inset-x-3 -inset-y-1 rounded-lg overflow-hidden">
+                  <span className="absolute inset-0 ios-shimmer" />
+                </span>
+                {/* iOS Selection handles with pulse */}
+                <span className="absolute -left-1.5 top-0 bottom-0 w-[3px] bg-[#007AFF] rounded-full ios-handle-pulse" />
+                <span className="absolute -right-1.5 top-0 bottom-0 w-[3px] bg-[#007AFF] rounded-full ios-handle-pulse" style={{ animationDelay: '0.5s' }} />
+                {/* iOS Selection dots with glow */}
+                <span className="absolute -left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-[#007AFF] rounded-full shadow-lg shadow-[#007AFF]/50 ios-dot-pulse" />
+                <span className="absolute -right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-[#007AFF] rounded-full shadow-lg shadow-[#007AFF]/50 ios-dot-pulse" style={{ animationDelay: '0.5s' }} />
               </span>
               <br className="hidden sm:block" />
               <span className="text-foreground/80"> {titleParts.rest}</span>
