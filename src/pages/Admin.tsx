@@ -15,6 +15,7 @@ import {
   Mail,
   Search,
   Send,
+  Megaphone,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -33,6 +34,7 @@ import AdminSEO from '@/components/admin/AdminSEO';
 import AdminNewsletterLogs from '@/components/admin/AdminNewsletterLogs';
 import AdminSEOAudit from '@/components/admin/AdminSEOAudit';
 import AdminSitemapRobots from '@/components/admin/AdminSitemapRobots';
+import AdminBroadcast from '@/components/admin/AdminBroadcast';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
@@ -42,6 +44,7 @@ const menuItems = [
   { icon: Mail, label: 'Xabarlar', path: '/admin/messages' },
   { icon: Users, label: 'Obunchilar', path: '/admin/subscribers' },
   { icon: Send, label: 'Newsletter', path: '/admin/newsletter' },
+  { icon: Megaphone, label: 'Broadcast', path: '/admin/broadcast' },
   { icon: Search, label: 'SEO Audit', path: '/admin/seo-audit' },
   { icon: Search, label: 'SEO Keywords', path: '/admin/seo' },
   { icon: Search, label: 'Sitemap', path: '/admin/sitemap' },
@@ -179,6 +182,7 @@ const Admin = () => {
             <Route path="/messages" element={<AdminMessages />} />
             <Route path="/subscribers" element={<AdminSubscribers />} />
             <Route path="/newsletter" element={<AdminNewsletterLogs />} />
+            <Route path="/broadcast" element={<AdminBroadcast />} />
             <Route path="/seo-audit" element={<AdminSEOAudit />} />
             <Route path="/seo" element={<AdminSEO />} />
             <Route path="/sitemap" element={<AdminSitemapRobots />} />
