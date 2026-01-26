@@ -82,8 +82,8 @@ export const Hero = () => {
               {t.hero.subtitle}
             </p>
 
-            {/* Pro-code style CTA Buttons - no emoji */}
-            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center pt-2 md:pt-4">
+            {/* Pro-code style CTA Button */}
+            <div className="flex justify-center items-center pt-2 md:pt-4">
               <Button
                 size="lg"
                 className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-6 py-4 md:px-8 md:py-6 text-sm md:text-base font-semibold rounded-xl shadow-lg shadow-secondary/20 hover:shadow-xl hover:shadow-secondary/30 hover:-translate-y-0.5 transition-all duration-300 group"
@@ -92,17 +92,6 @@ export const Hero = () => {
                 <Link to="/blog">
                   {t.hero.cta}
                   <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
-              
-              <Button
-                size="lg"
-                variant="outline"
-                className="px-6 py-4 md:px-8 md:py-6 text-sm md:text-base font-semibold rounded-xl border-border/50 hover:bg-accent/50 transition-all duration-300"
-                asChild
-              >
-                <Link to="/about">
-                  {t.nav.about}
                 </Link>
               </Button>
             </div>
