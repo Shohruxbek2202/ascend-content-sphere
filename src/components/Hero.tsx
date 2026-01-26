@@ -1,40 +1,15 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, BookOpen, Users, FolderOpen } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 
 export const Hero = () => {
   const { t, language } = useLanguage();
-  const [stats, setStats] = useState({ posts: 0, subscribers: 0, categories: 0 });
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
-  }, []);
-
-  // Fetch stats
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const [postsRes, subscribersRes, categoriesRes] = await Promise.all([
-          supabase.from('posts').select('id', { count: 'exact', head: true }).eq('published', true),
-          supabase.from('subscribers').select('id', { count: 'exact', head: true }).eq('active', true),
-          supabase.from('categories').select('id', { count: 'exact', head: true })
-        ]);
-        
-        setStats({
-          posts: postsRes.count || 0,
-          subscribers: subscribersRes.count || 0,
-          categories: categoriesRes.count || 0
-        });
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-      }
-    };
-
-    fetchStats();
   }, []);
 
   // Title parts for iOS selection effect
@@ -50,11 +25,6 @@ export const Hero = () => {
 
   const titleParts = getTitleParts();
 
-  const statItems = [
-    { icon: BookOpen, value: stats.posts, label: t.hero.stats?.posts || "Maqolalar" },
-    { icon: FolderOpen, value: stats.categories, label: t.hero.stats?.categories || "Kategoriyalar" },
-    { icon: Users, value: stats.subscribers, label: t.hero.stats?.subscribers || "Obunachilar" },
-  ];
 
   return (
     <section className="relative min-h-[60vh] md:min-h-[80vh] flex flex-col overflow-hidden bg-background pt-12 md:pt-16">
@@ -137,23 +107,6 @@ export const Hero = () => {
               </Button>
             </div>
 
-            {/* Pro-code style Stats Row - compact on mobile */}
-            <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center gap-3 md:gap-6 pt-4 md:pt-8 px-4">
-              {statItems.map((stat, index) => (
-                <div 
-                  key={index}
-                  className="group flex items-center gap-3 md:gap-4 px-4 py-3 md:px-6 md:py-4 w-full sm:w-auto rounded-xl bg-card/50 border border-border/50 hover:border-secondary/30 hover:shadow-lg hover:shadow-secondary/5 transition-all duration-300"
-                >
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-secondary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors duration-300">
-                    <stat.icon className="w-5 h-5 md:w-6 md:h-6 text-secondary" />
-                  </div>
-                  <div className="text-left">
-                    <div className="text-xl md:text-2xl font-bold text-foreground">{stat.value}+</div>
-                    <div className="text-xs md:text-sm font-medium text-muted-foreground">{stat.label}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </div>
