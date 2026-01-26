@@ -31,7 +31,7 @@ export const BlogCard = ({
       to={`/blog/${id}`} 
       className={`group block ${featured ? 'sm:col-span-2' : ''}`}
     >
-      <article className="h-full bg-white/10 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-2xl overflow-hidden shadow-lg shadow-black/5 hover:shadow-xl hover:shadow-black/10 transition-all duration-500 hover:-translate-y-1">
+      <article className="h-full pro-card pro-glow">
         {/* Image */}
         <div className="relative overflow-hidden aspect-[16/10] bg-muted">
           <img
@@ -40,43 +40,45 @@ export const BlogCard = ({
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
             loading="lazy"
           />
-          {/* Glass overlay on hover */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          
+          {/* Category Badge - positioned on image */}
+          {category && (
+            <div className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0">
+              <span className="inline-block text-xs font-semibold text-secondary-foreground bg-secondary px-3 py-1.5 rounded-full shadow-lg shadow-secondary/30">
+                {category}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Content */}
-        <div className="p-4 md:p-5 space-y-3">
-          {/* Category Badge - Glass Style */}
-          {category && (
-            <span className="inline-block text-xs font-medium text-secondary-foreground bg-secondary/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm">
-              {category}
-            </span>
-          )}
-
+        <div className="p-5 md:p-6 space-y-4">
           {/* Title */}
-          <h3 className={`font-display font-semibold text-foreground group-hover:text-secondary transition-colors duration-300 leading-snug line-clamp-2 ${
-            featured ? 'text-xl md:text-2xl lg:text-3xl' : 'text-base md:text-lg lg:text-xl'
+          <h3 className={`font-display font-bold text-foreground group-hover:text-secondary transition-colors duration-300 leading-tight line-clamp-2 ${
+            featured ? 'text-xl md:text-2xl lg:text-3xl' : 'text-lg md:text-xl'
           }`}>
             {title}
           </h3>
 
           {/* Excerpt */}
-          <p className={`text-muted-foreground line-clamp-2 ${
-            featured ? 'text-sm md:text-base' : 'text-xs md:text-sm'
+          <p className={`text-muted-foreground line-clamp-2 leading-relaxed ${
+            featured ? 'text-sm md:text-base' : 'text-sm'
           }`}>
             {excerpt}
           </p>
 
           {/* Meta */}
-          <div className="flex items-center justify-between pt-2 border-t border-white/10">
-            <div className="flex items-center gap-1.5 text-xs md:text-sm text-muted-foreground">
-              <Clock className="w-3.5 h-3.5 md:w-4 md:h-4" />
+          <div className="flex items-center justify-between pt-3 border-t border-border/30">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Clock className="w-4 h-4" />
               <span>{readTime} {t.blog.readTime}</span>
             </div>
 
-            <div className="flex items-center gap-1.5 text-secondary text-xs md:text-sm font-medium group-hover:gap-2.5 transition-all duration-300">
+            <div className="flex items-center gap-2 text-secondary text-sm font-semibold group-hover:gap-3 transition-all duration-300">
               <span className="hidden sm:inline">{t.blog.readMore}</span>
-              <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4" />
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
         </div>
