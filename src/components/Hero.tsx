@@ -57,18 +57,12 @@ export const Hero = () => {
   ];
 
   return (
-    <section className="relative min-h-screen flex flex-col overflow-hidden bg-background pt-16">
+    <section className="relative min-h-[85vh] flex flex-col overflow-hidden bg-background pt-20">
       {/* Liquid Glass Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Animated gradient orbs */}
         <div className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-secondary/30 via-secondary/10 to-transparent blur-3xl animate-pulse" />
         <div className="absolute top-1/4 -right-20 w-[400px] h-[400px] rounded-full bg-gradient-to-bl from-primary/10 via-secondary/5 to-transparent blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
         <div className="absolute bottom-0 left-1/4 w-[600px] h-[300px] rounded-full bg-gradient-to-t from-secondary/20 to-transparent blur-3xl" />
-        
-        {/* Floating glass particles */}
-        <div className="absolute top-1/3 left-1/4 w-4 h-4 rounded-full bg-secondary/40 blur-sm animate-bounce" style={{ animationDuration: '3s' }} />
-        <div className="absolute top-1/2 right-1/3 w-3 h-3 rounded-full bg-secondary/30 blur-sm animate-bounce" style={{ animationDuration: '4s', animationDelay: '0.5s' }} />
-        <div className="absolute bottom-1/3 left-1/3 w-2 h-2 rounded-full bg-secondary/50 blur-sm animate-bounce" style={{ animationDuration: '2.5s', animationDelay: '1s' }} />
       </div>
 
       {/* Main Hero Content */}
@@ -125,12 +119,10 @@ export const Hero = () => {
                     {t.hero.cta}
                     <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </span>
-                  {/* Glass shine effect */}
                   <span className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 </Link>
               </Button>
               
-              {/* Liquid Glass Secondary Button */}
               <Button
                 size="lg"
                 variant="ghost"
@@ -141,48 +133,23 @@ export const Hero = () => {
               </Button>
             </div>
 
-            {/* Liquid Glass Stats Cards */}
-            <div className="flex flex-wrap justify-center gap-4 md:gap-6 pt-8">
+            {/* Single Stats Row - Liquid Glass Cards */}
+            <div className="flex flex-wrap justify-center gap-4 md:gap-6 pt-10">
               {statItems.map((stat, index) => (
                 <div 
                   key={index}
                   className="group flex items-center gap-4 px-6 py-4 rounded-2xl bg-white/10 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-lg shadow-black/5 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:bg-white/15 dark:hover:bg-white/10"
-                  style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary/30 to-secondary/10 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <stat.icon className="w-6 h-6 text-secondary" />
                   </div>
                   <div className="text-left">
                     <div className="text-2xl font-bold text-foreground">{stat.value}+</div>
-                    <div className="text-sm font-medium text-foreground/80">{stat.label}</div>
+                    <div className="text-sm font-medium text-muted-foreground">{stat.label}</div>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Stats Section - Dark Glass */}
-      <div className="relative z-10 bg-foreground/95 dark:bg-background/95 backdrop-blur-xl border-t border-white/10">
-        <div className="container mx-auto px-4 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-            {statItems.map((stat, index) => (
-              <div 
-                key={index}
-                className="text-center group"
-              >
-                <div className="text-5xl md:text-6xl font-bold text-background dark:text-foreground mb-2 group-hover:scale-105 transition-transform">
-                  {stat.value}+
-                </div>
-                <div className="text-lg font-semibold text-background/90 dark:text-foreground/90 mb-1">
-                  {stat.label}
-                </div>
-                <div className="text-sm text-background/60 dark:text-foreground/60">
-                  {stat.desc}
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </div>
