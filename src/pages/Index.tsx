@@ -6,7 +6,7 @@ import { Hero } from '@/components/Hero';
 import { BlogCard } from '@/components/BlogCard';
 import { SubscribeSection } from '@/components/SubscribeSection';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, BookOpen, Users, TrendingUp } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import SEOHead from '@/components/SEOHead';
@@ -34,15 +34,22 @@ interface Post {
   };
 }
 
+interface Stats {
+  posts: number;
+  categories: number;
+  subscribers: number;
+}
+
 const Index = () => {
   const { t, language } = useLanguage();
   const { settings } = useSiteSettings();
   const [featuredPosts, setFeaturedPosts] = useState<Post[]>([]);
   const [latestPosts, setLatestPosts] = useState<Post[]>([]);
+  const [stats, setStats] = useState<Stats>({ posts: 0, categories: 0, subscribers: 0 });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPosts = async () => {
+    const fetchData = async () => {
       // Fetch featured posts
       const { data: featured } = await supabase
         .from('posts')
@@ -60,12 +67,23 @@ const Index = () => {
         .order('published_at', { ascending: false })
         .limit(6);
 
+      // Fetch real stats
+      const [postsCount, categoriesCount] = await Promise.all([
+        supabase.from('posts').select('id', { count: 'exact', head: true }).eq('published', true),
+        supabase.from('categories').select('id', { count: 'exact', head: true }),
+      ]);
+
       if (featured) setFeaturedPosts(featured);
       if (latest) setLatestPosts(latest);
+      setStats({
+        posts: postsCount.count || 0,
+        categories: categoriesCount.count || 0,
+        subscribers: 500, // Approximate since we can't count subscribers without auth
+      });
       setIsLoading(false);
     };
 
-    fetchPosts();
+    fetchData();
   }, []);
 
   const getTitle = (post: Post) => post[`title_${language}`] || post.title_en;
@@ -102,6 +120,14 @@ const Index = () => {
     settings.linkedin_url,
   ].filter(Boolean) as string[];
 
+  const formatNumber = (num: number) => {
+    if (num === 0) return '0';
+    if (num < 10) return `${num}`;
+    if (num < 100) return `${Math.floor(num / 10) * 10}+`;
+    if (num < 1000) return `${Math.floor(num / 100) * 100}+`;
+    return `${Math.floor(num / 1000)}K+`;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
@@ -124,34 +150,34 @@ const Index = () => {
       <main>
         <Hero />
 
-        {/* Quick Stats Section for SEO */}
-        <section className="py-20 bg-muted/30">
+        {/* Stats Section */}
+        <section className="py-20 bg-foreground">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Link to="/blog" className="group text-center p-8 hover:bg-background rounded-2xl transition-colors">
-                <div className="text-4xl font-bold text-foreground mb-2">100+</div>
-                <h3 className="font-semibold text-foreground mb-1">
+              <Link to="/blog" className="group text-center p-8 hover:bg-background/5 rounded-2xl transition-colors">
+                <div className="text-5xl font-bold text-background mb-2">{formatNumber(stats.posts)}</div>
+                <h3 className="font-semibold text-background/90 mb-1">
                   {language === 'uz' ? 'Maqolalar' : language === 'ru' ? 'Статьи' : 'Articles'}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-background/60">
                   {language === 'uz' ? 'Foydali kontentlar' : language === 'ru' ? 'Полезный контент' : 'Useful content'}
                 </p>
               </Link>
-              <Link to="/categories" className="group text-center p-8 hover:bg-background rounded-2xl transition-colors">
-                <div className="text-4xl font-bold text-foreground mb-2">10+</div>
-                <h3 className="font-semibold text-foreground mb-1">
+              <Link to="/categories" className="group text-center p-8 hover:bg-background/5 rounded-2xl transition-colors">
+                <div className="text-5xl font-bold text-background mb-2">{formatNumber(stats.categories)}</div>
+                <h3 className="font-semibold text-background/90 mb-1">
                   {language === 'uz' ? 'Kategoriyalar' : language === 'ru' ? 'Категории' : 'Categories'}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-background/60">
                   {language === 'uz' ? 'Marketing va shaxsiy o\'sish' : language === 'ru' ? 'Маркетинг и рост' : 'Marketing & growth'}
                 </p>
               </Link>
-              <Link to="/subscribe" className="group text-center p-8 hover:bg-background rounded-2xl transition-colors">
-                <div className="text-4xl font-bold text-foreground mb-2">1000+</div>
-                <h3 className="font-semibold text-foreground mb-1">
+              <Link to="/subscribe" className="group text-center p-8 hover:bg-background/5 rounded-2xl transition-colors">
+                <div className="text-5xl font-bold text-background mb-2">{formatNumber(stats.subscribers)}</div>
+                <h3 className="font-semibold text-background/90 mb-1">
                   {language === 'uz' ? 'Obunachilar' : language === 'ru' ? 'Подписчики' : 'Subscribers'}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-background/60">
                   {language === 'uz' ? 'Yangiliklar va maqolalar' : language === 'ru' ? 'Новости и статьи' : 'News & articles'}
                 </p>
               </Link>
@@ -161,11 +187,11 @@ const Index = () => {
 
         {/* Featured Posts */}
         {featuredPosts.length > 0 && (
-          <section className="container mx-auto px-4 py-16" aria-labelledby="featured-heading">
-            <h2 id="featured-heading" className="font-display text-3xl md:text-4xl font-bold text-foreground mb-8">
+          <section className="container mx-auto px-4 py-20" aria-labelledby="featured-heading">
+            <h2 id="featured-heading" className="font-display text-3xl md:text-4xl font-bold text-foreground mb-10">
               {t.blog.featured}
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {featuredPosts.map((post) => (
                 <BlogCard
                   key={post.id}
@@ -186,27 +212,32 @@ const Index = () => {
         )}
 
         {/* Latest Posts */}
-        <section className="container mx-auto px-4 py-16" aria-labelledby="latest-heading">
-          <div className="flex items-center justify-between mb-8">
+        <section className="container mx-auto px-4 py-20" aria-labelledby="latest-heading">
+          <div className="flex items-center justify-between mb-10">
             <h2 id="latest-heading" className="font-display text-3xl md:text-4xl font-bold text-foreground">
               {t.blog.latest}
             </h2>
-            <Button variant="outline" asChild>
+            <Button variant="outline" className="rounded-full" asChild>
               <Link to="/blog" aria-label={language === 'uz' ? 'Barcha maqolalarni ko\'rish' : language === 'ru' ? 'Просмотреть все статьи' : 'View all articles'}>
-                {t.nav.blog}
+                {language === 'uz' ? 'Barchasi' : language === 'ru' ? 'Все' : 'View all'}
                 <ArrowRight className="w-4 h-4 ml-2" aria-hidden="true" />
               </Link>
             </Button>
           </div>
           
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-80 bg-muted animate-pulse rounded-lg" />
+                <div key={i} className="space-y-4">
+                  <div className="aspect-[16/10] bg-muted animate-pulse rounded-lg" />
+                  <div className="h-4 bg-muted animate-pulse rounded w-1/4" />
+                  <div className="h-6 bg-muted animate-pulse rounded w-3/4" />
+                  <div className="h-4 bg-muted animate-pulse rounded w-full" />
+                </div>
               ))}
             </div>
           ) : latestPosts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {latestPosts.map((post) => (
                 <BlogCard
                   key={post.id}
@@ -223,10 +254,19 @@ const Index = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 text-muted-foreground">
-              {language === 'uz' && 'Hali maqolalar yo\'q. Admin paneldan qo\'shing!'}
-              {language === 'ru' && 'Статей пока нет. Добавьте в админ панели!'}
-              {language === 'en' && 'No articles yet. Add them in the admin panel!'}
+            <div className="text-center py-20">
+              <div className="text-6xl mb-4">📝</div>
+              <h3 className="text-xl font-semibold text-foreground mb-2">
+                {language === 'uz' ? 'Hali maqolalar yo\'q' : language === 'ru' ? 'Статей пока нет' : 'No articles yet'}
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                {language === 'uz' ? 'Tez orada yangi maqolalar qo\'shiladi!' : language === 'ru' ? 'Скоро добавятся новые статьи!' : 'New articles coming soon!'}
+              </p>
+              <Button asChild>
+                <Link to="/subscribe">
+                  {language === 'uz' ? 'Obuna bo\'ling' : language === 'ru' ? 'Подписаться' : 'Subscribe'}
+                </Link>
+              </Button>
             </div>
           )}
         </section>
