@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Search, Filter, X } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -49,17 +50,37 @@ interface Category {
 
 const Blog = () => {
   const { t, language } = useLanguage();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [posts, setPosts] = useState<Post[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
   const [isLoading, setIsLoading] = useState(true);
+
+  // Sync URL param with state
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get('category');
+    if (categoryFromUrl && categoryFromUrl !== selectedCategory) {
+      setSelectedCategory(categoryFromUrl);
+    }
+  }, [searchParams]);
+
+  // Update URL when category changes
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value);
+    if (value === 'all') {
+      searchParams.delete('category');
+    } else {
+      searchParams.set('category', value);
+    }
+    setSearchParams(searchParams);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
 
-      // Fetch categories
+      // Fetch categories first
       const { data: categoriesData } = await supabase
         .from('categories')
         .select('*')
@@ -67,41 +88,41 @@ const Blog = () => {
 
       if (categoriesData) {
         setCategories(categoriesData);
-      }
 
-      // Fetch published posts
-      let query = supabase
-        .from('posts')
-        .select(`
-          *,
-          categories (
-            slug,
-            name_uz,
-            name_ru,
-            name_en
-          )
-        `)
-        .eq('published', true)
-        .order('published_at', { ascending: false });
+        // Fetch published posts
+        let query = supabase
+          .from('posts')
+          .select(`
+            *,
+            categories (
+              slug,
+              name_uz,
+              name_ru,
+              name_en
+            )
+          `)
+          .eq('published', true)
+          .order('published_at', { ascending: false });
 
-      if (selectedCategory !== 'all') {
-        const category = categories.find((c) => c.slug === selectedCategory);
-        if (category) {
-          query = query.eq('category_id', category.id);
+        if (selectedCategory !== 'all') {
+          const category = categoriesData.find((c) => c.slug === selectedCategory);
+          if (category) {
+            query = query.eq('category_id', category.id);
+          }
         }
-      }
 
-      const { data: postsData } = await query;
+        const { data: postsData } = await query;
 
-      if (postsData) {
-        setPosts(postsData);
+        if (postsData) {
+          setPosts(postsData);
+        }
       }
 
       setIsLoading(false);
     };
 
     fetchData();
-  }, [selectedCategory, categories.length]);
+  }, [selectedCategory]);
 
   const getLocalizedTitle = (post: Post) => {
     switch (language) {
@@ -206,7 +227,7 @@ const Blog = () => {
 
             {/* Category Filter */}
             <div className="flex gap-2">
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <Select value={selectedCategory} onValueChange={handleCategoryChange}>
                 <SelectTrigger className="flex-1 h-12">
                   <Filter className="w-4 h-4 mr-2 shrink-0" />
                   <SelectValue placeholder={t.blog.filterByCategory} />
@@ -228,7 +249,7 @@ const Blog = () => {
                   className="h-12 w-12 shrink-0"
                   onClick={() => {
                     setSearchQuery('');
-                    setSelectedCategory('all');
+                    handleCategoryChange('all');
                   }}
                 >
                   <X className="w-4 h-4" />
@@ -250,7 +271,7 @@ const Blog = () => {
                 {selectedCategory !== 'all' && (
                   <span className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full flex items-center gap-1">
                     {getLocalizedCategoryName(categories.find(c => c.slug === selectedCategory))}
-                    <button onClick={() => setSelectedCategory('all')}>
+                    <button onClick={() => handleCategoryChange('all')}>
                       <X className="w-3 h-3" />
                     </button>
                   </span>
@@ -316,10 +337,10 @@ const Blog = () => {
                 variant="outline"
                 onClick={() => {
                   setSearchQuery('');
-                  setSelectedCategory('all');
+                  handleCategoryChange('all');
                 }}
               >
-                {language === 'uz' && 'Filtirlarni tozalash'}
+                {language === 'uz' && 'Filtrlarni tozalash'}
                 {language === 'ru' && 'Сбросить фильтры'}
                 {language === 'en' && 'Clear filters'}
               </Button>
