@@ -66,33 +66,33 @@ export const SubscribeSection = () => {
   };
 
   return (
-    <section className="py-24 bg-foreground">
+    <section className="py-12 md:py-16 lg:py-24 bg-foreground">
       <div className="container mx-auto px-4">
-        <div className="max-w-2xl mx-auto text-center space-y-6">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-background">
+        <div className="max-w-2xl mx-auto text-center space-y-4 md:space-y-6">
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-background">
             {t.subscribe.title}
           </h2>
 
-          <p className="text-background/70 text-lg leading-relaxed">
+          <p className="text-background/70 text-sm md:text-base lg:text-lg leading-relaxed">
             {t.subscribe.description}
           </p>
 
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto mt-8"
+            className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto mt-6 md:mt-8"
           >
             <Input
               type="email"
               placeholder={t.subscribe.placeholder}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 bg-background border-0 text-foreground placeholder:text-muted-foreground h-12 rounded-full px-6"
+              className="flex-1 bg-background border-0 text-foreground placeholder:text-muted-foreground h-11 md:h-12 rounded-full px-5 md:px-6 text-sm md:text-base"
               disabled={isLoading}
             />
             <Button
               type="submit"
               size="lg"
-              className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-medium rounded-full px-8 h-12"
+              className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-medium rounded-full px-6 md:px-8 h-11 md:h-12 text-sm md:text-base"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -107,7 +107,7 @@ export const SubscribeSection = () => {
             </Button>
           </form>
 
-          <p className="text-background/50 text-sm">
+          <p className="text-background/50 text-xs md:text-sm">
             {language === 'uz' ? 'Email manzilingiz xavfsiz saqlanadi' : 
                 language === 'ru' ? 'Ваш email надёжно защищён' : 
                 'Your email is securely protected'}

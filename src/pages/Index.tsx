@@ -152,33 +152,33 @@ const Index = () => {
         <Hero />
 
         {/* Stats Section */}
-        <section className="py-20 bg-foreground">
+        <section className="py-10 md:py-16 lg:py-20 bg-foreground">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Link to="/blog" className="group text-center p-8 hover:bg-background/5 rounded-2xl transition-colors">
-                <div className="text-5xl font-bold text-background mb-2">{formatNumber(stats.posts)}</div>
-                <h3 className="font-semibold text-background/90 mb-1">
+            <div className="grid grid-cols-3 gap-2 md:gap-8">
+              <Link to="/blog" className="group text-center p-3 md:p-8 hover:bg-background/5 rounded-xl md:rounded-2xl transition-colors">
+                <div className="text-2xl sm:text-3xl md:text-5xl font-bold text-background mb-1 md:mb-2">{formatNumber(stats.posts)}</div>
+                <h3 className="text-xs sm:text-sm md:text-base font-semibold text-background/90 mb-0.5 md:mb-1">
                   {language === 'uz' ? 'Maqolalar' : language === 'ru' ? 'Статьи' : 'Articles'}
                 </h3>
-                <p className="text-sm text-background/60">
+                <p className="text-[10px] sm:text-xs md:text-sm text-background/60 hidden sm:block">
                   {language === 'uz' ? 'Foydali kontentlar' : language === 'ru' ? 'Полезный контент' : 'Useful content'}
                 </p>
               </Link>
-              <Link to="/categories" className="group text-center p-8 hover:bg-background/5 rounded-2xl transition-colors">
-                <div className="text-5xl font-bold text-background mb-2">{formatNumber(stats.categories)}</div>
-                <h3 className="font-semibold text-background/90 mb-1">
+              <Link to="/categories" className="group text-center p-3 md:p-8 hover:bg-background/5 rounded-xl md:rounded-2xl transition-colors">
+                <div className="text-2xl sm:text-3xl md:text-5xl font-bold text-background mb-1 md:mb-2">{formatNumber(stats.categories)}</div>
+                <h3 className="text-xs sm:text-sm md:text-base font-semibold text-background/90 mb-0.5 md:mb-1">
                   {language === 'uz' ? 'Kategoriyalar' : language === 'ru' ? 'Категории' : 'Categories'}
                 </h3>
-                <p className="text-sm text-background/60">
+                <p className="text-[10px] sm:text-xs md:text-sm text-background/60 hidden sm:block">
                   {language === 'uz' ? 'Marketing va shaxsiy o\'sish' : language === 'ru' ? 'Маркетинг и рост' : 'Marketing & growth'}
                 </p>
               </Link>
-              <Link to="/subscribe" className="group text-center p-8 hover:bg-background/5 rounded-2xl transition-colors">
-                <div className="text-5xl font-bold text-background mb-2">{formatNumber(stats.subscribers)}</div>
-                <h3 className="font-semibold text-background/90 mb-1">
+              <Link to="/subscribe" className="group text-center p-3 md:p-8 hover:bg-background/5 rounded-xl md:rounded-2xl transition-colors">
+                <div className="text-2xl sm:text-3xl md:text-5xl font-bold text-background mb-1 md:mb-2">{formatNumber(stats.subscribers)}</div>
+                <h3 className="text-xs sm:text-sm md:text-base font-semibold text-background/90 mb-0.5 md:mb-1">
                   {language === 'uz' ? 'Obunachilar' : language === 'ru' ? 'Подписчики' : 'Subscribers'}
                 </h3>
-                <p className="text-sm text-background/60">
+                <p className="text-[10px] sm:text-xs md:text-sm text-background/60 hidden sm:block">
                   {language === 'uz' ? 'Yangiliklar va maqolalar' : language === 'ru' ? 'Новости и статьи' : 'News & articles'}
                 </p>
               </Link>
@@ -188,11 +188,11 @@ const Index = () => {
 
         {/* Featured Posts */}
         {featuredPosts.length > 0 && (
-          <section className="container mx-auto px-4 py-20" aria-labelledby="featured-heading">
-            <h2 id="featured-heading" className="font-display text-3xl md:text-4xl font-bold text-foreground mb-10">
+          <section className="container mx-auto px-4 py-10 md:py-16 lg:py-20" aria-labelledby="featured-heading">
+            <h2 id="featured-heading" className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-6 md:mb-10">
               {t.blog.featured}
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
               {featuredPosts.map((post) => (
                 <BlogCard
                   key={post.id}
@@ -213,32 +213,32 @@ const Index = () => {
         )}
 
         {/* Latest Posts */}
-        <section className="container mx-auto px-4 py-20" aria-labelledby="latest-heading">
-          <div className="flex items-center justify-between mb-10">
-            <h2 id="latest-heading" className="font-display text-3xl md:text-4xl font-bold text-foreground">
+        <section className="container mx-auto px-4 py-10 md:py-16 lg:py-20" aria-labelledby="latest-heading">
+          <div className="flex items-center justify-between mb-6 md:mb-10">
+            <h2 id="latest-heading" className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
               {t.blog.latest}
             </h2>
-            <Button variant="outline" className="rounded-full" asChild>
+            <Button variant="outline" size="sm" className="rounded-full text-xs md:text-sm" asChild>
               <Link to="/blog" aria-label={language === 'uz' ? 'Barcha maqolalarni ko\'rish' : language === 'ru' ? 'Просмотреть все статьи' : 'View all articles'}>
                 {language === 'uz' ? 'Barchasi' : language === 'ru' ? 'Все' : 'View all'}
-                <ArrowRight className="w-4 h-4 ml-2" aria-hidden="true" />
+                <ArrowRight className="w-3 h-3 md:w-4 md:h-4 ml-1 md:ml-2" aria-hidden="true" />
               </Link>
             </Button>
           </div>
           
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="space-y-4">
+                <div key={i} className="space-y-3 md:space-y-4">
                   <div className="aspect-[16/10] bg-muted animate-pulse rounded-lg" />
-                  <div className="h-4 bg-muted animate-pulse rounded w-1/4" />
-                  <div className="h-6 bg-muted animate-pulse rounded w-3/4" />
-                  <div className="h-4 bg-muted animate-pulse rounded w-full" />
+                  <div className="h-3 md:h-4 bg-muted animate-pulse rounded w-1/4" />
+                  <div className="h-5 md:h-6 bg-muted animate-pulse rounded w-3/4" />
+                  <div className="h-3 md:h-4 bg-muted animate-pulse rounded w-full" />
                 </div>
               ))}
             </div>
           ) : latestPosts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
               {latestPosts.map((post) => (
                 <BlogCard
                   key={post.id}
@@ -255,12 +255,12 @@ const Index = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-20">
-              <div className="text-6xl mb-4">📝</div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">
+            <div className="text-center py-12 md:py-20">
+              <div className="text-4xl md:text-6xl mb-3 md:mb-4">📝</div>
+              <h3 className="text-lg md:text-xl font-semibold text-foreground mb-2">
                 {language === 'uz' ? 'Hali maqolalar yo\'q' : language === 'ru' ? 'Статей пока нет' : 'No articles yet'}
               </h3>
-              <p className="text-muted-foreground mb-6">
+              <p className="text-sm md:text-base text-muted-foreground mb-4 md:mb-6">
                 {language === 'uz' ? 'Tez orada yangi maqolalar qo\'shiladi!' : language === 'ru' ? 'Скоро добавятся новые статьи!' : 'New articles coming soon!'}
               </p>
               <Button asChild>
