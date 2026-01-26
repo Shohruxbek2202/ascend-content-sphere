@@ -151,41 +151,6 @@ const Index = () => {
       <main>
         <Hero />
 
-        {/* Stats Section */}
-        <section className="py-10 md:py-16 lg:py-20 bg-foreground">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-3 gap-2 md:gap-8">
-              <Link to="/blog" className="group text-center p-3 md:p-8 hover:bg-background/5 rounded-xl md:rounded-2xl transition-colors">
-                <div className="text-2xl sm:text-3xl md:text-5xl font-bold text-background mb-1 md:mb-2">{formatNumber(stats.posts)}</div>
-                <h3 className="text-xs sm:text-sm md:text-base font-semibold text-background/90 mb-0.5 md:mb-1">
-                  {language === 'uz' ? 'Maqolalar' : language === 'ru' ? 'Статьи' : 'Articles'}
-                </h3>
-                <p className="text-[10px] sm:text-xs md:text-sm text-background/60 hidden sm:block">
-                  {language === 'uz' ? 'Foydali kontentlar' : language === 'ru' ? 'Полезный контент' : 'Useful content'}
-                </p>
-              </Link>
-              <Link to="/categories" className="group text-center p-3 md:p-8 hover:bg-background/5 rounded-xl md:rounded-2xl transition-colors">
-                <div className="text-2xl sm:text-3xl md:text-5xl font-bold text-background mb-1 md:mb-2">{formatNumber(stats.categories)}</div>
-                <h3 className="text-xs sm:text-sm md:text-base font-semibold text-background/90 mb-0.5 md:mb-1">
-                  {language === 'uz' ? 'Kategoriyalar' : language === 'ru' ? 'Категории' : 'Categories'}
-                </h3>
-                <p className="text-[10px] sm:text-xs md:text-sm text-background/60 hidden sm:block">
-                  {language === 'uz' ? 'Marketing va shaxsiy o\'sish' : language === 'ru' ? 'Маркетинг и рост' : 'Marketing & growth'}
-                </p>
-              </Link>
-              <Link to="/subscribe" className="group text-center p-3 md:p-8 hover:bg-background/5 rounded-xl md:rounded-2xl transition-colors">
-                <div className="text-2xl sm:text-3xl md:text-5xl font-bold text-background mb-1 md:mb-2">{formatNumber(stats.subscribers)}</div>
-                <h3 className="text-xs sm:text-sm md:text-base font-semibold text-background/90 mb-0.5 md:mb-1">
-                  {language === 'uz' ? 'Obunachilar' : language === 'ru' ? 'Подписчики' : 'Subscribers'}
-                </h3>
-                <p className="text-[10px] sm:text-xs md:text-sm text-background/60 hidden sm:block">
-                  {language === 'uz' ? 'Yangiliklar va maqolalar' : language === 'ru' ? 'Новости и статьи' : 'News & articles'}
-                </p>
-              </Link>
-            </div>
-          </div>
-        </section>
-
         {/* Featured Posts */}
         {featuredPosts.length > 0 && (
           <section className="container mx-auto px-4 py-10 md:py-16 lg:py-20" aria-labelledby="featured-heading">
