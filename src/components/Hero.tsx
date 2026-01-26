@@ -67,14 +67,14 @@ export const Hero = () => {
                   <span className="absolute inset-0 ios-shimmer" />
                 </span>
                 {/* Left iOS Selection handle - dot on TOP, line going down */}
-                <span className="absolute -left-1 -top-1 bottom-0 flex flex-col items-center">
-                  <span className="w-3 h-3 bg-secondary rounded-full shadow-md shadow-secondary/40 ios-dot-pulse flex-shrink-0" />
-                  <span className="flex-1 w-[2px] bg-secondary ios-handle-pulse" />
+                <span className="absolute -left-2 -top-2 bottom-0 flex flex-col items-center">
+                  <span className="w-4 h-4 md:w-5 md:h-5 bg-secondary rounded-full shadow-lg shadow-secondary/50 ios-dot-pulse flex-shrink-0" />
+                  <span className="flex-1 w-[3px] bg-secondary ios-handle-pulse" />
                 </span>
                 {/* Right iOS Selection handle - line going down, dot on BOTTOM */}
-                <span className="absolute -right-1 top-0 -bottom-1 flex flex-col items-center" style={{ animationDelay: '0.5s' }}>
-                  <span className="flex-1 w-[2px] bg-secondary ios-handle-pulse" style={{ animationDelay: '0.5s' }} />
-                  <span className="w-3 h-3 bg-secondary rounded-full shadow-md shadow-secondary/40 ios-dot-pulse flex-shrink-0" style={{ animationDelay: '0.5s' }} />
+                <span className="absolute -right-2 top-0 -bottom-2 flex flex-col items-center" style={{ animationDelay: '0.5s' }}>
+                  <span className="flex-1 w-[3px] bg-secondary ios-handle-pulse" style={{ animationDelay: '0.5s' }} />
+                  <span className="w-4 h-4 md:w-5 md:h-5 bg-secondary rounded-full shadow-lg shadow-secondary/50 ios-dot-pulse flex-shrink-0" style={{ animationDelay: '0.5s' }} />
                 </span>
               </span>
               <br className="hidden sm:block" />
