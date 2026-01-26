@@ -18,10 +18,17 @@ serve(async (req) => {
 
     const baseUrl = 'https://shohruxdigital.uz';
 
+    // Fetch sitemap config from database
+    const { data: settingsData } = await supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'sitemap_config')
+      .single();
+
     // Fetch published posts
     const { data: posts, error: postsError } = await supabase
       .from('posts')
-      .select('slug, updated_at, published_at')
+      .select('slug, updated_at, published_at, title_uz, featured_image')
       .eq('published', true)
       .order('published_at', { ascending: false });
 
@@ -33,46 +40,68 @@ serve(async (req) => {
     // Fetch categories
     const { data: categories, error: categoriesError } = await supabase
       .from('categories')
-      .select('slug, updated_at');
+      .select('slug, updated_at, name_uz');
 
     if (categoriesError) {
       console.error('Categories error:', categoriesError);
       throw categoriesError;
     }
 
-    // Static pages
-    const staticPages = [
-      { loc: '/', priority: '1.0', changefreq: 'daily' },
-      { loc: '/blog', priority: '0.9', changefreq: 'daily' },
-      { loc: '/categories', priority: '0.8', changefreq: 'weekly' },
-      { loc: '/about', priority: '0.7', changefreq: 'monthly' },
-      { loc: '/contact', priority: '0.7', changefreq: 'monthly' },
-      { loc: '/subscribe', priority: '0.6', changefreq: 'monthly' },
-      { loc: '/privacy', priority: '0.3', changefreq: 'yearly' },
-      { loc: '/terms', priority: '0.3', changefreq: 'yearly' },
+    // Parse sitemap config or use defaults
+    let staticPages = [
+      { loc: '/', priority: '1.0', changefreq: 'daily', enabled: true },
+      { loc: '/blog', priority: '0.9', changefreq: 'daily', enabled: true },
+      { loc: '/categories', priority: '0.8', changefreq: 'weekly', enabled: true },
+      { loc: '/about', priority: '0.7', changefreq: 'monthly', enabled: true },
+      { loc: '/contact', priority: '0.7', changefreq: 'monthly', enabled: true },
+      { loc: '/subscribe', priority: '0.6', changefreq: 'monthly', enabled: true },
+      { loc: '/privacy', priority: '0.3', changefreq: 'yearly', enabled: true },
+      { loc: '/terms', priority: '0.3', changefreq: 'yearly', enabled: true },
     ];
 
-    // Build XML
+    if (settingsData?.value) {
+      try {
+        const parsedConfig = JSON.parse(settingsData.value);
+        // Filter only static pages (not post URLs)
+        staticPages = parsedConfig.filter((p: any) => 
+          p.enabled && !p.loc.includes('/post/') && !p.loc.includes('/blog/')
+        );
+      } catch (e) {
+        console.error('Failed to parse sitemap config:', e);
+      }
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+
+    // Build XML with enhanced schema
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+<!-- Generated dynamically from database -->
+<!-- Last updated: ${new Date().toISOString()} -->
+<!-- Total posts: ${posts?.length || 0} -->
+<!-- Total categories: ${categories?.length || 0} -->
+
 `;
 
     // Add static pages
     for (const page of staticPages) {
       xml += `  <url>
     <loc>${baseUrl}${page.loc}</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>${page.changefreq}</changefreq>
     <priority>${page.priority}</priority>
   </url>
 `;
     }
 
-    // Add categories
+    // Add categories with dynamic lastmod
     for (const category of (categories || [])) {
-      const lastmod = category.updated_at ? new Date(category.updated_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+      const lastmod = category.updated_at 
+        ? new Date(category.updated_at).toISOString().split('T')[0] 
+        : today;
       xml += `  <url>
     <loc>${baseUrl}/blog?category=${category.slug}</loc>
     <lastmod>${lastmod}</lastmod>
@@ -82,14 +111,28 @@ serve(async (req) => {
 `;
     }
 
-    // Add posts
+    // Add posts with image support
     for (const post of (posts || [])) {
-      const lastmod = post.updated_at ? new Date(post.updated_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+      const lastmod = post.updated_at 
+        ? new Date(post.updated_at).toISOString().split('T')[0] 
+        : today;
+      
       xml += `  <url>
     <loc>${baseUrl}/post/${post.slug}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.8</priority>`;
+      
+      // Add image if available
+      if (post.featured_image) {
+        xml += `
+    <image:image>
+      <image:loc>${post.featured_image}</image:loc>
+      <image:title>${escapeXml(post.title_uz || '')}</image:title>
+    </image:image>`;
+      }
+      
+      xml += `
   </url>
 `;
     }
@@ -102,7 +145,7 @@ serve(async (req) => {
       headers: {
         ...corsHeaders,
         'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 'public, max-age=3600',
+        'Cache-Control': 'public, max-age=1800', // Cache for 30 minutes
       },
     });
   } catch (error: unknown) {
@@ -117,3 +160,13 @@ serve(async (req) => {
     );
   }
 });
+
+// Helper function to escape XML special characters
+function escapeXml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
