@@ -1,19 +1,12 @@
 import { Link } from 'react-router-dom';
-import { Instagram, Send, Youtube, Facebook, Twitter, Linkedin, ArrowRight } from 'lucide-react';
+import { Instagram, Send, Youtube, Facebook, Twitter, Linkedin } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 
 export const Footer = () => {
   const { t, language } = useLanguage();
   const { settings } = useSiteSettings();
   const currentYear = new Date().getFullYear();
-  const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
   const socialLinks = [
     { url: settings.instagram_url, icon: Instagram, label: 'Instagram' },
@@ -24,59 +17,12 @@ export const Footer = () => {
     { url: settings.linkedin_url, icon: Linkedin, label: 'LinkedIn' },
   ].filter(link => link.url);
 
-  const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !/\S+@\S+\.\S+/.test(email)) {
-      toast.error(language === 'uz' ? 'Iltimos, to\'g\'ri email kiriting' : 
-                  language === 'ru' ? 'Пожалуйста, введите правильный email' : 
-                  'Please enter a valid email');
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const { data: existing } = await supabase
-        .from('subscribers')
-        .select('id, active')
-        .eq('email', email)
-        .maybeSingle();
-
-      if (existing) {
-        if (existing.active) {
-          toast.info(language === 'uz' ? 'Bu email allaqachon obuna bo\'lgan' : 
-                     language === 'ru' ? 'Этот email уже подписан' : 
-                     'This email is already subscribed');
-        } else {
-          await supabase
-            .from('subscribers')
-            .update({ active: true, unsubscribed_at: null })
-            .eq('id', existing.id);
-          toast.success(t.subscribe.success);
-        }
-      } else {
-        const { error } = await supabase
-          .from('subscribers')
-          .insert({ email, language, active: true });
-        if (error) throw error;
-        toast.success(t.subscribe.success);
-      }
-      setEmail('');
-    } catch (error) {
-      console.error('Subscribe error:', error);
-      toast.error(language === 'uz' ? 'Xatolik yuz berdi' : 
-                  language === 'ru' ? 'Произошла ошибка' : 
-                  'An error occurred');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <footer className="bg-foreground text-background">
       {/* Main Footer */}
       <div className="container mx-auto px-4 py-12 md:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
-          {/* Left Side - Brand & Newsletter */}
+          {/* Left Side - Brand & Social */}
           <div className="space-y-6">
             <Link to="/" className="inline-block">
               <span className="font-display text-2xl md:text-3xl font-bold text-background">
@@ -90,26 +36,6 @@ export const Footer = () => {
                 ? 'Профессиональная блог-платформа о цифровом маркетинге и личностном развитии.'
                 : 'Professional blog platform about digital marketing and personal development.'}
             </p>
-
-            {/* Newsletter in Footer */}
-            <form onSubmit={handleSubscribe} className="flex gap-2 max-w-sm">
-              <Input
-                type="email"
-                placeholder={t.subscribe.placeholder}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 bg-background/10 border-background/20 text-background placeholder:text-background/50 h-11 rounded-full px-4 text-sm"
-                disabled={isLoading}
-              />
-              <Button
-                type="submit"
-                size="icon"
-                className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full w-11 h-11 shrink-0"
-                disabled={isLoading}
-              >
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </form>
 
             {/* Social Links */}
             <div className="flex gap-2">
