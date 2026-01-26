@@ -1,5 +1,0 @@
-# Render.com redirects for dynamic robots.txt and sitemap.xml
-# These proxy requests to Supabase edge functions
-
-/robots.txt https://shfnpzfqtrfzdklnhatf.supabase.co/functions/v1/robots 200
-/sitemap.xml https://shfnpzfqtrfzdklnhatf.supabase.co/functions/v1/sitemap 200
