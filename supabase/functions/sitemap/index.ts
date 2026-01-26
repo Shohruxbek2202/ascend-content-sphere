@@ -89,7 +89,7 @@ serve(async (req) => {
     // Add static pages
     for (const page of staticPages) {
       xml += `  <url>
-    <loc>${baseUrl}${page.loc}</loc>
+    <loc>${escapeXml(baseUrl + page.loc)}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>${page.changefreq}</changefreq>
     <priority>${page.priority}</priority>
@@ -103,7 +103,7 @@ serve(async (req) => {
         ? new Date(category.updated_at).toISOString().split('T')[0] 
         : today;
       xml += `  <url>
-    <loc>${baseUrl}/blog?category=${category.slug}</loc>
+    <loc>${escapeXml(baseUrl + '/blog?category=' + category.slug)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -118,7 +118,7 @@ serve(async (req) => {
         : today;
       
     xml += `  <url>
-    <loc>${baseUrl}/blog/${post.slug}</loc>
+    <loc>${escapeXml(baseUrl + '/blog/' + post.slug)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>`;
@@ -127,7 +127,7 @@ serve(async (req) => {
       if (post.featured_image) {
         xml += `
     <image:image>
-      <image:loc>${post.featured_image}</image:loc>
+      <image:loc>${escapeXml(post.featured_image)}</image:loc>
       <image:title>${escapeXml(post.title_uz || '')}</image:title>
     </image:image>`;
       }
