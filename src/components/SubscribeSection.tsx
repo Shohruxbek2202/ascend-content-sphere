@@ -66,7 +66,7 @@ export const SubscribeSection = () => {
   };
 
   return (
-    <section className="py-12 md:py-16 lg:py-24 bg-foreground">
+    <section className="py-12 md:py-16 lg:py-24 bg-foreground" aria-label={language === 'uz' ? 'Yangiliklar uchun obuna bo\'ling' : language === 'ru' ? 'Подпишитесь на новости' : 'Subscribe to newsletter'}>
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto text-center space-y-4 md:space-y-6">
           <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-background">
@@ -92,8 +92,9 @@ export const SubscribeSection = () => {
             <Button
               type="submit"
               size="lg"
-              className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-medium rounded-full px-6 md:px-8 h-11 md:h-12 text-sm md:text-base"
+              className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-medium rounded-full px-6 md:px-8 h-11 md:h-12 text-sm md:text-base shadow-lg"
               disabled={isLoading}
+              aria-label={language === 'uz' ? 'Obuna bo\'lish' : language === 'ru' ? 'Подписаться' : 'Subscribe'}
             >
               {isLoading ? (
                 language === 'uz' ? 'Yuborilmoqda...' : 
