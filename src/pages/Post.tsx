@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { ReadingProgressBar } from '@/components/ReadingProgressBar';
 import { BlogCard } from '@/components/BlogCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -262,6 +263,7 @@ const Post = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <ReadingProgressBar />
       <SEOHead
         title={seoTitle}
         description={seoDescription}
