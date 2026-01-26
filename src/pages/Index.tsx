@@ -68,9 +68,10 @@ const Index = () => {
         .limit(6);
 
       // Fetch real stats
-      const [postsCount, categoriesCount] = await Promise.all([
+      const [postsCount, categoriesCount, subscribersCount] = await Promise.all([
         supabase.from('posts').select('id', { count: 'exact', head: true }).eq('published', true),
         supabase.from('categories').select('id', { count: 'exact', head: true }),
+        supabase.from('subscribers').select('id', { count: 'exact', head: true }).eq('active', true),
       ]);
 
       if (featured) setFeaturedPosts(featured);
@@ -78,7 +79,7 @@ const Index = () => {
       setStats({
         posts: postsCount.count || 0,
         categories: categoriesCount.count || 0,
-        subscribers: 500, // Approximate since we can't count subscribers without auth
+        subscribers: subscribersCount.count || 0,
       });
       setIsLoading(false);
     };
