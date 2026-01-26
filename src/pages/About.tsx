@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Target, Award, ArrowRight } from 'lucide-react';
+import { Users, Target, Award, ArrowRight, BookOpen, FolderOpen, Globe } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import SEOHead from '@/components/SEOHead';
@@ -54,22 +53,25 @@ const About = () => {
         {
           icon: Users,
           title: 'Jamiyat',
-          description: 'Professional marketologlar jamiyatini shakllantiramiz va ulashuvlarni qo\'llab-quvvatlaymiz.',
+          description: 'Professional marketologlar jamiyatini shakllantiramiz.',
         },
         {
           icon: Award,
           title: 'Innovatsiya',
-          description: 'Eng so\'nggi tendentsiyalar va strategiyalarni doimiy ravishda o\'rganamiz va ulashib boramiz.',
+          description: 'Eng so\'nggi tendentsiyalarni doimiy ravishda o\'rganamiz.',
         },
       ],
       cta: 'Blogni ko\'rish',
+      join: 'Bizga qo\'shiling!',
+      joinDesc: 'Eng so\'nggi maqolalar va qo\'llanmalarni o\'qing',
+      stats: { posts: 'Maqolalar', categories: 'Kategoriyalar', languages: 'Tillar', subscribers: 'Obunachilar' }
     },
     ru: {
       title: 'О Нас',
-      subtitle: 'Платформа для обмена профессиональными знаниями и опытом в области цифрового маркетинга и личного развития',
+      subtitle: 'Платформа для обмена профессиональными знаниями о цифровом маркетинге и личном развитии',
       mission: {
         title: 'Наша Миссия',
-        description: 'Помогать маркетологам и предпринимателям расти, делясь профессиональными знаниями о современных маркетинговых стратегиях и личном развитии.',
+        description: 'Помогать маркетологам и предпринимателям расти, делясь профессиональными знаниями о современных маркетинговых стратегиях.',
       },
       values: [
         {
@@ -80,22 +82,25 @@ const About = () => {
         {
           icon: Users,
           title: 'Сообщество',
-          description: 'Формируем профессиональное сообщество маркетологов и поддерживаем обмен опытом.',
+          description: 'Формируем профессиональное сообщество маркетологов.',
         },
         {
           icon: Award,
           title: 'Инновации',
-          description: 'Постоянно изучаем и делимся новейшими трендами и стратегиями.',
+          description: 'Постоянно изучаем новейшие тренды и стратегии.',
         },
       ],
       cta: 'Смотреть блог',
+      join: 'Присоединяйтесь!',
+      joinDesc: 'Читайте последние статьи и руководства',
+      stats: { posts: 'Статей', categories: 'Категории', languages: 'Языка', subscribers: 'Подписчиков' }
     },
     en: {
       title: 'About Us',
-      subtitle: 'A platform for sharing professional knowledge and experience in digital marketing and personal development',
+      subtitle: 'A platform for sharing professional knowledge in digital marketing and personal development',
       mission: {
         title: 'Our Mission',
-        description: 'To help marketers and entrepreneurs grow by sharing professional knowledge about modern marketing strategies and personal development.',
+        description: 'To help marketers and entrepreneurs grow by sharing professional knowledge about modern marketing strategies.',
       },
       values: [
         {
@@ -106,19 +111,22 @@ const About = () => {
         {
           icon: Users,
           title: 'Community',
-          description: 'We build a professional community of marketers and support knowledge sharing.',
+          description: 'We build a professional community of marketers.',
         },
         {
           icon: Award,
           title: 'Innovation',
-          description: 'We constantly learn and share the latest trends and strategies.',
+          description: 'We constantly learn and share the latest trends.',
         },
       ],
       cta: 'View Blog',
+      join: 'Join us!',
+      joinDesc: 'Read the latest articles and guides',
+      stats: { posts: 'Articles', categories: 'Categories', languages: 'Languages', subscribers: 'Subscribers' }
     },
   };
 
-  const currentContent = content[language];
+  const t = content[language];
 
   const seoTitle = language === 'uz' 
     ? 'Biz Haqimizda | ShohruxDigital'
@@ -132,6 +140,13 @@ const About = () => {
     ? 'Платформа для обмена профессиональными знаниями о цифровом маркетинге и личном развитии'
     : 'A platform for sharing professional knowledge in digital marketing and personal development';
 
+  const statItems = [
+    { icon: BookOpen, value: stats.posts, label: t.stats.posts },
+    { icon: FolderOpen, value: stats.categories, label: t.stats.categories },
+    { icon: Globe, value: 3, label: t.stats.languages },
+    { icon: Users, value: stats.subscribers, label: t.stats.subscribers },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
@@ -142,126 +157,100 @@ const About = () => {
       />
       <Header />
 
-      <main className="pt-20 md:pt-24 pb-12 md:pb-16">
-        {/* Hero Section */}
-        <section className="container mx-auto px-4 mb-12 md:mb-16">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 md:mb-6">
-              {currentContent.title}
-            </h1>
-            <p className="text-base md:text-xl text-muted-foreground">
-              {currentContent.subtitle}
-            </p>
-          </div>
-        </section>
+      <main className="relative pt-20 pb-12">
+        {/* Liquid Glass Background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 -left-20 w-[400px] h-[400px] rounded-full bg-gradient-to-br from-secondary/20 via-secondary/5 to-transparent blur-3xl animate-pulse" />
+          <div className="absolute top-1/3 right-0 w-[350px] h-[350px] rounded-full bg-gradient-to-bl from-primary/15 via-primary/5 to-transparent blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        </div>
 
-        {/* Mission Section */}
-        <section className="bg-muted/30 py-12 md:py-16 mb-12 md:mb-16">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center">
-              <div className="inline-flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-full bg-primary/10 mb-4 md:mb-6">
-                <Target className="w-7 h-7 md:w-8 md:h-8 text-primary" />
+        <div className="container mx-auto px-4 relative z-10">
+          {/* Hero Section */}
+          <section className="max-w-3xl mx-auto text-center mb-12">
+            <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+              {t.title}
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground">
+              {t.subtitle}
+            </p>
+          </section>
+
+          {/* Mission Section - Liquid Glass */}
+          <section className="max-w-3xl mx-auto mb-12">
+            <div className="rounded-2xl bg-white/10 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-xl p-6 md:p-8 text-center">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mx-auto mb-4">
+                <Target className="w-7 h-7 text-primary" />
               </div>
-              <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-3 md:mb-4">
-                {currentContent.mission.title}
+              <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-3">
+                {t.mission.title}
               </h2>
-              <p className="text-base md:text-lg text-muted-foreground">
-                {currentContent.mission.description}
+              <p className="text-muted-foreground text-lg">
+                {t.mission.description}
               </p>
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* Values Section */}
-        <section className="container mx-auto px-4 mb-12 md:mb-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-            {currentContent.values.map((value, index) => (
-              <Card key={index} className="p-5 md:p-6 text-center hover:shadow-lg transition-shadow">
-                <div className="inline-flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl bg-secondary mb-3 md:mb-4">
-                  <value.icon className="w-6 h-6 md:w-7 md:h-7 text-secondary-foreground" />
+          {/* Values Section - Liquid Glass Cards */}
+          <section className="max-w-4xl mx-auto mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {t.values.map((value, index) => (
+                <div 
+                  key={index} 
+                  className="rounded-2xl bg-white/10 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-lg p-5 text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary/30 to-secondary/10 flex items-center justify-center mx-auto mb-3">
+                    <value.icon className="w-6 h-6 text-secondary" />
+                  </div>
+                  <h3 className="font-display text-lg font-bold text-foreground mb-2">
+                    {value.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {value.description}
+                  </p>
                 </div>
-                <h3 className="font-display text-lg md:text-xl font-bold text-foreground mb-2">
-                  {value.title}
-                </h3>
-                <p className="text-sm md:text-base text-muted-foreground">
-                  {value.description}
-                </p>
-              </Card>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
 
-        {/* Stats Section */}
-        <section className="bg-foreground py-12 md:py-16 mb-12 md:mb-16">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center text-background">
-              <div>
-                <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-1 md:mb-2">
-                  {stats.posts > 0 ? `${stats.posts}+` : '0'}
-                </div>
-                <div className="text-sm md:text-base text-background/80">
-                  {language === 'uz' && 'Maqolalar'}
-                  {language === 'ru' && 'Статей'}
-                  {language === 'en' && 'Articles'}
-                </div>
-              </div>
-              <div>
-                <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-1 md:mb-2">
-                  {stats.categories}
-                </div>
-                <div className="text-sm md:text-base text-background/80">
-                  {language === 'uz' && 'Kategoriyalar'}
-                  {language === 'ru' && 'Категории'}
-                  {language === 'en' && 'Categories'}
-                </div>
-              </div>
-              <div>
-                <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-1 md:mb-2">3</div>
-                <div className="text-sm md:text-base text-background/80">
-                  {language === 'uz' && 'Tillar'}
-                  {language === 'ru' && 'Языка'}
-                  {language === 'en' && 'Languages'}
-                </div>
-              </div>
-              <div>
-                <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-1 md:mb-2">
-                  {stats.subscribers > 0 ? `${stats.subscribers}+` : '0'}
-                </div>
-                <div className="text-sm md:text-base text-background/80">
-                  {language === 'uz' && 'Obunachilar'}
-                  {language === 'ru' && 'Подписчиков'}
-                  {language === 'en' && 'Subscribers'}
-                </div>
+          {/* Stats Section - Liquid Glass */}
+          <section className="max-w-4xl mx-auto mb-12">
+            <div className="rounded-2xl bg-foreground/95 backdrop-blur-xl shadow-2xl p-6 md:p-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center text-background">
+                {statItems.map((stat, index) => (
+                  <div key={index} className="flex flex-col items-center">
+                    <div className="w-10 h-10 rounded-lg bg-background/10 flex items-center justify-center mb-2">
+                      <stat.icon className="w-5 h-5 text-secondary" />
+                    </div>
+                    <div className="text-2xl md:text-3xl font-bold">{stat.value}+</div>
+                    <div className="text-sm text-background/70">{stat.label}</div>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* CTA Section */}
-        <section className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center">
-            <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-3 md:mb-4">
-              {language === 'uz' && 'Bizga qo\'shiling!'}
-              {language === 'ru' && 'Присоединяйтесь к нам!'}
-              {language === 'en' && 'Join us!'}
-            </h2>
-            <p className="text-muted-foreground mb-6 md:mb-8">
-              {language === 'uz' && 'Eng so\'nggi maqolalar va qo\'llanmalarni o\'qing'}
-              {language === 'ru' && 'Читайте последние статьи и руководства'}
-              {language === 'en' && 'Read the latest articles and guides'}
-            </p>
-            <Button
-              size="lg"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full"
-              asChild
-            >
-              <Link to="/blog" className="flex items-center gap-2">
-                {currentContent.cta}
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </Button>
-          </div>
-        </section>
+          {/* CTA Section */}
+          <section className="max-w-xl mx-auto text-center">
+            <div className="rounded-2xl bg-white/10 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-xl p-6 md:p-8">
+              <h2 className="font-display text-2xl font-bold text-foreground mb-2">
+                {t.join}
+              </h2>
+              <p className="text-muted-foreground mb-5">
+                {t.joinDesc}
+              </p>
+              <Button
+                size="lg"
+                className="bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-xl font-semibold shadow-lg shadow-secondary/20 transition-all duration-300 hover:shadow-xl hover:shadow-secondary/30"
+                asChild
+              >
+                <Link to="/blog" className="flex items-center gap-2">
+                  {t.cta}
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </Button>
+            </div>
+          </section>
+        </div>
       </main>
 
       <Footer />
