@@ -76,12 +76,6 @@ export const Hero = () => {
       <div className="flex-1 flex items-center justify-center relative z-10">
         <div className="container mx-auto px-4 py-4 md:py-8">
           <div className={`max-w-5xl mx-auto text-center space-y-4 md:space-y-8 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            
-            {/* Professional badge - no emoji */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 md:px-5 md:py-2.5 rounded-full bg-secondary/10 border border-secondary/20 backdrop-blur-sm">
-              <div className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-              <span className="text-xs md:text-sm font-medium text-foreground/90">Professional Blog Platform</span>
-            </div>
 
             {/* iOS Style Title with Selection Effect */}
             <h1 
