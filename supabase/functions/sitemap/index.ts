@@ -117,8 +117,8 @@ serve(async (req) => {
         ? new Date(post.updated_at).toISOString().split('T')[0] 
         : today;
       
-      xml += `  <url>
-    <loc>${baseUrl}/post/${post.slug}</loc>
+    xml += `  <url>
+    <loc>${baseUrl}/blog/${post.slug}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>`;
