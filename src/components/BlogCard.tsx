@@ -31,8 +31,9 @@ export const BlogCard = ({
       to={`/blog/${id}`} 
       className={`group block ${featured ? 'sm:col-span-2' : ''}`}
     >
-      <article className="h-full pro-card pro-glow">
-        {/* Image */}
+      <article className="h-full relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl overflow-hidden transition-all duration-500 hover:border-secondary/30 hover:shadow-xl hover:shadow-secondary/10 hover:-translate-y-1">
+        {/* Subtle top glow on hover */}
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-secondary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         <div className="relative overflow-hidden aspect-[16/10] bg-muted">
           <img
             src={image}
