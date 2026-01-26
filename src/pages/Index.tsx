@@ -5,6 +5,8 @@ import { Footer } from '@/components/Footer';
 import { Hero } from '@/components/Hero';
 import { BlogCard } from '@/components/BlogCard';
 import { SubscribeSection } from '@/components/SubscribeSection';
+import { NewsletterPopup } from '@/components/NewsletterPopup';
+import { CTABanner } from '@/components/CTABanner';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -237,8 +239,14 @@ const Index = () => {
           )}
         </section>
 
+        {/* CTA Banner - MPBS.uz */}
+        <CTABanner />
+
         <SubscribeSection />
       </main>
+
+      {/* Newsletter Popup */}
+      <NewsletterPopup />
 
       <Footer />
     </div>
