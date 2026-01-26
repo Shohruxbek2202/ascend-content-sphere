@@ -98,25 +98,25 @@ const Contact = () => {
       <Header />
       
       <main className="relative pt-20 pb-12">
-        {/* Liquid Glass Background */}
+        {/* Background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-10 right-1/4 w-[350px] h-[350px] rounded-full bg-gradient-to-br from-primary/15 via-primary/5 to-transparent blur-3xl animate-pulse" />
-          <div className="absolute bottom-10 left-1/3 w-[400px] h-[400px] rounded-full bg-gradient-to-bl from-secondary/15 via-secondary/5 to-transparent blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }} />
+          <div className="absolute top-10 right-1/4 w-[350px] h-[350px] rounded-full bg-secondary/10 blur-3xl" />
+          <div className="absolute bottom-10 left-1/3 w-[400px] h-[400px] rounded-full bg-primary/5 blur-3xl" />
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-xl mx-auto">
             {/* Header */}
             <div className="text-center mb-8">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 backdrop-blur-sm flex items-center justify-center mx-auto mb-5 shadow-lg shadow-primary/10">
+              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-5">
                 <MessageSquare className="w-8 h-8 text-primary" />
               </div>
               <h1 className="font-display text-3xl md:text-4xl font-bold mb-3">{t.title}</h1>
               <p className="text-muted-foreground text-lg max-w-md mx-auto">{t.subtitle}</p>
             </div>
 
-            {/* Form Card - Liquid Glass */}
-            <div className="rounded-2xl bg-white/10 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-xl p-6 md:p-8">
+            {/* Form Card */}
+            <div className="rounded-2xl bg-card border border-border shadow-xl p-6 md:p-8">
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -127,7 +127,7 @@ const Contact = () => {
                         id="name"
                         value={formData.name}
                         onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                        className="pl-10 h-11 rounded-xl bg-white/10 dark:bg-white/5 border-white/20 dark:border-white/10 backdrop-blur-sm focus:border-primary/50"
+                        className="pl-10 h-11 rounded-xl bg-background border-border focus:border-secondary"
                         required
                       />
                     </div>
@@ -141,7 +141,7 @@ const Contact = () => {
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                        className="pl-10 h-11 rounded-xl bg-white/10 dark:bg-white/5 border-white/20 dark:border-white/10 backdrop-blur-sm focus:border-primary/50"
+                        className="pl-10 h-11 rounded-xl bg-background border-border focus:border-secondary"
                         required
                       />
                     </div>
@@ -156,7 +156,7 @@ const Contact = () => {
                       id="subject"
                       value={formData.subject}
                       onChange={(e) => setFormData(prev => ({ ...prev, subject: e.target.value }))}
-                      className="pl-10 h-11 rounded-xl bg-white/10 dark:bg-white/5 border-white/20 dark:border-white/10 backdrop-blur-sm focus:border-primary/50"
+                      className="pl-10 h-11 rounded-xl bg-background border-border focus:border-secondary"
                       required
                     />
                   </div>
@@ -169,7 +169,7 @@ const Contact = () => {
                     rows={5}
                     value={formData.message}
                     onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
-                    className="rounded-xl bg-white/10 dark:bg-white/5 border-white/20 dark:border-white/10 backdrop-blur-sm focus:border-primary/50 resize-none"
+                    className="rounded-xl bg-background border-border focus:border-secondary resize-none"
                     required
                   />
                 </div>
