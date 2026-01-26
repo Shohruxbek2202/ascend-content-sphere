@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Menu, X, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { ThemeToggle } from './ThemeToggle';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export const Header = () => {
@@ -75,6 +76,7 @@ export const Header = () => {
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-2 md:gap-3">
+              <ThemeToggle />
               <LanguageSwitcher />
               <Button
                 size="sm"
