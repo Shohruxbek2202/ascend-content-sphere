@@ -125,47 +125,37 @@ const Index = () => {
         <Hero />
 
         {/* Quick Stats Section for SEO */}
-        <section className="container mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Link to="/blog" className="group flex items-center gap-4 p-6 bg-card rounded-xl border border-border hover:border-primary/50 transition-colors">
-              <div className="p-3 rounded-lg bg-primary/10 text-primary">
-                <BookOpen className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+        <section className="py-20 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <Link to="/blog" className="group text-center p-8 hover:bg-background rounded-2xl transition-colors">
+                <div className="text-4xl font-bold text-foreground mb-2">100+</div>
+                <h3 className="font-semibold text-foreground mb-1">
                   {language === 'uz' ? 'Maqolalar' : language === 'ru' ? 'Статьи' : 'Articles'}
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   {language === 'uz' ? 'Foydali kontentlar' : language === 'ru' ? 'Полезный контент' : 'Useful content'}
                 </p>
-              </div>
-            </Link>
-            <Link to="/categories" className="group flex items-center gap-4 p-6 bg-card rounded-xl border border-border hover:border-primary/50 transition-colors">
-              <div className="p-3 rounded-lg bg-accent/10 text-accent">
-                <TrendingUp className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+              </Link>
+              <Link to="/categories" className="group text-center p-8 hover:bg-background rounded-2xl transition-colors">
+                <div className="text-4xl font-bold text-foreground mb-2">10+</div>
+                <h3 className="font-semibold text-foreground mb-1">
                   {language === 'uz' ? 'Kategoriyalar' : language === 'ru' ? 'Категории' : 'Categories'}
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   {language === 'uz' ? 'Marketing va shaxsiy o\'sish' : language === 'ru' ? 'Маркетинг и рост' : 'Marketing & growth'}
                 </p>
-              </div>
-            </Link>
-            <Link to="/subscribe" className="group flex items-center gap-4 p-6 bg-card rounded-xl border border-border hover:border-primary/50 transition-colors">
-              <div className="p-3 rounded-lg bg-secondary/10 text-secondary">
-                <Users className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                  {language === 'uz' ? 'Obuna bo\'lish' : language === 'ru' ? 'Подписаться' : 'Subscribe'}
+              </Link>
+              <Link to="/subscribe" className="group text-center p-8 hover:bg-background rounded-2xl transition-colors">
+                <div className="text-4xl font-bold text-foreground mb-2">1000+</div>
+                <h3 className="font-semibold text-foreground mb-1">
+                  {language === 'uz' ? 'Obunachilar' : language === 'ru' ? 'Подписчики' : 'Subscribers'}
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   {language === 'uz' ? 'Yangiliklar va maqolalar' : language === 'ru' ? 'Новости и статьи' : 'News & articles'}
                 </p>
-              </div>
-            </Link>
+              </Link>
+            </div>
           </div>
         </section>
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, BookOpen } from 'lucide-react';
+import { Menu, X, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -22,7 +22,7 @@ export const Header = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? 'bg-background/95 backdrop-blur-md shadow-md'
+          ? 'bg-background/95 backdrop-blur-md border-b border-border'
           : 'bg-transparent'
       }`}
     >
@@ -30,10 +30,7 @@ export const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center transform group-hover:scale-110 transition-transform">
-              <BookOpen className="w-6 h-6 text-white" />
-            </div>
-            <span className="font-display text-xl font-bold text-foreground">
+            <span className="font-display text-lg font-semibold text-foreground">
               ShohruxDigital
             </span>
           </Link>
@@ -42,25 +39,25 @@ export const Header = () => {
           <nav className="hidden md:flex items-center gap-8">
             <Link
               to="/"
-              className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors"
+              className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
             >
               {t.nav.home}
             </Link>
             <Link
               to="/blog"
-              className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors"
+              className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
             >
               {t.nav.blog}
             </Link>
             <Link
               to="/categories"
-              className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors"
+              className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
             >
               {t.nav.categories}
             </Link>
             <Link
               to="/about"
-              className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors"
+              className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
             >
               {t.nav.about}
             </Link>
@@ -70,12 +67,14 @@ export const Header = () => {
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
             <Button
-              variant="default"
               size="sm"
-              className="hidden sm:inline-flex bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+              className="hidden sm:inline-flex bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-5"
               asChild
             >
-              <Link to="/subscribe">{t.hero.subscribe}</Link>
+              <Link to="/subscribe" className="flex items-center gap-2">
+                {t.hero.subscribe}
+                <ArrowRight className="w-4 h-4" />
+              </Link>
             </Button>
 
             {/* Mobile Menu Button */}
@@ -96,40 +95,39 @@ export const Header = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden py-4 border-t animate-fade-in">
-            <nav className="flex flex-col gap-3">
+          <div className="md:hidden py-4 border-t border-border">
+            <nav className="flex flex-col gap-1">
               <Link
                 to="/"
-                className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors py-2"
+                className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors py-3 px-2 hover:bg-muted rounded-lg"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {t.nav.home}
               </Link>
               <Link
                 to="/blog"
-                className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors py-2"
+                className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors py-3 px-2 hover:bg-muted rounded-lg"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {t.nav.blog}
               </Link>
               <Link
                 to="/categories"
-                className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors py-2"
+                className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors py-3 px-2 hover:bg-muted rounded-lg"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {t.nav.categories}
               </Link>
               <Link
                 to="/about"
-                className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors py-2"
+                className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors py-3 px-2 hover:bg-muted rounded-lg"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {t.nav.about}
               </Link>
               <Button
-                variant="default"
                 size="sm"
-                className="w-full bg-gradient-to-r from-primary to-accent"
+                className="w-full mt-3 bg-primary text-primary-foreground rounded-full"
                 asChild
                 onClick={() => setIsMobileMenuOpen(false)}
               >
