@@ -58,6 +58,93 @@ export type Database = {
           },
         ]
       }
+      case_studies: {
+        Row: {
+          challenge_en: string | null
+          challenge_ru: string | null
+          challenge_uz: string | null
+          client_name: string | null
+          created_at: string
+          description_en: string
+          description_ru: string
+          description_uz: string
+          featured: boolean
+          featured_image: string | null
+          id: string
+          metrics: Json | null
+          published: boolean
+          published_at: string | null
+          results_en: string | null
+          results_ru: string | null
+          results_uz: string | null
+          service_type: string
+          slug: string
+          solution_en: string | null
+          solution_ru: string | null
+          solution_uz: string | null
+          title_en: string
+          title_ru: string
+          title_uz: string
+          updated_at: string
+        }
+        Insert: {
+          challenge_en?: string | null
+          challenge_ru?: string | null
+          challenge_uz?: string | null
+          client_name?: string | null
+          created_at?: string
+          description_en?: string
+          description_ru?: string
+          description_uz: string
+          featured?: boolean
+          featured_image?: string | null
+          id?: string
+          metrics?: Json | null
+          published?: boolean
+          published_at?: string | null
+          results_en?: string | null
+          results_ru?: string | null
+          results_uz?: string | null
+          service_type?: string
+          slug: string
+          solution_en?: string | null
+          solution_ru?: string | null
+          solution_uz?: string | null
+          title_en?: string
+          title_ru?: string
+          title_uz: string
+          updated_at?: string
+        }
+        Update: {
+          challenge_en?: string | null
+          challenge_ru?: string | null
+          challenge_uz?: string | null
+          client_name?: string | null
+          created_at?: string
+          description_en?: string
+          description_ru?: string
+          description_uz?: string
+          featured?: boolean
+          featured_image?: string | null
+          id?: string
+          metrics?: Json | null
+          published?: boolean
+          published_at?: string | null
+          results_en?: string | null
+          results_ru?: string | null
+          results_uz?: string | null
+          service_type?: string
+          slug?: string
+          solution_en?: string | null
+          solution_ru?: string | null
+          solution_uz?: string | null
+          title_en?: string
+          title_ru?: string
+          title_uz?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           color: string | null
@@ -102,6 +189,42 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      cluster_posts: {
+        Row: {
+          cluster_id: string
+          id: string
+          post_id: string
+          sort_order: number
+        }
+        Insert: {
+          cluster_id: string
+          id?: string
+          post_id: string
+          sort_order?: number
+        }
+        Update: {
+          cluster_id?: string
+          id?: string
+          post_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cluster_posts_cluster_id_fkey"
+            columns: ["cluster_id"]
+            isOneToOne: false
+            referencedRelation: "topic_clusters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cluster_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       comments: {
         Row: {
@@ -171,6 +294,51 @@ export type Database = {
           name?: string
           read?: boolean | null
           subject?: string
+        }
+        Relationships: []
+      }
+      faqs: {
+        Row: {
+          answer_en: string
+          answer_ru: string
+          answer_uz: string
+          created_at: string
+          id: string
+          published: boolean
+          question_en: string
+          question_ru: string
+          question_uz: string
+          service_category: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          answer_en?: string
+          answer_ru?: string
+          answer_uz: string
+          created_at?: string
+          id?: string
+          published?: boolean
+          question_en?: string
+          question_ru?: string
+          question_uz: string
+          service_category?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          answer_en?: string
+          answer_ru?: string
+          answer_uz?: string
+          created_at?: string
+          id?: string
+          published?: boolean
+          question_en?: string
+          question_ru?: string
+          question_uz?: string
+          service_category?: string
+          sort_order?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -408,6 +576,56 @@ export type Database = {
           unsubscribed_at?: string | null
         }
         Relationships: []
+      }
+      topic_clusters: {
+        Row: {
+          created_at: string
+          description_en: string | null
+          description_ru: string | null
+          description_uz: string | null
+          id: string
+          name_en: string
+          name_ru: string
+          name_uz: string
+          pillar_post_id: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description_en?: string | null
+          description_ru?: string | null
+          description_uz?: string | null
+          id?: string
+          name_en?: string
+          name_ru?: string
+          name_uz: string
+          pillar_post_id?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description_en?: string | null
+          description_ru?: string | null
+          description_uz?: string | null
+          id?: string
+          name_en?: string
+          name_ru?: string
+          name_uz?: string
+          pillar_post_id?: string | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topic_clusters_pillar_post_id_fkey"
+            columns: ["pillar_post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
