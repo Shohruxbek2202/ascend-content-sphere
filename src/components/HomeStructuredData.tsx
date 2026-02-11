@@ -39,29 +39,70 @@ const HomeStructuredData = ({
       },
     };
 
-    // Organization Schema
+    // Organization Schema (Enhanced Entity SEO)
     const organizationSchema = {
       '@context': 'https://schema.org',
       '@type': 'Organization',
+      '@id': `${siteUrl}/#organization`,
       name: siteName,
+      alternateName: ['Shohrux Digital', 'ShohruxDigital.uz'],
       url: siteUrl,
-      logo: `${siteUrl}/favicon.ico`,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${siteUrl}/favicon.ico`,
+        width: 512,
+        height: 512,
+      },
       description: description,
+      foundingDate: '2024',
+      founder: { '@type': 'Person', '@id': `${siteUrl}/#person` },
       sameAs: socialLinks.filter(Boolean),
+      areaServed: {
+        '@type': 'Country',
+        name: 'Uzbekistan',
+      },
+      knowsAbout: [
+        'Digital Marketing', 'SMM', 'SEO', 'Google Ads', 'Facebook Ads',
+        'Content Marketing', 'Personal Development', 'Prompt Engineering',
+      ],
       contactPoint: {
         '@type': 'ContactPoint',
         contactType: 'customer service',
         availableLanguage: ['Uzbek', 'Russian', 'English'],
+        url: `${siteUrl}/contact`,
+      },
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Digital Marketing Services',
+        itemListElement: [
+          { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'SMM Strategy & Management' } },
+          { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'SEO Optimization' } },
+          { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Google Ads Management' } },
+          { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Facebook/Meta Ads Management' } },
+          { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Content Marketing' } },
+        ],
       },
     };
 
-    // Person Schema (for personal brand)
+    // Person Schema (Enhanced Entity SEO)
     const personSchema = {
       '@context': 'https://schema.org',
       '@type': 'Person',
+      '@id': `${siteUrl}/#person`,
       name: 'Shohruxbek Foziljonov',
+      givenName: 'Shohruxbek',
+      familyName: 'Foziljonov',
       url: siteUrl,
+      image: `${siteUrl}/favicon.ico`,
       jobTitle: 'Digital Marketing Specialist',
+      worksFor: { '@type': 'Organization', '@id': `${siteUrl}/#organization` },
+      alumniOf: { '@type': 'Organization', name: 'ShohruxDigital' },
+      knowsAbout: [
+        'Digital Marketing', 'Social Media Marketing', 'Search Engine Optimization',
+        'Google Ads', 'Facebook Advertising', 'Content Strategy', 'Personal Development',
+      ],
+      knowsLanguage: ['uz', 'ru', 'en'],
+      nationality: { '@type': 'Country', name: 'Uzbekistan' },
       description: language === 'uz' 
         ? 'Digital marketing mutaxassisi va shaxsiy rivojlanish bo\'yicha blogger'
         : language === 'ru'

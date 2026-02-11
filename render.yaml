@@ -12,5 +12,8 @@ services:
         source: /markdown-content
         destination: https://shfnpzfqtrfzdklnhatf.supabase.co/functions/v1/markdown-content
       - type: rewrite
+        source: /openapi.json
+        destination: https://shfnpzfqtrfzdklnhatf.supabase.co/functions/v1/openapi
+      - type: rewrite
         source: /*
         destination: /index.html
