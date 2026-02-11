@@ -55,7 +55,7 @@ serve(async (req) => {
 
 `;
 
-    // Add bot-specific rules
+    // Add bot-specific rules (including AI crawlers)
     const bots = [
       { name: 'Googlebot', crawlDelay: config.crawlDelay },
       { name: 'Bingbot', crawlDelay: config.crawlDelay },
@@ -63,6 +63,16 @@ serve(async (req) => {
       { name: 'facebookexternalhit', crawlDelay: null },
       { name: 'LinkedInBot', crawlDelay: null },
       { name: 'Yandex', crawlDelay: '2' },
+      // AI crawlers - GEO/AIO optimization
+      { name: 'GPTBot', crawlDelay: null },
+      { name: 'Google-Extended', crawlDelay: null },
+      { name: 'ClaudeBot', crawlDelay: null },
+      { name: 'PerplexityBot', crawlDelay: null },
+      { name: 'Bytespider', crawlDelay: '2' },
+      { name: 'CCBot', crawlDelay: '2' },
+      { name: 'anthropic-ai', crawlDelay: null },
+      { name: 'Applebot-Extended', crawlDelay: null },
+      { name: 'cohere-ai', crawlDelay: null },
     ];
 
     for (const bot of bots) {
@@ -110,6 +120,11 @@ serve(async (req) => {
     robotsTxt += `\n# Sitemap locations\n`;
     robotsTxt += `Sitemap: ${baseUrl}/sitemap.xml\n`;
     robotsTxt += `Sitemap: ${supabaseUrl}/functions/v1/sitemap\n`;
+
+    // LLMs.txt for AI discoverability
+    robotsTxt += `\n# AI/LLM content discovery\n`;
+    robotsTxt += `# llms.txt: ${supabaseUrl}/functions/v1/llms-txt\n`;
+    robotsTxt += `# Markdown content: ${supabaseUrl}/functions/v1/markdown-content\n`;
 
     // Add host directive
     robotsTxt += `\n# Host directive (for Yandex)\n`;

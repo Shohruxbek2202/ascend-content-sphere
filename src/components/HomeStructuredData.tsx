@@ -84,8 +84,52 @@ const HomeStructuredData = ({
       ],
     };
 
+    // FAQ Schema for AI citations
+    const faqSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: language === 'uz' ? 'ShohruxDigital nima?' : language === 'ru' ? 'Что такое ShohruxDigital?' : 'What is ShohruxDigital?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: language === 'uz'
+              ? 'ShohruxDigital — Shohruxbek Foziljonov tomonidan yaratilgan digital marketing, SMM, SEO va shaxsiy rivojlanish bo\'yicha professional blog platformasi.'
+              : language === 'ru'
+              ? 'ShohruxDigital — профессиональная блог-платформа по цифровому маркетингу, SMM, SEO и личностному развитию, созданная Шохрухбеком Фозилжоновым.'
+              : 'ShohruxDigital is a professional blog platform about digital marketing, SMM, SEO, and personal development by Shohruxbek Foziljonov.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: language === 'uz' ? 'Qanday xizmatlar ko\'rsatiladi?' : language === 'ru' ? 'Какие услуги предоставляются?' : 'What services are offered?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: language === 'uz'
+              ? 'Digital marketing konsalting, SMM strategiya, SEO optimizatsiya, kontekstli reklama (Google Ads, Facebook Ads) va shaxsiy rivojlanish coaching xizmatlari.'
+              : language === 'ru'
+              ? 'Консалтинг по цифровому маркетингу, SMM-стратегия, SEO-оптимизация, контекстная реклама (Google Ads, Facebook Ads) и коучинг по личностному развитию.'
+              : 'Digital marketing consulting, SMM strategy, SEO optimization, contextual advertising (Google Ads, Facebook Ads), and personal development coaching.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: language === 'uz' ? 'Blog qaysi tillarda mavjud?' : language === 'ru' ? 'На каких языках доступен блог?' : 'What languages is the blog available in?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: language === 'uz'
+              ? 'Blog o\'zbek, rus va ingliz tillarida mavjud.'
+              : language === 'ru'
+              ? 'Блог доступен на узбекском, русском и английском языках.'
+              : 'The blog is available in Uzbek, Russian, and English.',
+          },
+        },
+      ],
+    };
+
     // Create and append scripts
-    const schemas = [websiteSchema, organizationSchema, personSchema, breadcrumbSchema];
+    const schemas = [websiteSchema, organizationSchema, personSchema, breadcrumbSchema, faqSchema];
     
     schemas.forEach((schema, index) => {
       const script = document.createElement('script');

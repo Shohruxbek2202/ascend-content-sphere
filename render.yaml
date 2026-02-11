@@ -6,5 +6,11 @@ services:
     staticPublishPath: ./dist
     routes:
       - type: rewrite
+        source: /llms.txt
+        destination: https://shfnpzfqtrfzdklnhatf.supabase.co/functions/v1/llms-txt
+      - type: rewrite
+        source: /markdown-content
+        destination: https://shfnpzfqtrfzdklnhatf.supabase.co/functions/v1/markdown-content
+      - type: rewrite
         source: /*
         destination: /index.html
