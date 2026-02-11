@@ -5,13 +5,13 @@ services:
     buildCommand: npm run build
     staticPublishPath: ./dist
     routes:
-      - type: rewrite
+      - type: redirect
         source: /llms.txt
         destination: https://shfnpzfqtrfzdklnhatf.supabase.co/functions/v1/llms-txt
-      - type: rewrite
+      - type: redirect
         source: /markdown-content
         destination: https://shfnpzfqtrfzdklnhatf.supabase.co/functions/v1/markdown-content
-      - type: rewrite
+      - type: redirect
         source: /openapi.json
         destination: https://shfnpzfqtrfzdklnhatf.supabase.co/functions/v1/openapi
       - type: rewrite
