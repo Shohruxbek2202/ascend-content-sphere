@@ -10,6 +10,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, Network, Link2 } from 'lucide-react';
+import ExcelImport from './ExcelImport';
+
+const CLUSTER_COLUMNS = [
+  { key: 'name_uz', label: 'Nomi (UZ)', required: true },
+  { key: 'slug', label: 'Slug', required: true },
+  { key: 'name_ru', label: 'Nomi (RU)' },
+  { key: 'name_en', label: 'Nomi (EN)' },
+  { key: 'description_uz', label: 'Tavsif (UZ)' },
+  { key: 'description_ru', label: 'Tavsif (RU)' },
+  { key: 'description_en', label: 'Tavsif (EN)' },
+];
 
 const AdminTopicClusters = () => {
   const queryClient = useQueryClient();
@@ -96,6 +107,21 @@ const AdminTopicClusters = () => {
     },
   });
 
+  const handleExcelImport = async (data: Record<string, any>[]) => {
+    const rows = data.map(row => ({
+      name_uz: row.name_uz || '',
+      name_ru: row.name_ru || '',
+      name_en: row.name_en || '',
+      slug: row.slug || '',
+      description_uz: row.description_uz || null,
+      description_ru: row.description_ru || null,
+      description_en: row.description_en || null,
+    }));
+    const { error } = await supabase.from('topic_clusters').insert(rows);
+    if (error) throw error;
+    queryClient.invalidateQueries({ queryKey: ['admin-topic-clusters'] });
+  };
+
   const resetForm = () => {
     setForm({ name_uz: '', name_ru: '', name_en: '', slug: '', description_uz: '', description_ru: '', description_en: '', pillar_post_id: '' });
     setEditingCluster(null);
@@ -115,41 +141,44 @@ const AdminTopicClusters = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2"><Network className="w-6 h-6" /> Topic Clusters</h1>
           <p className="text-muted-foreground">Kontent klasterlar — pillar post + cluster maqolalar</p>
         </div>
-        <Dialog open={isOpen} onOpenChange={(v) => { if (!v) resetForm(); setIsOpen(v); }}>
-          <DialogTrigger asChild>
-            <Button><Plus className="w-4 h-4 mr-2" /> Yangi Cluster</Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader><DialogTitle>{editingCluster ? 'Tahrirlash' : 'Yangi Cluster'}</DialogTitle></DialogHeader>
-            <div className="space-y-4">
-              <div><Label>Slug</Label><Input value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} /></div>
-              {['uz', 'ru', 'en'].map(lang => (
-                <div key={lang} className="space-y-2 p-3 border rounded-lg">
-                  <h4 className="font-medium uppercase text-xs text-muted-foreground">{lang}</h4>
-                  <div><Label>Nomi</Label><Input value={(form as any)[`name_${lang}`]} onChange={e => setForm({ ...form, [`name_${lang}`]: e.target.value })} /></div>
-                  <div><Label>Tavsif</Label><Textarea rows={2} value={(form as any)[`description_${lang}`]} onChange={e => setForm({ ...form, [`description_${lang}`]: e.target.value })} /></div>
+        <div className="flex gap-2">
+          <ExcelImport columns={CLUSTER_COLUMNS} onImport={handleExcelImport} templateName="topic-clusters" />
+          <Dialog open={isOpen} onOpenChange={(v) => { if (!v) resetForm(); setIsOpen(v); }}>
+            <DialogTrigger asChild>
+              <Button><Plus className="w-4 h-4 mr-2" /> Yangi Cluster</Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader><DialogTitle>{editingCluster ? 'Tahrirlash' : 'Yangi Cluster'}</DialogTitle></DialogHeader>
+              <div className="space-y-4">
+                <div><Label>Slug</Label><Input value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} /></div>
+                {['uz', 'ru', 'en'].map(lang => (
+                  <div key={lang} className="space-y-2 p-3 border rounded-lg">
+                    <h4 className="font-medium uppercase text-xs text-muted-foreground">{lang}</h4>
+                    <div><Label>Nomi</Label><Input value={(form as any)[`name_${lang}`]} onChange={e => setForm({ ...form, [`name_${lang}`]: e.target.value })} /></div>
+                    <div><Label>Tavsif</Label><Textarea rows={2} value={(form as any)[`description_${lang}`]} onChange={e => setForm({ ...form, [`description_${lang}`]: e.target.value })} /></div>
+                  </div>
+                ))}
+                <div>
+                  <Label>Pillar Post</Label>
+                  <Select value={form.pillar_post_id} onValueChange={v => setForm({ ...form, pillar_post_id: v })}>
+                    <SelectTrigger><SelectValue placeholder="Tanlang..." /></SelectTrigger>
+                    <SelectContent>
+                      {allPosts?.map(p => <SelectItem key={p.id} value={p.id}>{p.title_uz}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
-              ))}
-              <div>
-                <Label>Pillar Post</Label>
-                <Select value={form.pillar_post_id} onValueChange={v => setForm({ ...form, pillar_post_id: v })}>
-                  <SelectTrigger><SelectValue placeholder="Tanlang..." /></SelectTrigger>
-                  <SelectContent>
-                    {allPosts?.map(p => <SelectItem key={p.id} value={p.id}>{p.title_uz}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <Button className="w-full" onClick={() => saveMutation.mutate(form)} disabled={saveMutation.isPending}>
+                  {saveMutation.isPending ? 'Saqlanmoqda...' : 'Saqlash'}
+                </Button>
               </div>
-              <Button className="w-full" onClick={() => saveMutation.mutate(form)} disabled={saveMutation.isPending}>
-                {saveMutation.isPending ? 'Saqlanmoqda...' : 'Saqlash'}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {isLoading ? <div className="text-center py-8">Yuklanmoqda...</div> : (
