@@ -142,10 +142,33 @@ const Post = () => {
     }
   }, [slug]);
 
+  const sanitizeContent = (html: string): string => {
+    let clean = html;
+    // Remove <!DOCTYPE>, <html>, <head>, <body> wrappers
+    clean = clean.replace(/<!DOCTYPE[^>]*>/gi, '');
+    clean = clean.replace(/<\/?html[^>]*>/gi, '');
+    clean = clean.replace(/<head[\s\S]*?<\/head>/gi, '');
+    clean = clean.replace(/<\/?body[^>]*>/gi, '');
+    // Remove <article> wrappers
+    clean = clean.replace(/<\/?article[^>]*>/gi, '');
+    // Remove <section> wrappers (keep content)
+    clean = clean.replace(/<\/?section[^>]*>/gi, '');
+    // Remove <h1> tags (page already has h1)
+    clean = clean.replace(/<h1[^>]*>[\s\S]*?<\/h1>/gi, '');
+    // Remove all inline style attributes
+    clean = clean.replace(/\s*style="[^"]*"/gi, '');
+    clean = clean.replace(/\s*style='[^']*'/gi, '');
+    // Remove wrapper divs with no semantic meaning
+    clean = clean.replace(/<div[^>]*>\s*([\s\S]*?)\s*<\/div>/gi, '$1');
+    return clean.trim();
+  };
+
   const getLocalizedContent = (field: 'title' | 'content' | 'excerpt') => {
     if (!post) return '';
     const key = `${field}_${language}` as keyof Post;
-    return (post[key] as string) || '';
+    const raw = (post[key] as string) || '';
+    if (field === 'content') return sanitizeContent(raw);
+    return raw;
   };
 
   const handleLike = async () => {
@@ -347,7 +370,7 @@ const Post = () => {
 
             {/* Content */}
             <div
-              className="prose prose-lg max-w-none mb-12"
+              className="prose prose-lg dark:prose-invert max-w-none mb-12"
               dangerouslySetInnerHTML={{ __html: getLocalizedContent('content') }}
             />
 
