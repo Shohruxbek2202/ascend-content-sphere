@@ -35,7 +35,10 @@ export const Header = () => {
     { to: '/', label: t.nav.home },
     { to: '/blog', label: t.nav.blog },
     { to: '/categories', label: t.nav.categories },
+    { to: '/faq', label: t.nav.faq },
+    { to: '/case-studies', label: t.nav.caseStudies },
     { to: '/about', label: t.nav.about },
+    { to: '/contact', label: t.nav.contact },
   ];
 
   return (

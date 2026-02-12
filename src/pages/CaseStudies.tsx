@@ -33,7 +33,7 @@ const CaseStudies = () => {
       <Header />
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 pt-16">
             <h1 className="text-4xl font-bold mb-4 flex items-center justify-center gap-3">
               <Briefcase className="w-8 h-8 text-primary" />
               {t('Case Studies', 'Кейсы', 'Case Studies')}

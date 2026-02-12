@@ -8,6 +8,9 @@ export const translations = {
       categories: 'Kategoriyalar',
       about: 'Biz haqimizda',
       admin: 'Admin Panel',
+      faq: 'FAQ',
+      caseStudies: 'Case Studies',
+      contact: 'Aloqa',
     },
     hero: {
       title: 'Digital Marketing va Shaxsiy Rivojlanish',
@@ -60,6 +63,9 @@ export const translations = {
       categories: 'Категории',
       about: 'О нас',
       admin: 'Админ Панель',
+      faq: 'FAQ',
+      caseStudies: 'Кейсы',
+      contact: 'Контакты',
     },
     hero: {
       title: 'Digital Marketing и Личное Развитие',
@@ -112,6 +118,9 @@ export const translations = {
       categories: 'Categories',
       about: 'About Us',
       admin: 'Admin Panel',
+      faq: 'FAQ',
+      caseStudies: 'Case Studies',
+      contact: 'Contact',
     },
     hero: {
       title: 'Digital Marketing & Personal Development',

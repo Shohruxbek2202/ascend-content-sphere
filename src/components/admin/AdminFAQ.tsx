@@ -6,11 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, HelpCircle } from 'lucide-react';
+import ExcelImport from './ExcelImport';
 
 const SERVICE_CATEGORIES = [
   { value: 'general', label: 'Umumiy' },
@@ -21,6 +22,17 @@ const SERVICE_CATEGORIES = [
   { value: 'content-marketing', label: 'Content Marketing' },
   { value: 'personal-development', label: 'Shaxsiy Rivojlanish' },
   { value: 'digital-marketing', label: 'Digital Marketing' },
+];
+
+const FAQ_COLUMNS = [
+  { key: 'question_uz', label: 'Savol (UZ)', required: true },
+  { key: 'answer_uz', label: 'Javob (UZ)', required: true },
+  { key: 'question_ru', label: 'Savol (RU)' },
+  { key: 'answer_ru', label: 'Javob (RU)' },
+  { key: 'question_en', label: 'Savol (EN)' },
+  { key: 'answer_en', label: 'Javob (EN)' },
+  { key: 'service_category', label: 'Kategoriya' },
+  { key: 'sort_order', label: 'Tartib' },
 ];
 
 const AdminFAQ = () => {
@@ -75,6 +87,23 @@ const AdminFAQ = () => {
     },
   });
 
+  const handleExcelImport = async (data: Record<string, any>[]) => {
+    const rows = data.map(row => ({
+      question_uz: row.question_uz || '',
+      answer_uz: row.answer_uz || '',
+      question_ru: row.question_ru || '',
+      answer_ru: row.answer_ru || '',
+      question_en: row.question_en || '',
+      answer_en: row.answer_en || '',
+      service_category: row.service_category || 'general',
+      sort_order: Number(row.sort_order) || 0,
+      published: true,
+    }));
+    const { error } = await supabase.from('faqs').insert(rows);
+    if (error) throw error;
+    queryClient.invalidateQueries({ queryKey: ['admin-faqs'] });
+  };
+
   const resetForm = () => {
     setForm({ service_category: 'general', question_uz: '', question_ru: '', question_en: '', answer_uz: '', answer_ru: '', answer_en: '', sort_order: 0, published: true });
     setEditingFaq(null);
@@ -94,58 +123,61 @@ const AdminFAQ = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2"><HelpCircle className="w-6 h-6" /> FAQ Boshqaruvi</h1>
           <p className="text-muted-foreground">Xizmatlar uchun savol-javoblar (FAQPage Schema avtomatik)</p>
         </div>
-        <Dialog open={isOpen} onOpenChange={(v) => { if (!v) resetForm(); setIsOpen(v); }}>
-          <DialogTrigger asChild>
-            <Button><Plus className="w-4 h-4 mr-2" /> Yangi FAQ</Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{editingFaq ? 'FAQ tahrirlash' : 'Yangi FAQ'}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Kategoriya</Label>
-                  <Select value={form.service_category} onValueChange={(v) => setForm({ ...form, service_category: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {SERVICE_CATEGORIES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Tartib</Label>
-                  <Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} />
-                </div>
-              </div>
-              {['uz', 'ru', 'en'].map(lang => (
-                <div key={lang} className="space-y-2 p-3 border rounded-lg">
-                  <h4 className="font-medium uppercase text-xs text-muted-foreground">{lang === 'uz' ? 'O\'zbekcha' : lang === 'ru' ? 'Ruscha' : 'Inglizcha'}</h4>
+        <div className="flex gap-2">
+          <ExcelImport columns={FAQ_COLUMNS} onImport={handleExcelImport} templateName="faq" />
+          <Dialog open={isOpen} onOpenChange={(v) => { if (!v) resetForm(); setIsOpen(v); }}>
+            <DialogTrigger asChild>
+              <Button><Plus className="w-4 h-4 mr-2" /> Yangi FAQ</Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>{editingFaq ? 'FAQ tahrirlash' : 'Yangi FAQ'}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label>Savol ({lang})</Label>
-                    <Input value={(form as any)[`question_${lang}`]} onChange={(e) => setForm({ ...form, [`question_${lang}`]: e.target.value })} />
+                    <Label>Kategoriya</Label>
+                    <Select value={form.service_category} onValueChange={(v) => setForm({ ...form, service_category: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {SERVICE_CATEGORIES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
-                    <Label>Javob ({lang})</Label>
-                    <Textarea rows={3} value={(form as any)[`answer_${lang}`]} onChange={(e) => setForm({ ...form, [`answer_${lang}`]: e.target.value })} />
+                    <Label>Tartib</Label>
+                    <Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} />
                   </div>
                 </div>
-              ))}
-              <div className="flex items-center gap-2">
-                <Switch checked={form.published} onCheckedChange={(v) => setForm({ ...form, published: v })} />
-                <Label>Chop etilgan</Label>
+                {['uz', 'ru', 'en'].map(lang => (
+                  <div key={lang} className="space-y-2 p-3 border rounded-lg">
+                    <h4 className="font-medium uppercase text-xs text-muted-foreground">{lang === 'uz' ? 'O\'zbekcha' : lang === 'ru' ? 'Ruscha' : 'Inglizcha'}</h4>
+                    <div>
+                      <Label>Savol ({lang})</Label>
+                      <Input value={(form as any)[`question_${lang}`]} onChange={(e) => setForm({ ...form, [`question_${lang}`]: e.target.value })} />
+                    </div>
+                    <div>
+                      <Label>Javob ({lang})</Label>
+                      <Textarea rows={3} value={(form as any)[`answer_${lang}`]} onChange={(e) => setForm({ ...form, [`answer_${lang}`]: e.target.value })} />
+                    </div>
+                  </div>
+                ))}
+                <div className="flex items-center gap-2">
+                  <Switch checked={form.published} onCheckedChange={(v) => setForm({ ...form, published: v })} />
+                  <Label>Chop etilgan</Label>
+                </div>
+                <Button className="w-full" onClick={() => saveMutation.mutate(form)} disabled={saveMutation.isPending}>
+                  {saveMutation.isPending ? 'Saqlanmoqda...' : 'Saqlash'}
+                </Button>
               </div>
-              <Button className="w-full" onClick={() => saveMutation.mutate(form)} disabled={saveMutation.isPending}>
-                {saveMutation.isPending ? 'Saqlanmoqda...' : 'Saqlash'}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <div className="flex gap-2">

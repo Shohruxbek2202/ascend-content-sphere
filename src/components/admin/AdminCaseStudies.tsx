@@ -11,6 +11,22 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, Briefcase } from 'lucide-react';
+import ExcelImport from './ExcelImport';
+
+const CASE_STUDY_COLUMNS = [
+  { key: 'slug', label: 'Slug', required: true },
+  { key: 'title_uz', label: 'Sarlavha (UZ)', required: true },
+  { key: 'description_uz', label: 'Tavsif (UZ)', required: true },
+  { key: 'title_ru', label: 'Sarlavha (RU)' },
+  { key: 'title_en', label: 'Sarlavha (EN)' },
+  { key: 'description_ru', label: 'Tavsif (RU)' },
+  { key: 'description_en', label: 'Tavsif (EN)' },
+  { key: 'client_name', label: 'Mijoz nomi' },
+  { key: 'service_type', label: 'Xizmat turi' },
+  { key: 'challenge_uz', label: 'Muammo (UZ)' },
+  { key: 'solution_uz', label: 'Yechim (UZ)' },
+  { key: 'results_uz', label: 'Natijalar (UZ)' },
+];
 
 const AdminCaseStudies = () => {
   const queryClient = useQueryClient();
@@ -66,6 +82,33 @@ const AdminCaseStudies = () => {
     },
   });
 
+  const handleExcelImport = async (data: Record<string, any>[]) => {
+    const rows = data.map(row => ({
+      slug: row.slug || '',
+      title_uz: row.title_uz || '',
+      title_ru: row.title_ru || '',
+      title_en: row.title_en || '',
+      description_uz: row.description_uz || '',
+      description_ru: row.description_ru || '',
+      description_en: row.description_en || '',
+      client_name: row.client_name || null,
+      service_type: row.service_type || 'digital-marketing',
+      challenge_uz: row.challenge_uz || null,
+      challenge_ru: row.challenge_ru || null,
+      challenge_en: row.challenge_en || null,
+      solution_uz: row.solution_uz || null,
+      solution_ru: row.solution_ru || null,
+      solution_en: row.solution_en || null,
+      results_uz: row.results_uz || null,
+      results_ru: row.results_ru || null,
+      results_en: row.results_en || null,
+      published: false,
+    }));
+    const { error } = await supabase.from('case_studies').insert(rows);
+    if (error) throw error;
+    queryClient.invalidateQueries({ queryKey: ['admin-case-studies'] });
+  };
+
   const resetForm = () => {
     setForm({ slug: '', client_name: '', service_type: 'digital-marketing', title_uz: '', title_ru: '', title_en: '', description_uz: '', description_ru: '', description_en: '', challenge_uz: '', challenge_ru: '', challenge_en: '', solution_uz: '', solution_ru: '', solution_en: '', results_uz: '', results_ru: '', results_en: '', featured_image: '', published: false, featured: false, metrics: '[]' });
     setEditingItem(null);
@@ -91,62 +134,65 @@ const AdminCaseStudies = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2"><Briefcase className="w-6 h-6" /> Case Studies</h1>
           <p className="text-muted-foreground">Real natijalar va tajribalar</p>
         </div>
-        <Dialog open={isOpen} onOpenChange={(v) => { if (!v) resetForm(); setIsOpen(v); }}>
-          <DialogTrigger asChild>
-            <Button><Plus className="w-4 h-4 mr-2" /> Yangi Case Study</Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{editingItem ? 'Tahrirlash' : 'Yangi Case Study'}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-3 gap-3">
-                <div><Label>Slug</Label><Input value={form.slug} onChange={e => updateField('slug', e.target.value)} /></div>
-                <div><Label>Mijoz nomi</Label><Input value={form.client_name} onChange={e => updateField('client_name', e.target.value)} /></div>
+        <div className="flex gap-2">
+          <ExcelImport columns={CASE_STUDY_COLUMNS} onImport={handleExcelImport} templateName="case-studies" />
+          <Dialog open={isOpen} onOpenChange={(v) => { if (!v) resetForm(); setIsOpen(v); }}>
+            <DialogTrigger asChild>
+              <Button><Plus className="w-4 h-4 mr-2" /> Yangi Case Study</Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>{editingItem ? 'Tahrirlash' : 'Yangi Case Study'}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-3">
+                  <div><Label>Slug</Label><Input value={form.slug} onChange={e => updateField('slug', e.target.value)} /></div>
+                  <div><Label>Mijoz nomi</Label><Input value={form.client_name} onChange={e => updateField('client_name', e.target.value)} /></div>
+                  <div>
+                    <Label>Xizmat turi</Label>
+                    <Select value={form.service_type} onValueChange={v => updateField('service_type', v)}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="digital-marketing">Digital Marketing</SelectItem>
+                        <SelectItem value="smm">SMM</SelectItem>
+                        <SelectItem value="seo">SEO</SelectItem>
+                        <SelectItem value="google-ads">Google Ads</SelectItem>
+                        <SelectItem value="facebook-ads">Facebook Ads</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div><Label>Rasm URL</Label><Input value={form.featured_image} onChange={e => updateField('featured_image', e.target.value)} /></div>
+                {['uz', 'ru', 'en'].map(lang => (
+                  <div key={lang} className="space-y-2 p-3 border rounded-lg">
+                    <h4 className="font-medium uppercase text-xs text-muted-foreground">{lang}</h4>
+                    <div><Label>Sarlavha</Label><Input value={(form as any)[`title_${lang}`]} onChange={e => updateField(`title_${lang}`, e.target.value)} /></div>
+                    <div><Label>Tavsif</Label><Textarea rows={2} value={(form as any)[`description_${lang}`]} onChange={e => updateField(`description_${lang}`, e.target.value)} /></div>
+                    <div><Label>Muammo</Label><Textarea rows={2} value={(form as any)[`challenge_${lang}`]} onChange={e => updateField(`challenge_${lang}`, e.target.value)} /></div>
+                    <div><Label>Yechim</Label><Textarea rows={2} value={(form as any)[`solution_${lang}`]} onChange={e => updateField(`solution_${lang}`, e.target.value)} /></div>
+                    <div><Label>Natijalar</Label><Textarea rows={2} value={(form as any)[`results_${lang}`]} onChange={e => updateField(`results_${lang}`, e.target.value)} /></div>
+                  </div>
+                ))}
                 <div>
-                  <Label>Xizmat turi</Label>
-                  <Select value={form.service_type} onValueChange={v => updateField('service_type', v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="digital-marketing">Digital Marketing</SelectItem>
-                      <SelectItem value="smm">SMM</SelectItem>
-                      <SelectItem value="seo">SEO</SelectItem>
-                      <SelectItem value="google-ads">Google Ads</SelectItem>
-                      <SelectItem value="facebook-ads">Facebook Ads</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>Metrikalar (JSON)</Label>
+                  <Textarea rows={3} value={form.metrics} onChange={e => updateField('metrics', e.target.value)} placeholder='[{"label": "ROI", "value": "350%"}]' />
                 </div>
-              </div>
-              <div><Label>Rasm URL</Label><Input value={form.featured_image} onChange={e => updateField('featured_image', e.target.value)} /></div>
-              {['uz', 'ru', 'en'].map(lang => (
-                <div key={lang} className="space-y-2 p-3 border rounded-lg">
-                  <h4 className="font-medium uppercase text-xs text-muted-foreground">{lang}</h4>
-                  <div><Label>Sarlavha</Label><Input value={(form as any)[`title_${lang}`]} onChange={e => updateField(`title_${lang}`, e.target.value)} /></div>
-                  <div><Label>Tavsif</Label><Textarea rows={2} value={(form as any)[`description_${lang}`]} onChange={e => updateField(`description_${lang}`, e.target.value)} /></div>
-                  <div><Label>Muammo</Label><Textarea rows={2} value={(form as any)[`challenge_${lang}`]} onChange={e => updateField(`challenge_${lang}`, e.target.value)} /></div>
-                  <div><Label>Yechim</Label><Textarea rows={2} value={(form as any)[`solution_${lang}`]} onChange={e => updateField(`solution_${lang}`, e.target.value)} /></div>
-                  <div><Label>Natijalar</Label><Textarea rows={2} value={(form as any)[`results_${lang}`]} onChange={e => updateField(`results_${lang}`, e.target.value)} /></div>
+                <div className="flex gap-4">
+                  <div className="flex items-center gap-2"><Switch checked={form.published} onCheckedChange={v => updateField('published', v)} /><Label>Chop etilgan</Label></div>
+                  <div className="flex items-center gap-2"><Switch checked={form.featured} onCheckedChange={v => updateField('featured', v)} /><Label>Featured</Label></div>
                 </div>
-              ))}
-              <div>
-                <Label>Metrikalar (JSON)</Label>
-                <Textarea rows={3} value={form.metrics} onChange={e => updateField('metrics', e.target.value)} placeholder='[{"label": "ROI", "value": "350%"}]' />
+                <Button className="w-full" onClick={() => saveMutation.mutate(form)} disabled={saveMutation.isPending}>
+                  {saveMutation.isPending ? 'Saqlanmoqda...' : 'Saqlash'}
+                </Button>
               </div>
-              <div className="flex gap-4">
-                <div className="flex items-center gap-2"><Switch checked={form.published} onCheckedChange={v => updateField('published', v)} /><Label>Chop etilgan</Label></div>
-                <div className="flex items-center gap-2"><Switch checked={form.featured} onCheckedChange={v => updateField('featured', v)} /><Label>Featured</Label></div>
-              </div>
-              <Button className="w-full" onClick={() => saveMutation.mutate(form)} disabled={saveMutation.isPending}>
-                {saveMutation.isPending ? 'Saqlanmoqda...' : 'Saqlash'}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {isLoading ? <div className="text-center py-8">Yuklanmoqda...</div> : (
