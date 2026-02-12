@@ -277,3 +277,140 @@ All colors MUST be HSL.
 .ios-selection-container:hover .ios-handle-pulse {
   animation-duration: 1s;
 }
+
+/* ===== Blog Post Prose Styles ===== */
+.prose {
+  --tw-prose-body: hsl(var(--foreground));
+  --tw-prose-headings: hsl(var(--foreground));
+  --tw-prose-links: hsl(var(--secondary));
+  --tw-prose-bold: hsl(var(--foreground));
+  --tw-prose-quotes: hsl(var(--muted-foreground));
+  --tw-prose-quote-borders: hsl(var(--secondary));
+  color: hsl(var(--foreground));
+}
+
+/* Override ALL inline styles on post content */
+.prose * {
+  font-family: inherit !important;
+  color: inherit !important;
+  max-width: 100% !important;
+  line-height: inherit !important;
+}
+
+.prose h2 {
+  @apply text-2xl md:text-3xl font-bold mt-10 mb-4 pb-2 border-b border-border;
+  color: hsl(var(--foreground)) !important;
+}
+
+.prose h3 {
+  @apply text-xl md:text-2xl font-semibold mt-8 mb-3;
+  color: hsl(var(--foreground)) !important;
+}
+
+.prose h4 {
+  @apply text-lg md:text-xl font-semibold mt-6 mb-2;
+  color: hsl(var(--foreground)) !important;
+}
+
+.prose p {
+  @apply text-base md:text-lg leading-relaxed mb-5;
+  color: hsl(var(--foreground) / 0.85) !important;
+}
+
+.prose ul, .prose ol {
+  @apply my-5 pl-6 space-y-2;
+}
+
+.prose ul {
+  list-style-type: disc;
+}
+
+.prose ol {
+  list-style-type: decimal;
+}
+
+.prose li {
+  @apply text-base md:text-lg leading-relaxed;
+  color: hsl(var(--foreground) / 0.85) !important;
+}
+
+.prose li::marker {
+  color: hsl(var(--secondary)) !important;
+}
+
+.prose strong {
+  @apply font-bold;
+  color: hsl(var(--foreground)) !important;
+}
+
+.prose a {
+  @apply underline underline-offset-4 transition-colors;
+  color: hsl(var(--secondary)) !important;
+}
+
+.prose a:hover {
+  color: hsl(var(--secondary) / 0.8) !important;
+}
+
+.prose blockquote {
+  @apply my-6 pl-5 py-3 rounded-r-lg italic;
+  border-left: 4px solid hsl(var(--secondary)) !important;
+  background: hsl(var(--muted)) !important;
+  color: hsl(var(--muted-foreground)) !important;
+  padding: 1rem 1.25rem !important;
+}
+
+.prose blockquote p {
+  color: hsl(var(--muted-foreground)) !important;
+  margin-bottom: 0 !important;
+}
+
+.prose hr {
+  @apply my-8;
+  border-color: hsl(var(--border)) !important;
+}
+
+.prose img {
+  @apply rounded-xl my-6 shadow-md;
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+.prose table {
+  @apply w-full my-6 border-collapse;
+}
+
+.prose th {
+  @apply text-left p-3 font-semibold border-b-2;
+  border-color: hsl(var(--border)) !important;
+  background: hsl(var(--muted)) !important;
+}
+
+.prose td {
+  @apply p-3 border-b;
+  border-color: hsl(var(--border)) !important;
+}
+
+.prose code {
+  @apply px-1.5 py-0.5 rounded text-sm font-mono;
+  background: hsl(var(--muted)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.prose pre {
+  @apply rounded-xl my-6 p-4 overflow-x-auto;
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+.prose pre code {
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+/* Remove problematic section/article styles */
+.prose section,
+.prose article {
+  all: unset;
+  display: block;
+}

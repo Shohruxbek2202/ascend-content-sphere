@@ -41,10 +41,12 @@ import AdminBroadcast from '@/components/admin/AdminBroadcast';
 import AdminFAQ from '@/components/admin/AdminFAQ';
 import AdminCaseStudies from '@/components/admin/AdminCaseStudies';
 import AdminTopicClusters from '@/components/admin/AdminTopicClusters';
+import PostWritingGuide from '@/components/admin/PostWritingGuide';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
   { icon: FileText, label: 'Postlar', path: '/admin/posts' },
+  { icon: BookOpen, label: 'Post Qo\'llanma', path: '/admin/writing-guide' },
   { icon: Folder, label: 'Kategoriyalar', path: '/admin/categories' },
   { icon: HelpCircle, label: 'FAQ', path: '/admin/faq' },
   { icon: Briefcase, label: 'Case Studies', path: '/admin/case-studies' },
@@ -186,6 +188,7 @@ const Admin = () => {
           <Routes>
             <Route path="/" element={<AdminDashboard />} />
             <Route path="/posts/*" element={<AdminPosts />} />
+            <Route path="/writing-guide" element={<PostWritingGuide />} />
             <Route path="/categories" element={<AdminCategories />} />
             <Route path="/faq" element={<AdminFAQ />} />
             <Route path="/case-studies" element={<AdminCaseStudies />} />
