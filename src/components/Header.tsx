@@ -94,7 +94,7 @@ export const Header = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-accent/50 transition-all duration-300 outline-none">
-                    Ko'proq
+                    {t.nav.more}
                     <ChevronDown className="w-3.5 h-3.5" />
                   </button>
                 </DropdownMenuTrigger>

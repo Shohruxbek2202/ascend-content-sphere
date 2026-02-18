@@ -71,23 +71,49 @@ const Admin = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
+    const checkAdminAccess = async (userId: string) => {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'admin')
+        .maybeSingle();
+
+      if (error || !data) {
+        toast.error('Admin paneliga kirish huquqingiz yo\'q');
+        await supabase.auth.signOut();
+        navigate('/auth');
+        return false;
+      }
+      return true;
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user ?? null);
-        setIsLoading(false);
-        
+      async (event, session) => {
         if (!session?.user) {
+          setUser(null);
+          setIsLoading(false);
           navigate('/auth');
+          return;
+        }
+        const isAdmin = await checkAdminAccess(session.user.id);
+        if (isAdmin) {
+          setUser(session.user);
+          setIsLoading(false);
         }
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setIsLoading(false);
-      
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session?.user) {
+        setIsLoading(false);
         navigate('/auth');
+        return;
+      }
+      const isAdmin = await checkAdminAccess(session.user.id);
+      if (isAdmin) {
+        setUser(session.user);
+        setIsLoading(false);
       }
     });
 

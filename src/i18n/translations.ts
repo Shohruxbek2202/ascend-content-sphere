@@ -11,6 +11,7 @@ export const translations = {
       faq: 'FAQ',
       caseStudies: 'Case Studies',
       contact: 'Aloqa',
+      more: 'Ko\'proq',
     },
     hero: {
       title: 'Digital Marketing va Shaxsiy Rivojlanish',
@@ -66,6 +67,7 @@ export const translations = {
       faq: 'FAQ',
       caseStudies: 'Кейсы',
       contact: 'Контакты',
+      more: 'Ещё',
     },
     hero: {
       title: 'Digital Marketing и Личное Развитие',
@@ -121,6 +123,7 @@ export const translations = {
       faq: 'FAQ',
       caseStudies: 'Case Studies',
       contact: 'Contact',
+      more: 'More',
     },
     hero: {
       title: 'Digital Marketing & Personal Development',
