@@ -71,53 +71,79 @@ const Admin = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
-    const checkAdminAccess = async (userId: string) => {
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .eq('role', 'admin')
-        .maybeSingle();
+    let isMounted = true;
 
-      if (error || !data) {
-        toast.error('Admin paneliga kirish huquqingiz yo\'q');
-        await supabase.auth.signOut();
-        navigate('/auth');
+    const checkAdminAccess = async (userId: string): Promise<boolean> => {
+      try {
+        const { data, error } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', userId)
+          .eq('role', 'admin')
+          .maybeSingle();
+
+        if (error || !data) {
+          if (isMounted) {
+            toast.error('Admin paneliga kirish huquqingiz yo\'q');
+            await supabase.auth.signOut();
+            navigate('/auth');
+          }
+          return false;
+        }
+        return true;
+      } catch {
         return false;
       }
-      return true;
     };
 
+    // onAuthStateChange ichida async/await ishlatmang — deadlock bo'ladi
+    // setTimeout(0) bilan defer qilamiz
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
+        if (!isMounted) return;
         if (!session?.user) {
           setUser(null);
           setIsLoading(false);
           navigate('/auth');
           return;
         }
-        const isAdmin = await checkAdminAccess(session.user.id);
-        if (isAdmin) {
-          setUser(session.user);
-          setIsLoading(false);
-        }
+        // Defer to avoid Supabase internal deadlock
+        setTimeout(async () => {
+          if (!isMounted) return;
+          const isAdmin = await checkAdminAccess(session.user.id);
+          if (isMounted && isAdmin) {
+            setUser(session.user);
+          }
+        }, 0);
       }
     );
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session?.user) {
-        setIsLoading(false);
-        navigate('/auth');
-        return;
-      }
-      const isAdmin = await checkAdminAccess(session.user.id);
-      if (isAdmin) {
-        setUser(session.user);
-        setIsLoading(false);
-      }
-    });
+    // Initial load — isLoading faqat shu yerda false bo'ladi
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!isMounted) return;
 
-    return () => subscription.unsubscribe();
+        if (!session?.user) {
+          navigate('/auth');
+          return;
+        }
+
+        const isAdmin = await checkAdminAccess(session.user.id);
+        if (isMounted && isAdmin) {
+          setUser(session.user);
+        }
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   const handleLogout = async () => {
