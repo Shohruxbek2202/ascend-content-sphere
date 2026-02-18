@@ -14,7 +14,7 @@ export const translations = {
     },
     hero: {
       title: 'Digital Marketing va Shaxsiy Rivojlanish',
-      subtitle: 'Professional maqolalar, amaliy maslahatlar va zamonaviy strategiyalar',
+      subtitle: 'Maqolalar, amaliy maslahatlar va zamonaviy strategiyalar',
       cta: 'Blogni ko\'rish',
       subscribe: 'Obuna bo\'lish',
       stats: {
