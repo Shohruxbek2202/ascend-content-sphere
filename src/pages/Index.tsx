@@ -52,32 +52,23 @@ const Index = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      // Fetch featured posts
-      const { data: featured } = await supabase
-        .from('posts')
-        .select('*, categories(name_uz, name_ru, name_en)')
-        .eq('published', true)
-        .eq('featured', true)
-        .order('published_at', { ascending: false })
-        .limit(2);
-
-      // Fetch latest posts
-      const { data: latest } = await supabase
-        .from('posts')
-        .select('*, categories(name_uz, name_ru, name_en)')
-        .eq('published', true)
-        .order('published_at', { ascending: false })
-        .limit(6);
-
-      // Fetch real stats
-      const [postsCount, categoriesCount, subscribersCount] = await Promise.all([
+      // All queries in parallel - single network round-trip
+      const [latestResult, postsCount, categoriesCount, subscribersCount] = await Promise.all([
+        supabase
+          .from('posts')
+          .select('*, categories(name_uz, name_ru, name_en)')
+          .eq('published', true)
+          .order('published_at', { ascending: false })
+          .limit(6),
         supabase.from('posts').select('id', { count: 'exact', head: true }).eq('published', true),
         supabase.from('categories').select('id', { count: 'exact', head: true }),
         supabase.from('subscribers').select('id', { count: 'exact', head: true }).eq('active', true),
       ]);
 
-      if (featured) setFeaturedPosts(featured);
-      if (latest) setLatestPosts(latest);
+      const latest = latestResult.data || [];
+      setLatestPosts(latest);
+      // Featured posts derived from the same result set - no extra query needed
+      setFeaturedPosts(latest.filter((p) => p.featured).slice(0, 2));
       setStats({
         posts: postsCount.count || 0,
         categories: categoriesCount.count || 0,
