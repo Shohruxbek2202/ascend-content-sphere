@@ -28,39 +28,23 @@ const AdminDashboard = () => {
     const fetchStats = async () => {
       setIsLoading(true);
 
-      // Fetch posts count
-      const { count: totalPosts } = await supabase
-        .from('posts')
-        .select('*', { count: 'exact', head: true });
+      // Barcha so'rovlar parallel — bitta network round-trip
+      const [
+        { count: totalPosts },
+        { count: publishedPosts },
+        { count: totalComments },
+        { count: totalSubscribers },
+        { data: postsData },
+      ] = await Promise.all([
+        supabase.from('posts').select('*', { count: 'exact', head: true }),
+        supabase.from('posts').select('*', { count: 'exact', head: true }).eq('published', true),
+        supabase.from('comments').select('*', { count: 'exact', head: true }),
+        supabase.from('subscribers').select('*', { count: 'exact', head: true }).eq('active', true),
+        supabase.from('posts').select('views, likes'),
+      ]);
 
-      const { count: publishedPosts } = await supabase
-        .from('posts')
-        .select('*', { count: 'exact', head: true })
-        .eq('published', true);
-
-      // Fetch comments count
-      const { count: totalComments } = await supabase
-        .from('comments')
-        .select('*', { count: 'exact', head: true });
-
-      // Fetch subscribers count
-      const { count: totalSubscribers } = await supabase
-        .from('subscribers')
-        .select('*', { count: 'exact', head: true })
-        .eq('active', true);
-
-      // Fetch total views and likes
-      const { data: postsData } = await supabase
-        .from('posts')
-        .select('views, likes');
-
-      let totalViews = 0;
-      let totalLikes = 0;
-
-      if (postsData) {
-        totalViews = postsData.reduce((sum, post) => sum + (post.views || 0), 0);
-        totalLikes = postsData.reduce((sum, post) => sum + (post.likes || 0), 0);
-      }
+      const totalViews = postsData?.reduce((sum, post) => sum + (post.views || 0), 0) ?? 0;
+      const totalLikes = postsData?.reduce((sum, post) => sum + (post.likes || 0), 0) ?? 0;
 
       setStats({
         totalPosts: totalPosts || 0,
