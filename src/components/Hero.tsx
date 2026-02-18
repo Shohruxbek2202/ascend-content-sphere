@@ -57,13 +57,14 @@ export const Hero = () => {
                 <span className="relative z-10 text-foreground">{titleParts.highlighted}</span>
                 {/* iOS Selection highlight background - solid blue like real iOS */}
                 <span 
-                  className="absolute inset-0 -inset-x-1 rounded-sm ios-selection-bg"
+                  className="absolute rounded-sm ios-selection-bg"
                   style={{
                     background: 'hsl(217 91% 60% / 0.25)',
+                    inset: '-4px -6px',
                   }}
                 />
                 {/* Shimmer effect overlay */}
-                <span className="absolute inset-0 -inset-x-1 rounded-sm overflow-hidden">
+                <span className="absolute rounded-sm overflow-hidden" style={{ inset: '-4px -6px' }}>
                   <span className="absolute inset-0 ios-shimmer" />
                 </span>
                 {/* Left iOS Selection handle - dot on TOP, line going down */}
