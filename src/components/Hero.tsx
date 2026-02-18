@@ -68,7 +68,7 @@ export const Hero = () => {
                   <span className="absolute inset-0 ios-shimmer" />
                 </span>
                 {/* Left iOS Selection handle - dot on TOP, line going down */}
-                <span className="absolute -left-2 -top-2 bottom-0 flex flex-col items-center">
+                <span className="absolute -left-4 -top-2 bottom-0 flex flex-col items-center">
                   <span className="w-4 h-4 md:w-5 md:h-5 bg-secondary rounded-full shadow-lg shadow-secondary/50 ios-dot-pulse flex-shrink-0" />
                   <span className="flex-1 w-[3px] bg-secondary ios-handle-pulse" />
                 </span>
