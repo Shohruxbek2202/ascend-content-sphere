@@ -68,97 +68,55 @@ const handler = async (req: Request): Promise<Response> => {
     let failedCount = 0;
     const errors: string[] = [];
 
-    // Send emails to each subscriber
-    for (const subscriber of subscribers) {
+    // [KRITIK-3] Batch processing — sinxron loop o'rniga 10 talik guruhlar
+    const BATCH_SIZE = 10;
+    const sendEmail = async (subscriber: { email: string; language: string }) => {
       const lang = subscriber.language || "uz";
       const postTitle = title[lang as keyof typeof title] || title.uz;
       const postExcerpt = excerpt[lang as keyof typeof excerpt] || excerpt.uz;
 
-      const subjectText = {
-        uz: `Yangi maqola: ${postTitle}`,
-        ru: `Новая статья: ${postTitle}`,
-        en: `New article: ${postTitle}`,
-      };
-
-      const buttonText = {
-        uz: "O'qish",
-        ru: "Читать",
-        en: "Read",
-      };
-
-      const unsubscribeText = {
-        uz: "Obunani bekor qilish",
-        ru: "Отписаться",
-        en: "Unsubscribe",
-      };
+      const subjectText = { uz: `Yangi maqola: ${postTitle}`, ru: `Новая статья: ${postTitle}`, en: `New article: ${postTitle}` };
+      const buttonText = { uz: "O'qish", ru: "Читать", en: "Read" };
+      const unsubscribeText = { uz: "Obunani bekor qilish", ru: "Отписаться", en: "Unsubscribe" };
 
       const html = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #f4f4f5;">
-<table width="100%" cellpadding="0" cellspacing="0" style="padding: 40px 20px;">
-<tr>
-<td align="center">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding: 40px 20px;"><tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
 ${featuredImage ? `<tr><td><img src="${featuredImage}" alt="${postTitle}" style="width: 100%; height: 250px; object-fit: cover;"></td></tr>` : ''}
-<tr>
-<td style="padding: 32px;">
+<tr><td style="padding: 32px;">
 <h1 style="margin: 0 0 16px; font-size: 24px; color: #1a1a1a;">${postTitle}</h1>
 <p style="margin: 0 0 24px; color: #666; line-height: 1.6;">${postExcerpt}</p>
-<a href="${siteUrl}/post/${slug}" style="display: inline-block; background: linear-gradient(135deg, #1E3A5F 0%, #F97316 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600;">${buttonText[lang as keyof typeof buttonText]}</a>
-</td>
-</tr>
-<tr>
-<td style="padding: 24px 32px; background: #f9fafb; text-align: center;">
+<a href="${siteUrl}/blog/${slug}" style="display: inline-block; background: #1a1a1a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600;">${buttonText[lang as keyof typeof buttonText]}</a>
+</td></tr>
+<tr><td style="padding: 24px 32px; background: #f9fafb; text-align: center;">
 <a href="${siteUrl}/unsubscribe?email=${encodeURIComponent(subscriber.email)}" style="color: #999; font-size: 12px; text-decoration: underline;">${unsubscribeText[lang as keyof typeof unsubscribeText]}</a>
-</td>
-</tr>
-</table>
-</td>
-</tr>
-</table>
-</body>
-</html>`;
+</td></tr></table></td></tr></table></body></html>`;
 
       try {
-        const emailResponse = await resend.emails.send({
+        await resend.emails.send({
           from: "Shohrux Blog <noreply@shohruxdigital.uz>",
           to: [subscriber.email],
           subject: subjectText[lang as keyof typeof subjectText],
-          html: html,
+          html,
         });
-
-        console.log(`Email sent to ${subscriber.email}:`, emailResponse);
         sentCount++;
-
-        // Log successful send
-        await supabase.from('newsletter_logs').insert({
-          post_id: postId,
-          subscriber_email: subscriber.email,
-          subscriber_language: lang,
-          status: 'sent'
-        });
+        await supabase.from('newsletter_logs').insert({ post_id: postId, subscriber_email: subscriber.email, subscriber_language: lang, status: 'sent' });
       } catch (emailError: unknown) {
         const errorMessage = emailError instanceof Error ? emailError.message : 'Unknown error';
-        console.error(`Failed to send email to ${subscriber.email}:`, errorMessage);
         failedCount++;
         errors.push(`${subscriber.email}: ${errorMessage}`);
-
-        // Log failed send
-        await supabase.from('newsletter_logs').insert({
-          post_id: postId,
-          subscriber_email: subscriber.email,
-          subscriber_language: lang,
-          status: 'failed',
-          error_message: errorMessage
-        });
+        await supabase.from('newsletter_logs').insert({ post_id: postId, subscriber_email: subscriber.email, subscriber_language: lang, status: 'failed', error_message: errorMessage });
       }
+    };
 
-      // Delay to respect rate limits (2 requests/second max for Resend)
-      await new Promise(resolve => setTimeout(resolve, 600));
+    for (let i = 0; i < subscribers.length; i += BATCH_SIZE) {
+      const batch = subscribers.slice(i, i + BATCH_SIZE);
+      await Promise.all(batch.map(sendEmail));
+      if (i + BATCH_SIZE < subscribers.length) {
+        await new Promise(resolve => setTimeout(resolve, 500)); // 500ms batch oralig'i
+      }
     }
 
     console.log(`Newsletter completed: ${sentCount} sent, ${failedCount} failed out of ${subscribers.length} total`);

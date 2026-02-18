@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { FileText, MessageSquare, Users, Eye, Heart, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
@@ -82,35 +83,35 @@ const AdminDashboard = () => {
       value: stats.totalPosts,
       subValue: `${stats.publishedPosts} nashr qilingan`,
       icon: FileText,
-      color: 'bg-blue-500',
+      color: 'bg-primary text-primary-foreground',
     },
     {
       title: 'Izohlar',
       value: stats.totalComments,
       subValue: 'Barcha izohlar',
       icon: MessageSquare,
-      color: 'bg-green-500',
+      color: 'bg-secondary text-secondary-foreground',
     },
     {
       title: 'Obunchilar',
       value: stats.totalSubscribers,
       subValue: 'Faol obunchilar',
       icon: Users,
-      color: 'bg-purple-500',
+      color: 'bg-accent text-accent-foreground',
     },
     {
       title: 'Ko\'rishlar',
       value: stats.totalViews,
       subValue: 'Jami ko\'rishlar',
       icon: Eye,
-      color: 'bg-orange-500',
+      color: 'bg-muted text-muted-foreground',
     },
     {
       title: 'Likelar',
       value: stats.totalLikes,
       subValue: 'Jami likelar',
       icon: Heart,
-      color: 'bg-red-500',
+      color: 'bg-destructive text-destructive-foreground',
     },
   ];
 
@@ -168,27 +169,27 @@ const AdminDashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <a
-              href="/admin/posts/new"
+            <Link
+              to="/admin/posts/new"
               className="p-4 border rounded-lg hover:border-primary hover:bg-primary/5 transition-colors flex items-center gap-3"
             >
               <FileText className="w-5 h-5 text-primary" />
               <span className="font-medium">Yangi Post Yaratish</span>
-            </a>
-            <a
-              href="/admin/comments"
+            </Link>
+            <Link
+              to="/admin/comments"
               className="p-4 border rounded-lg hover:border-primary hover:bg-primary/5 transition-colors flex items-center gap-3"
             >
               <MessageSquare className="w-5 h-5 text-primary" />
               <span className="font-medium">Izohlarni Ko'rish</span>
-            </a>
-            <a
-              href="/admin/analytics"
+            </Link>
+            <Link
+              to="/admin/analytics"
               className="p-4 border rounded-lg hover:border-primary hover:bg-primary/5 transition-colors flex items-center gap-3"
             >
               <TrendingUp className="w-5 h-5 text-primary" />
               <span className="font-medium">Analitikani Ko'rish</span>
-            </a>
+            </Link>
           </div>
         </CardContent>
       </Card>

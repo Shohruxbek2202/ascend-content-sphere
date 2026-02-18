@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import TiptapEditor from '@/components/TiptapEditor';
 import {
   Select,
   SelectContent,
@@ -389,18 +390,20 @@ const PostEditor = () => {
                       />
                     </div>
                     <div>
-                      <Label>Kontent ({lang.toUpperCase()})</Label>
-                      <Textarea
-                        value={formData[`content_${lang}`]}
-                        onChange={(e) =>
+                      <Label className="mb-2 block">Kontent ({lang.toUpperCase()})</Label>
+                      <TiptapEditor
+                        content={formData[`content_${lang}`]}
+                        onChange={(html) => {
+                          // Auto reading time hisoblash
+                          const words = html.replace(/<[^>]*>/g, '').trim().split(/\s+/).filter(Boolean).length;
+                          const readingTime = Math.max(1, Math.ceil(words / 200));
                           setFormData((prev) => ({
                             ...prev,
-                            [`content_${lang}`]: e.target.value,
-                          }))
-                        }
-                        placeholder={`To'liq kontent (${lang}) - HTML qo'llab-quvvatlanadi`}
-                        rows={15}
-                        className="font-mono text-sm"
+                            [`content_${lang}`]: html,
+                            reading_time: readingTime,
+                          }));
+                        }}
+                        placeholder={`Kontent yozing (${lang.toUpperCase()})...`}
                       />
                     </div>
                   </TabsContent>

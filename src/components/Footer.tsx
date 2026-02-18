@@ -68,26 +68,20 @@ export const Footer = () => {
                 {language === 'uz' ? 'Navigatsiya' : language === 'ru' ? 'Навигация' : 'Navigation'}
               </h3>
               <ul className="space-y-2">
-                <li>
-                  <Link to="/" className="text-background/70 dark:text-foreground/70 hover:text-background dark:hover:text-foreground transition-colors text-sm">
-                    {t.nav.home}
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/blog" className="text-background/70 dark:text-foreground/70 hover:text-background dark:hover:text-foreground transition-colors text-sm">
-                    {t.nav.blog}
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/categories" className="text-background/70 dark:text-foreground/70 hover:text-background dark:hover:text-foreground transition-colors text-sm">
-                    {t.nav.categories}
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/about" className="text-background/70 dark:text-foreground/70 hover:text-background dark:hover:text-foreground transition-colors text-sm">
-                    {t.nav.about}
-                  </Link>
-                </li>
+                {[
+                  { to: '/', label: t.nav.home },
+                  { to: '/blog', label: t.nav.blog },
+                  { to: '/categories', label: t.nav.categories },
+                  { to: '/faq', label: t.nav.faq },
+                  { to: '/case-studies', label: t.nav.caseStudies },
+                  { to: '/about', label: t.nav.about },
+                ].map(link => (
+                  <li key={link.to}>
+                    <Link to={link.to} className="text-background/70 dark:text-foreground/70 hover:text-background dark:hover:text-foreground transition-colors text-sm">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
 
@@ -97,16 +91,16 @@ export const Footer = () => {
                 {language === 'uz' ? 'Resurslar' : language === 'ru' ? 'Ресурсы' : 'Resources'}
               </h3>
               <ul className="space-y-2">
-                <li>
-                  <Link to="/subscribe" className="text-background/70 dark:text-foreground/70 hover:text-background dark:hover:text-foreground transition-colors text-sm">
-                    {t.hero.subscribe}
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/contact" className="text-background/70 dark:text-foreground/70 hover:text-background dark:hover:text-foreground transition-colors text-sm">
-                    {t.footer.contact}
-                  </Link>
-                </li>
+                {[
+                  { to: '/subscribe', label: t.hero.subscribe },
+                  { to: '/contact', label: t.footer.contact },
+                ].map(link => (
+                  <li key={link.to}>
+                    <Link to={link.to} className="text-background/70 dark:text-foreground/70 hover:text-background dark:hover:text-foreground transition-colors text-sm">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
 
@@ -116,16 +110,16 @@ export const Footer = () => {
                 {language === 'uz' ? 'Huquqiy' : language === 'ru' ? 'Правовое' : 'Legal'}
               </h3>
               <ul className="space-y-2">
-                <li>
-                  <Link to="/privacy" className="text-background/70 dark:text-foreground/70 hover:text-background dark:hover:text-foreground transition-colors text-sm">
-                    {t.footer.privacy}
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/terms" className="text-background/70 dark:text-foreground/70 hover:text-background dark:hover:text-foreground transition-colors text-sm">
-                    {t.footer.terms}
-                  </Link>
-                </li>
+                {[
+                  { to: '/privacy', label: t.footer.privacy },
+                  { to: '/terms', label: t.footer.terms },
+                ].map(link => (
+                  <li key={link.to}>
+                    <Link to={link.to} className="text-background/70 dark:text-foreground/70 hover:text-background dark:hover:text-foreground transition-colors text-sm">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
