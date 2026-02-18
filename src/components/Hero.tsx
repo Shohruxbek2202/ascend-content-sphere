@@ -73,7 +73,7 @@ export const Hero = () => {
                   <span className="flex-1 w-[3px] bg-secondary ios-handle-pulse" />
                 </span>
                 {/* Right iOS Selection handle - line going down, dot on BOTTOM */}
-                <span className="absolute -right-2 top-0 -bottom-2 flex flex-col items-center" style={{ animationDelay: '0.5s' }}>
+                <span className="absolute -right-4 top-0 -bottom-2 flex flex-col items-center" style={{ animationDelay: '0.5s' }}>
                   <span className="flex-1 w-[3px] bg-secondary ios-handle-pulse" style={{ animationDelay: '0.5s' }} />
                   <span className="w-4 h-4 md:w-5 md:h-5 bg-secondary rounded-full shadow-lg shadow-secondary/50 ios-dot-pulse flex-shrink-0" style={{ animationDelay: '0.5s' }} />
                 </span>
