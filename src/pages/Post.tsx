@@ -233,7 +233,7 @@ const Post = () => {
       post_id: post.id,
       author_name: authorName.trim().substring(0, 100),
       content: commentContent.trim().substring(0, 2000),
-      approved: false, // [UX-1] Pre-moderation: admin tasdiqlashi kerak
+      approved: true, // Izohlar moderatsiyasiz qabul qilinadi
     });
 
     if (error) {
@@ -245,9 +245,9 @@ const Post = () => {
     } else {
       if (slug) setCooldown(slug);
       toast.success(
-        language === 'uz' ? 'Izohingiz moderatsiyadan o\'tgach ko\'rinadi'
-        : language === 'ru' ? 'Комментарий появится после модерации'
-        : 'Your comment will appear after moderation'
+        language === 'uz' ? 'Izohingiz muvaffaqiyatli qo\'shildi!'
+        : language === 'ru' ? 'Комментарий успешно добавлен!'
+        : 'Your comment has been added!'
       );
       setAuthorName('');
       setCommentContent('');
@@ -464,9 +464,9 @@ const Post = () => {
               {/* Comment Form */}
               <form onSubmit={handleCommentSubmit} className="bg-muted/30 rounded-xl p-6 mb-8">
                 <p className="text-sm text-muted-foreground mb-4">
-                  {language === 'uz' ? '⚠️ Izohlar moderatsiyadan o\'tgach ko\'rinadi'
-                   : language === 'ru' ? '⚠️ Комментарии появляются после модерации'
-                   : '⚠️ Comments appear after moderation'}
+                  {language === 'uz' ? '💬 Fikringizni qoldiring'
+                   : language === 'ru' ? '💬 Оставьте свой комментарий'
+                   : '💬 Leave your comment'}
                 </p>
                 <div className="space-y-4">
                   <Input
