@@ -18,6 +18,7 @@ import { toast } from 'sonner';
 import SEOHead from '@/components/SEOHead';
 import PostStructuredData from '@/components/PostStructuredData';
 import DOMPurify from 'dompurify';
+import { HumanMadeSeal } from '@/components/HumanMadeSeal';
 
 interface Post {
   id: string;
@@ -371,7 +372,7 @@ const Post = () => {
             </h1>
 
             {/* Meta */}
-            <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-8">
+            <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-8 relative">
               <div className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
                 <span>
@@ -387,6 +388,11 @@ const Post = () => {
               <div className="flex items-center gap-1">
                 <Heart className="w-4 h-4" />
                 <span>{post.likes || 0}</span>
+              </div>
+              
+              {/* Human-made seal */}
+              <div className="ml-auto">
+                <HumanMadeSeal size="md" />
               </div>
             </div>
 

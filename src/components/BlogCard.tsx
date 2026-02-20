@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Clock, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { HumanMadeSeal } from '@/components/HumanMadeSeal';
 
 interface BlogCardProps {
   id: string;
@@ -53,6 +54,11 @@ export const BlogCard = ({
               </span>
             </div>
           )}
+          
+          {/* Human-made seal */}
+          <div className="absolute bottom-3 right-3 opacity-40 group-hover:opacity-80 transition-opacity duration-500">
+            <HumanMadeSeal size="sm" />
+          </div>
         </div>
 
         {/* Content */}
