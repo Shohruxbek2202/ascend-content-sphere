@@ -10,6 +10,7 @@ import { MessageSquare, Send, Mail, User, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import SEOHead from '@/components/SEOHead';
+import BreadcrumbJsonLd from '@/components/BreadcrumbJsonLd';
 
 const Contact = () => {
   const { language } = useLanguage();
@@ -102,6 +103,7 @@ const Contact = () => {
         url={typeof window !== 'undefined' ? window.location.href : ''}
         type="website"
       />
+      <BreadcrumbJsonLd items={[{ name: language === 'uz' ? 'Bog\'lanish' : language === 'ru' ? 'Контакты' : 'Contact', url: '/contact' }]} />
       <Header />
       
       <main className="relative pt-20 pb-12">

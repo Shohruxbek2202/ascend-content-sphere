@@ -16,6 +16,7 @@ import {
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import SEOHead from '@/components/SEOHead';
+import BreadcrumbJsonLd from '@/components/BreadcrumbJsonLd';
 
 interface Post {
   id: string;
@@ -188,6 +189,7 @@ const Blog = () => {
         type="website"
         image={`${typeof window !== 'undefined' ? window.location.origin : ''}/og-image.png`}
       />
+      <BreadcrumbJsonLd items={[{ name: language === 'uz' ? 'Blog' : language === 'ru' ? 'Блог' : 'Blog', url: '/blog' }]} />
       <Header />
 
       <main className="pt-20 md:pt-24 pb-12 md:pb-16">

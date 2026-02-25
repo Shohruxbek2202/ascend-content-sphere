@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Briefcase, TrendingUp } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
+import BreadcrumbJsonLd from '@/components/BreadcrumbJsonLd';
 
 const CaseStudies = () => {
   const { language } = useLanguage();
@@ -30,6 +31,7 @@ const CaseStudies = () => {
         description={t('Digital marketing xizmatlari bo\'yicha real natijalar va tajribalar', 'Реальные результаты и опыт в сфере цифрового маркетинга', 'Real results and experience in digital marketing services')}
         url="https://shohruxdigital.uz/case-studies"
       />
+      <BreadcrumbJsonLd items={[{ name: t('Case Studies', 'Кейсы', 'Case Studies'), url: '/case-studies' }]} />
       <Header />
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">

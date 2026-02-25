@@ -54,6 +54,8 @@ serve(async (req) => {
       { loc: '/categories', priority: '0.8', changefreq: 'weekly', enabled: true },
       { loc: '/about', priority: '0.7', changefreq: 'monthly', enabled: true },
       { loc: '/contact', priority: '0.7', changefreq: 'monthly', enabled: true },
+      { loc: '/faq', priority: '0.7', changefreq: 'monthly', enabled: true },
+      { loc: '/case-studies', priority: '0.7', changefreq: 'monthly', enabled: true },
       { loc: '/subscribe', priority: '0.6', changefreq: 'monthly', enabled: true },
       { loc: '/privacy', priority: '0.3', changefreq: 'yearly', enabled: true },
       { loc: '/terms', priority: '0.3', changefreq: 'yearly', enabled: true },

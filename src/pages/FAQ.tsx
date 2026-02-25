@@ -8,6 +8,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Badge } from '@/components/ui/badge';
 import { HelpCircle } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
+import BreadcrumbJsonLd from '@/components/BreadcrumbJsonLd';
 
 const SERVICE_LABELS: Record<string, { uz: string; ru: string; en: string }> = {
   general: { uz: 'Umumiy', ru: 'Общие', en: 'General' },
@@ -91,6 +92,7 @@ const FAQ = () => {
         )}
         url="https://shohruxdigital.uz/faq"
       />
+      <BreadcrumbJsonLd items={[{ name: t('FAQ', 'FAQ', 'FAQ'), url: '/faq' }]} />
       <Header />
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-3xl mx-auto">
