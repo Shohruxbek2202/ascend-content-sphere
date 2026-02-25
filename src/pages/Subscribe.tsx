@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Bell, CheckCircle, Mail, Sparkles, Gift, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import SEOHead from '@/components/SEOHead';
 
 const Subscribe = () => {
   const { language } = useLanguage();
@@ -95,6 +96,12 @@ const Subscribe = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={language === 'uz' ? 'Obuna bo\'lish | ShohruxDigital' : language === 'ru' ? 'Подписка | ShohruxDigital' : 'Subscribe | ShohruxDigital'}
+        description={language === 'uz' ? 'ShohruxDigital yangiliklariga obuna bo\'ling — har hafta eng yaxshi maqolalar emailingizga' : language === 'ru' ? 'Подпишитесь на ShohruxDigital — лучшие статьи каждую неделю на ваш email' : 'Subscribe to ShohruxDigital — best articles delivered weekly to your inbox'}
+        url={typeof window !== 'undefined' ? window.location.href : ''}
+        type="website"
+      />
       <Header />
       
       <main className="relative pt-20 pb-12">

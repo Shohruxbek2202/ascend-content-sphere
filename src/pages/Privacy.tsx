@@ -1,6 +1,7 @@
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { useLanguage } from '@/contexts/LanguageContext';
+import SEOHead from '@/components/SEOHead';
 
 const Privacy = () => {
   const { language } = useLanguage();
@@ -78,6 +79,12 @@ const Privacy = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={language === 'uz' ? 'Maxfiylik Siyosati | ShohruxDigital' : language === 'ru' ? 'Политика Конфиденциальности | ShohruxDigital' : 'Privacy Policy | ShohruxDigital'}
+        description={language === 'uz' ? 'ShohruxDigital maxfiylik siyosati — ma\'lumotlaringiz qanday himoyalanadi' : language === 'ru' ? 'Политика конфиденциальности ShohruxDigital — как защищены ваши данные' : 'ShohruxDigital privacy policy — how your data is protected'}
+        url={typeof window !== 'undefined' ? window.location.href : ''}
+        type="website"
+      />
       <Header />
       <main className="container mx-auto px-4 py-20">
         <div className="max-w-3xl mx-auto">

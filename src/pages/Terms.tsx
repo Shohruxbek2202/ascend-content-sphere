@@ -1,6 +1,7 @@
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { useLanguage } from '@/contexts/LanguageContext';
+import SEOHead from '@/components/SEOHead';
 
 const Terms = () => {
   const { language } = useLanguage();
@@ -78,6 +79,12 @@ const Terms = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={language === 'uz' ? 'Foydalanish Shartlari | ShohruxDigital' : language === 'ru' ? 'Условия Использования | ShohruxDigital' : 'Terms of Service | ShohruxDigital'}
+        description={language === 'uz' ? 'ShohruxDigital foydalanish shartlari va qoidalari' : language === 'ru' ? 'Условия использования и правила ShohruxDigital' : 'ShohruxDigital terms of service and rules'}
+        url={typeof window !== 'undefined' ? window.location.href : ''}
+        type="website"
+      />
       <Header />
       <main className="container mx-auto px-4 py-20">
         <div className="max-w-3xl mx-auto">
