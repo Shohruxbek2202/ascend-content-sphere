@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import SEOHead from '@/components/SEOHead';
+import BreadcrumbJsonLd from '@/components/BreadcrumbJsonLd';
 
 interface Stats {
   posts: number;
@@ -155,6 +156,7 @@ const About = () => {
         url={typeof window !== 'undefined' ? window.location.href : ''}
         type="website"
       />
+      <BreadcrumbJsonLd items={[{ name: language === 'uz' ? 'Biz Haqimizda' : language === 'ru' ? 'О Нас' : 'About Us', url: '/about' }]} />
       <Header />
 
       <main className="relative pt-20 pb-12">

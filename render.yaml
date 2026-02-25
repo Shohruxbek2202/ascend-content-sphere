@@ -6,6 +6,12 @@ services:
     staticPublishPath: ./dist
     routes:
       - type: redirect
+        source: /sitemap.xml
+        destination: https://shfnpzfqtrfzdklnhatf.supabase.co/functions/v1/sitemap
+      - type: redirect
+        source: /robots.txt
+        destination: https://shfnpzfqtrfzdklnhatf.supabase.co/functions/v1/robots
+      - type: redirect
         source: /llms.txt
         destination: https://shfnpzfqtrfzdklnhatf.supabase.co/functions/v1/llms-txt
       - type: redirect

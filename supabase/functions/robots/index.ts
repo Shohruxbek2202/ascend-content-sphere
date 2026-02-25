@@ -34,7 +34,7 @@ serve(async (req) => {
     let config = {
       allowAll: true,
       disallowPaths: ['/admin', '/admin/*', '/auth', '/auth/*', '/api/', '/*.json$', '/*?*'],
-      allowPaths: ['/post/*', '/blog', '/categories', '/about', '/contact'],
+      allowPaths: ['/blog/*', '/blog', '/categories', '/about', '/contact', '/faq', '/case-studies', '/subscribe'],
       crawlDelay: '1',
       customRules: ''
     };
@@ -104,7 +104,7 @@ serve(async (req) => {
     if (posts && posts.length > 0) {
       robotsTxt += `\n# Dynamic post URLs (${posts.length} posts)\n`;
       for (const post of posts) {
-        robotsTxt += `Allow: /post/${post.slug}\n`;
+        robotsTxt += `Allow: /blog/${post.slug}\n`;
       }
     }
 

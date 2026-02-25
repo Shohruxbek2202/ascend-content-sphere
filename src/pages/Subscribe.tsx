@@ -8,6 +8,7 @@ import { Bell, CheckCircle, Mail, Sparkles, Gift, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import SEOHead from '@/components/SEOHead';
+import BreadcrumbJsonLd from '@/components/BreadcrumbJsonLd';
 
 const Subscribe = () => {
   const { language } = useLanguage();
@@ -102,6 +103,7 @@ const Subscribe = () => {
         url={typeof window !== 'undefined' ? window.location.href : ''}
         type="website"
       />
+      <BreadcrumbJsonLd items={[{ name: language === 'uz' ? 'Obuna' : language === 'ru' ? 'Подписка' : 'Subscribe', url: '/subscribe' }]} />
       <Header />
       
       <main className="relative pt-20 pb-12">

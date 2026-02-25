@@ -6,6 +6,7 @@ import { Footer } from '@/components/Footer';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import SEOHead from '@/components/SEOHead';
+import BreadcrumbJsonLd from '@/components/BreadcrumbJsonLd';
 
 const iconMap: Record<string, any> = {
   TrendingUp,
@@ -99,6 +100,7 @@ const Categories = () => {
         url={typeof window !== 'undefined' ? window.location.href : ''}
         type="website"
       />
+      <BreadcrumbJsonLd items={[{ name: language === 'uz' ? 'Kategoriyalar' : language === 'ru' ? 'Категории' : 'Categories', url: '/categories' }]} />
       <Header />
 
       <main className="pt-24 pb-16">

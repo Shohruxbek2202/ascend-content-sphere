@@ -2,6 +2,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { useLanguage } from '@/contexts/LanguageContext';
 import SEOHead from '@/components/SEOHead';
+import BreadcrumbJsonLd from '@/components/BreadcrumbJsonLd';
 
 const Terms = () => {
   const { language } = useLanguage();
@@ -85,6 +86,7 @@ const Terms = () => {
         url={typeof window !== 'undefined' ? window.location.href : ''}
         type="website"
       />
+      <BreadcrumbJsonLd items={[{ name: language === 'uz' ? 'Foydalanish Shartlari' : language === 'ru' ? 'Условия' : 'Terms', url: '/terms' }]} />
       <Header />
       <main className="container mx-auto px-4 py-20">
         <div className="max-w-3xl mx-auto">
