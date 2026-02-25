@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -50,19 +51,34 @@ const FAQ = () => {
     return acc;
   }, {}) || {};
 
-  // FAQPage JSON-LD schema
-  const faqSchema = faqs && faqs.length > 0 ? {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faqs.map(faq => ({
-      '@type': 'Question',
-      name: getField(faq, 'question'),
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: getField(faq, 'answer'),
-      },
-    })),
-  } : null;
+  // FAQPage JSON-LD schema — inject into head via useEffect
+  useEffect(() => {
+    if (!faqs || faqs.length === 0) return;
+    
+    const faqSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqs.map(faq => ({
+        '@type': 'Question',
+        name: getField(faq, 'question'),
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: getField(faq, 'answer'),
+        },
+      })),
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-type', 'faq-page');
+    script.textContent = JSON.stringify(faqSchema);
+    document.head.appendChild(script);
+
+    return () => {
+      const el = document.querySelector('script[data-type="faq-page"]');
+      if (el) el.remove();
+    };
+  }, [faqs, language]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -75,12 +91,6 @@ const FAQ = () => {
         )}
         url="https://shohruxdigital.uz/faq"
       />
-      {faqSchema && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-        />
-      )}
       <Header />
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-3xl mx-auto">

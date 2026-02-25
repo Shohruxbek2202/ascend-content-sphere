@@ -5,6 +5,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
+import SEOHead from '@/components/SEOHead';
 
 const iconMap: Record<string, any> = {
   TrendingUp,
@@ -92,6 +93,12 @@ const Categories = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={language === 'uz' ? 'Kategoriyalar | ShohruxDigital' : language === 'ru' ? 'Категории | ShohruxDigital' : 'Categories | ShohruxDigital'}
+        description={language === 'uz' ? 'Digital marketing, SMM, SEO va shaxsiy rivojlanish kategoriyalari bo\'yicha maqolalar' : language === 'ru' ? 'Статьи по категориям: цифровой маркетинг, SMM, SEO и личное развитие' : 'Articles by category: digital marketing, SMM, SEO and personal development'}
+        url={typeof window !== 'undefined' ? window.location.href : ''}
+        type="website"
+      />
       <Header />
 
       <main className="pt-24 pb-16">

@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { MessageSquare, Send, Mail, User, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import SEOHead from '@/components/SEOHead';
 
 const Contact = () => {
   const { language } = useLanguage();
@@ -95,6 +96,12 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={language === 'uz' ? 'Bog\'lanish | ShohruxDigital' : language === 'ru' ? 'Контакты | ShohruxDigital' : 'Contact Us | ShohruxDigital'}
+        description={language === 'uz' ? 'ShohruxDigital bilan bog\'laning — savollar, takliflar va hamkorlik uchun' : language === 'ru' ? 'Свяжитесь с ShohruxDigital — вопросы, предложения и сотрудничество' : 'Contact ShohruxDigital — questions, suggestions and partnerships'}
+        url={typeof window !== 'undefined' ? window.location.href : ''}
+        type="website"
+      />
       <Header />
       
       <main className="relative pt-20 pb-12">

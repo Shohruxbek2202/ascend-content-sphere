@@ -186,6 +186,7 @@ const Blog = () => {
         description={seoDescription}
         url={typeof window !== 'undefined' ? window.location.href : ''}
         type="website"
+        image={`${typeof window !== 'undefined' ? window.location.origin : ''}/og-image.png`}
       />
       <Header />
 
