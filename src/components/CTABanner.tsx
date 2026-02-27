@@ -1,5 +1,4 @@
-import { ExternalLink, Sparkles, Zap } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export const CTABanner = () => {
@@ -7,79 +6,37 @@ export const CTABanner = () => {
 
   const content = {
     uz: {
-      badge: 'Tavsiya',
-      title: 'Digital Mutaxassislar uchun Promptlar',
-      subtitle: 'AI bilan ishlash uchun tayyor promptlar to\'plami. Marketologlar, dizaynerlar va kontent yaratuvchilar uchun.',
-      button: 'MPBS.uz ga o\'tish',
+      title: 'Digital marketing bo\'yicha darslar va Promptlar',
+      button: 'MPBS.uz',
     },
     ru: {
-      badge: 'Рекомендация',
-      title: 'Промпты для Digital Специалистов',
-      subtitle: 'Готовые промпты для работы с AI. Для маркетологов, дизайнеров и создателей контента.',
-      button: 'Перейти на MPBS.uz',
+      title: 'Уроки и промпты по Digital маркетингу',
+      button: 'MPBS.uz',
     },
     en: {
-      badge: 'Recommended',
-      title: 'Prompts for Digital Specialists',
-      subtitle: 'Ready-to-use prompts for AI. For marketers, designers, and content creators.',
-      button: 'Visit MPBS.uz',
+      title: 'Digital Marketing Lessons & Prompts',
+      button: 'MPBS.uz',
     },
   };
 
   const t = content[language];
 
   return (
-    <section className="py-8 md:py-12">
+    <section className="py-6 md:py-8">
       <div className="container mx-auto px-4">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-secondary/10 via-secondary/5 to-primary/10 border border-secondary/20">
-          {/* Background decoration */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-24 -right-24 w-48 h-48 bg-secondary/20 rounded-full blur-3xl" />
-            <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-primary/10 rounded-full blur-3xl" />
-          </div>
-
-          <div className="relative flex flex-col md:flex-row items-center justify-between gap-6 p-6 md:p-8">
-            {/* Icon */}
-            <div className="flex-shrink-0">
-              <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-secondary/20 flex items-center justify-center">
-                <Zap className="w-8 h-8 md:w-10 md:h-10 text-secondary" />
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="flex-1 text-center md:text-left">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary/20 text-secondary text-xs font-medium mb-3">
-                <Sparkles className="w-3 h-3" />
-                {t.badge}
-              </div>
-              <h3 className="text-xl md:text-2xl font-bold text-foreground mb-2">
-                {t.title}
-              </h3>
-              <p className="text-muted-foreground text-sm md:text-base max-w-lg">
-                {t.subtitle}
-              </p>
-            </div>
-
-            {/* Button */}
-            <div className="flex-shrink-0">
-              <Button
-                size="lg"
-                className="bg-secondary hover:bg-secondary/90 text-primary font-bold px-6 py-6 rounded-xl shadow-lg shadow-secondary/30 hover:shadow-xl hover:shadow-secondary/40 transition-all duration-300 group"
-                asChild
-              >
-                <a 
-                  href="https://mpbs.uz/?utm_source=shohruxdigital&utm_medium=cta_banner&utm_campaign=blog_referral"
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2"
-                  aria-label={t.button}
-                >
-                  {t.button}
-                  <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" aria-hidden="true" />
-                </a>
-              </Button>
-            </div>
-          </div>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl border border-border/60 bg-muted/30 px-5 py-4">
+          <p className="text-sm md:text-base font-medium text-foreground text-center sm:text-left">
+            {t.title}
+          </p>
+          <a
+            href="https://mpbs.uz/?utm_source=shohruxdigital&utm_medium=cta_banner&utm_campaign=blog_referral"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-secondary hover:text-secondary/80 transition-colors whitespace-nowrap"
+          >
+            {t.button}
+            <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+          </a>
         </div>
       </div>
     </section>
