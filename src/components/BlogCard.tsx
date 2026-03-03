@@ -39,9 +39,13 @@ export const BlogCard = ({
           <img
             src={image}
             alt={title}
+            width={800}
+            height={500}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
             loading={featured ? "eager" : "lazy"}
             fetchPriority={featured ? "high" : "auto"}
+            decoding={featured ? "sync" : "async"}
+            sizes={featured ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"}
           />
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

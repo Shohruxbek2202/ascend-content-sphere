@@ -1,19 +1,39 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Hero } from '@/components/Hero';
 import { BlogCard } from '@/components/BlogCard';
-import { SubscribeSection } from '@/components/SubscribeSection';
-import { NewsletterPopup } from '@/components/NewsletterPopup';
-import { CTABanner } from '@/components/CTABanner';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
+
+// Lazy load below-fold components
+const SubscribeSection = lazy(() => import('@/components/SubscribeSection').then(m => ({ default: m.SubscribeSection })));
+const NewsletterPopup = lazy(() => import('@/components/NewsletterPopup').then(m => ({ default: m.NewsletterPopup })));
+const CTABanner = lazy(() => import('@/components/CTABanner').then(m => ({ default: m.CTABanner })));
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import SEOHead from '@/components/SEOHead';
 import HomeStructuredData from '@/components/HomeStructuredData';
-import { useSiteSettings } from '@/hooks/useSiteSettings';
+
+// Lazy load useSiteSettings - not needed for initial paint
+const useSiteSettingsLazy = () => {
+  const [settings, setSettings] = useState<Record<string, string>>({});
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const { data } = await supabase.from('site_settings').select('*');
+      if (data) {
+        const map: Record<string, string> = {};
+        data.forEach((item: any) => { map[item.key] = item.value || ''; });
+        setSettings(map);
+      }
+    };
+    // Defer settings fetch to after initial render
+    const timer = setTimeout(fetchSettings, 100);
+    return () => clearTimeout(timer);
+  }, []);
+  return settings;
+};
 
 interface Post {
   id: string;
@@ -44,7 +64,7 @@ interface Stats {
 
 const Index = () => {
   const { t, language } = useLanguage();
-  const { settings } = useSiteSettings();
+  const settings = useSiteSettingsLazy();
   const [featuredPosts, setFeaturedPosts] = useState<Post[]>([]);
   const [latestPosts, setLatestPosts] = useState<Post[]>([]);
   const [stats, setStats] = useState<Stats>({ posts: 0, categories: 0, subscribers: 0 });
@@ -231,13 +251,19 @@ const Index = () => {
         </section>
 
         {/* CTA Banner - MPBS.uz */}
-        <CTABanner />
+        <Suspense fallback={null}>
+          <CTABanner />
+        </Suspense>
 
-        <SubscribeSection />
+        <Suspense fallback={null}>
+          <SubscribeSection />
+        </Suspense>
       </main>
 
       {/* Newsletter Popup */}
-      <NewsletterPopup />
+      <Suspense fallback={null}>
+        <NewsletterPopup />
+      </Suspense>
 
       <Footer />
     </div>
