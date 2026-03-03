@@ -147,34 +147,49 @@ const PostEditor = () => {
       return;
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Rasm hajmi 5MB dan oshmasligi kerak');
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Rasm hajmi 10MB dan oshmasligi kerak');
       return;
     }
 
     setIsUploading(true);
 
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const filePath = `posts/${fileName}`;
+      // Use optimize-image edge function for WebP conversion
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', file);
+      formDataUpload.append('maxWidth', '1200');
+      formDataUpload.append('maxHeight', '800');
+      formDataUpload.append('quality', '0.85');
 
-      const { error: uploadError } = await supabase.storage
-        .from('post-images')
-        .upload(filePath, file);
+      const { data: session } = await supabase.auth.getSession();
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/optimize-image`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session?.session?.access_token}`,
+          },
+          body: formDataUpload,
+        }
+      );
 
-      if (uploadError) {
-        throw uploadError;
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Optimization failed');
       }
 
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('post-images')
-        .getPublicUrl(filePath);
-
-      setFormData((prev) => ({ ...prev, featured_image: publicUrl }));
-      toast.success('Rasm muvaffaqiyatli yuklandi');
+      setFormData((prev) => ({ ...prev, featured_image: result.url }));
+      
+      if (result.optimized) {
+        toast.success(`Rasm WebP formatda optimallashtirildi (${result.savings} tejaldi)`);
+      } else {
+        toast.success('Rasm muvaffaqiyatli yuklandi');
+      }
     } catch (error: any) {
       console.error('Upload error:', error);
       toast.error('Rasm yuklashda xatolik: ' + error.message);
@@ -183,6 +198,64 @@ const PostEditor = () => {
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
+    }
+  };
+
+  // Optimize URL image - download from external URL, convert to WebP, store in Supabase
+  const handleOptimizeUrl = async () => {
+    const url = formData.featured_image?.trim();
+    if (!url || !url.startsWith('http')) {
+      toast.error('Iltimos, to\'g\'ri URL kiriting');
+      return;
+    }
+
+    // Skip if already our storage WebP
+    const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+    if (url.includes(`${projectId}.supabase.co`) && url.endsWith('.webp')) {
+      toast.info('Bu rasm allaqachon optimallashtirilgan');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const { data: session } = await supabase.auth.getSession();
+
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/optimize-image`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session?.session?.access_token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            url,
+            maxWidth: 1200,
+            maxHeight: 800,
+            quality: 0.85,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Optimization failed');
+      }
+
+      setFormData((prev) => ({ ...prev, featured_image: result.url }));
+      
+      if (result.optimized) {
+        toast.success(`Rasm WebP formatda optimallashtirildi (${result.savings} tejaldi)`);
+      } else {
+        toast.info(result.message || 'Rasm allaqachon optimal');
+      }
+    } catch (error: any) {
+      console.error('URL optimize error:', error);
+      toast.error('Rasmni optimallashtirshda xatolik: ' + error.message);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -554,16 +627,40 @@ const PostEditor = () => {
 
               <div>
                 <Label>Rasm URL</Label>
-                <Input
-                  value={formData.featured_image}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      featured_image: e.target.value,
-                    }))
-                  }
-                  placeholder="https://..."
-                />
+                <div className="flex gap-2">
+                  <Input
+                    value={formData.featured_image}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        featured_image: e.target.value,
+                      }))
+                    }
+                    placeholder="https://..."
+                    className="flex-1"
+                  />
+                  {formData.featured_image && formData.featured_image.startsWith('http') && (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleOptimizeUrl}
+                      disabled={isUploading}
+                      title="WebP formatga o'tkazish va Supabase'ga saqlash"
+                    >
+                      {isUploading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <ImageIcon className="w-4 h-4" />
+                      )}
+                    </Button>
+                  )}
+                </div>
+                {formData.featured_image && !formData.featured_image.endsWith('.webp') && formData.featured_image.startsWith('http') && (
+                  <p className="text-xs text-destructive mt-1">
+                    ⚠️ Rasm WebP formatda emas. Optimallashtirish tugmasini bosing
+                  </p>
+                )}
               </div>
 
               {/* Preview */}
