@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 interface SiteSettings {
@@ -11,40 +11,36 @@ interface SiteSettings {
   ga4_measurement_id: string;
   gtm_container_id: string;
   meta_pixel_id: string;
+  [key: string]: string;
 }
 
+const defaultSettings: SiteSettings = {
+  instagram_url: '',
+  telegram_url: '',
+  youtube_url: '',
+  facebook_url: '',
+  twitter_url: '',
+  linkedin_url: '',
+  ga4_measurement_id: '',
+  gtm_container_id: '',
+  meta_pixel_id: '',
+};
+
+const fetchSiteSettings = async (): Promise<SiteSettings> => {
+  const { data } = await supabase.from('site_settings').select('*');
+  if (!data) return defaultSettings;
+  const map: Record<string, string> = {};
+  data.forEach(item => { map[item.key] = item.value || ''; });
+  return { ...defaultSettings, ...map };
+};
+
 export const useSiteSettings = () => {
-  const [settings, setSettings] = useState<SiteSettings>({
-    instagram_url: '',
-    telegram_url: '',
-    youtube_url: '',
-    facebook_url: '',
-    twitter_url: '',
-    linkedin_url: '',
-    ga4_measurement_id: '',
-    gtm_container_id: '',
-    meta_pixel_id: '',
+  const { data: settings = defaultSettings, isLoading } = useQuery({
+    queryKey: ['site-settings'],
+    queryFn: fetchSiteSettings,
+    staleTime: 10 * 60 * 1000, // 10 min cache
+    gcTime: 30 * 60 * 1000,
   });
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchSettings = async () => {
-      const { data } = await supabase
-        .from('site_settings')
-        .select('*');
-
-      if (data) {
-        const settingsMap: any = {};
-        data.forEach(item => {
-          settingsMap[item.key] = item.value || '';
-        });
-        setSettings(settingsMap as SiteSettings);
-      }
-      setIsLoading(false);
-    };
-
-    fetchSettings();
-  }, []);
 
   return { settings, isLoading };
 };
