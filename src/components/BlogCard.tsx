@@ -14,6 +14,7 @@ interface BlogCardProps {
   comments: number;
   publishedAt: string;
   featured?: boolean;
+  isLCP?: boolean;
 }
 
 export const BlogCard = ({
@@ -24,6 +25,7 @@ export const BlogCard = ({
   category,
   readTime,
   featured = false,
+  isLCP = false,
 }: BlogCardProps) => {
   const { t } = useLanguage();
 
@@ -42,9 +44,9 @@ export const BlogCard = ({
             width={800}
             height={500}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-            loading={featured ? "eager" : "lazy"}
-            fetchPriority={featured ? "high" : "auto"}
-            decoding={featured ? "sync" : "async"}
+            loading={isLCP || featured ? "eager" : "lazy"}
+            fetchPriority={isLCP ? "high" : "auto"}
+            decoding={isLCP ? "sync" : "async"}
             sizes={featured ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"}
           />
           {/* Gradient overlay */}

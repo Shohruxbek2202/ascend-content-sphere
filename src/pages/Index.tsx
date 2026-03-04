@@ -15,25 +15,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import SEOHead from '@/components/SEOHead';
 import HomeStructuredData from '@/components/HomeStructuredData';
-
-// Lazy load useSiteSettings - not needed for initial paint
-const useSiteSettingsLazy = () => {
-  const [settings, setSettings] = useState<Record<string, string>>({});
-  useEffect(() => {
-    const fetchSettings = async () => {
-      const { data } = await supabase.from('site_settings').select('*');
-      if (data) {
-        const map: Record<string, string> = {};
-        data.forEach((item: any) => { map[item.key] = item.value || ''; });
-        setSettings(map);
-      }
-    };
-    // Defer settings fetch to after initial render
-    const timer = setTimeout(fetchSettings, 100);
-    return () => clearTimeout(timer);
-  }, []);
-  return settings;
-};
+import { useSiteSettings } from '@/hooks/useSiteSettings';
 
 interface Post {
   id: string;
@@ -64,7 +46,7 @@ interface Stats {
 
 const Index = () => {
   const { t, language } = useLanguage();
-  const settings = useSiteSettingsLazy();
+  const { settings } = useSiteSettings();
   const [featuredPosts, setFeaturedPosts] = useState<Post[]>([]);
   const [latestPosts, setLatestPosts] = useState<Post[]>([]);
   const [stats, setStats] = useState<Stats>({ posts: 0, categories: 0, subscribers: 0 });
@@ -95,6 +77,17 @@ const Index = () => {
         subscribers: subscribersCount.count || 0,
       });
       setIsLoading(false);
+
+      // Preload LCP image - the first visible post image
+      const lcpPost = latest[0];
+      if (lcpPost?.featured_image) {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = lcpPost.featured_image;
+        link.fetchPriority = 'high';
+        document.head.appendChild(link);
+      }
     };
 
     fetchData();
@@ -171,7 +164,7 @@ const Index = () => {
               {t.blog.featured}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-              {featuredPosts.map((post) => (
+              {featuredPosts.map((post, index) => (
                 <BlogCard
                   key={post.id}
                   id={post.slug}
@@ -184,6 +177,7 @@ const Index = () => {
                   comments={0}
                   publishedAt={post.published_at || ''}
                   featured
+                  isLCP={index === 0}
                 />
               ))}
             </div>
@@ -217,7 +211,7 @@ const Index = () => {
             </div>
           ) : latestPosts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
-              {latestPosts.map((post) => (
+              {latestPosts.map((post, index) => (
                 <BlogCard
                   key={post.id}
                   id={post.slug}
@@ -229,6 +223,7 @@ const Index = () => {
                   likes={post.likes || 0}
                   comments={0}
                   publishedAt={post.published_at || ''}
+                  isLCP={featuredPosts.length === 0 && index === 0}
                 />
               ))}
             </div>
