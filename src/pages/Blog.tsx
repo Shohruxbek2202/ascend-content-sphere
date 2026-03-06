@@ -32,6 +32,7 @@ interface Post {
   views: number | null;
   likes: number | null;
   published_at: string | null;
+  tags: string[] | null;
   category_id: string | null;
   categories?: {
     slug: string;

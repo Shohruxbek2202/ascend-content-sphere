@@ -31,6 +31,7 @@ interface Post {
   likes: number | null;
   published_at: string | null;
   featured: boolean | null;
+  tags: string[] | null;
   categories?: {
     name_uz: string;
     name_ru: string;
