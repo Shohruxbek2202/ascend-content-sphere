@@ -6,7 +6,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// RSS manbalari - Digital Marketing va AI yangiliklari
 const RSS_FEEDS = [
   { url: 'https://searchengineland.com/feed', name: 'Search Engine Land' },
   { url: 'https://www.searchenginejournal.com/feed/', name: 'Search Engine Journal' },
@@ -16,7 +15,6 @@ const RSS_FEEDS = [
   { url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml', name: 'The Verge AI' },
 ];
 
-// Simple RSS XML parser
 function parseRSSItems(xml: string): Array<{ title: string; link: string; description: string; pubDate: string }> {
   const items: Array<{ title: string; link: string; description: string; pubDate: string }> = [];
   const itemRegex = /<item>([\s\S]*?)<\/item>/gi;
@@ -41,11 +39,20 @@ function parseRSSItems(xml: string): Array<{ title: string; link: string; descri
   return items;
 }
 
-// Fetch latest news from RSS feeds
+// Normalize title for comparison (lowercase, remove punctuation/extra spaces)
+function normalizeTitle(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 async function fetchLatestNews(): Promise<Array<{ title: string; link: string; description: string; source: string }>> {
   const allNews: Array<{ title: string; link: string; description: string; source: string }> = [];
   const now = Date.now();
   const twentyFourHoursAgo = now - 24 * 60 * 60 * 1000;
+  const seenTitles = new Set<string>();
 
   for (const feed of RSS_FEEDS) {
     try {
@@ -58,7 +65,11 @@ async function fetchLatestNews(): Promise<Array<{ title: string; link: string; d
 
       for (const item of items.slice(0, 3)) {
         const pubDate = item.pubDate ? new Date(item.pubDate).getTime() : now;
-        if (pubDate >= twentyFourHoursAgo) {
+        const normalized = normalizeTitle(item.title);
+        
+        // Skip if we already have a very similar title from another feed
+        if (pubDate >= twentyFourHoursAgo && !seenTitles.has(normalized)) {
+          seenTitles.add(normalized);
           allNews.push({
             title: item.title,
             link: item.link,
@@ -75,7 +86,6 @@ async function fetchLatestNews(): Promise<Array<{ title: string; link: string; d
   return allNews;
 }
 
-// Generate slug from title
 function generateSlug(title: string): string {
   return title
     .toLowerCase()
@@ -86,32 +96,42 @@ function generateSlug(title: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-// Generate post content using OpenAI
 async function generatePostFromNews(
   news: { title: string; link: string; description: string; source: string },
   openaiKey: string
 ): Promise<any> {
-  const systemPrompt = `Sen professional digital marketing va AI sohasidagi blog yozuvchisisan. Berilgan yangilik asosida SEO-optimallashtirilgan blog post yoz. 
+  const systemPrompt = `Sen professional digital marketing va AI sohasidagi blog yozuvchisisan. Berilgan yangilik asosida SEO-optimallashtirilgan blog post yoz.
 
 MUHIM QOIDALAR:
 1. Har bir tilda original kontent yoz, tarjima qilma
 2. O'zbek tilida asosiy kontent yoz, keyin rus va ingliz tillarida
-3. HTML formatda yoz (<h2>, <h3>, <p>, <ul>, <li>, <strong>, <em> teglaridan foydalan)
-4. Kamida 800 so'z bo'lsin
-5. SEO uchun kalit so'zlarni tabiiy ravishda joylashtir
-6. Manba havolasini kontentga qo'sh
+3. HTML formatda yoz — faqat quyidagi teglarni ishlat: <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <em>, <blockquote>, <a>, <hr>
+4. <h1> ISHLATMA — sahifa o'zi qo'shadi
+5. Inline style (style="...") ISHLATMA
+6. Kamida 800 so'z bo'lsin
+7. SEO uchun kalit so'zlarni tabiiy ravishda joylashtir
+8. Manba havolasini kontentga qo'sh
+9. Emoji va stiker ISHLATMA — professional, jiddiy ton bilan yoz
+10. Kontent strukturasi:
+    - Kirish: muammoni aniqlang (2-3 paragraf)
+    - Asosiy qism: yechimlarni H2 bo'limlarga ajrating
+    - Har bir bo'limda: tushuntirish → misol → natija
+    - Xulosa: asosiy fikrlarni takrorlang
+    - CTA: harakatga chaqiring
+11. E-E-A-T signallariga amal qil: tajriba, ekspertiza, manbalar, ishonchlilik
+12. AI qidiruv tizimlariga (GEO) mos: savol-javob formati, aniq natijalar, raqamlar
 
 JSON formatda quyidagilarni qaytar:
 {
-  "title_uz": "O'zbek tilidagi sarlavha",
-  "title_ru": "Русский заголовок",
-  "title_en": "English title",
+  "title_uz": "O'zbek tilidagi sarlavha (emoji yoq)",
+  "title_ru": "Русский заголовок (без эмодзи)",
+  "title_en": "English title (no emoji)",
   "content_uz": "O'zbek tilidagi to'liq HTML kontent",
   "content_ru": "Полный HTML контент на русском",
   "content_en": "Full HTML content in English",
-  "excerpt_uz": "Qisqa tavsif (160 belgi)",
-  "excerpt_ru": "Краткое описание (160 символов)",
-  "excerpt_en": "Short description (160 chars)",
+  "excerpt_uz": "Qisqa tavsif (160 belgi, emoji yoq)",
+  "excerpt_ru": "Краткое описание (160 символов, без эмодзи)",
+  "excerpt_en": "Short description (160 chars, no emoji)",
   "meta_title_uz": "SEO sarlavha (60 belgi)",
   "meta_title_ru": "SEO заголовок (60 символов)",
   "meta_title_en": "SEO title (60 chars)",
@@ -128,7 +148,7 @@ Manba: ${news.source}
 Havola: ${news.link}
 Qisqa tavsif: ${news.description}
 
-Shu yangilik asosida professional blog post yoz.`;
+Shu yangilik asosida professional blog post yoz. Emoji ishlatma, jiddiy va professional tonda yoz.`;
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -173,7 +193,6 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Optional: limit how many posts to generate per run
     let maxPosts = 2;
     try {
       const body = await req.json();
@@ -191,22 +210,53 @@ serve(async (req) => {
       );
     }
 
-    // Check existing slugs to avoid duplicates
+    // Enhanced deduplication: check both slugs and normalized titles
     const { data: existingPosts } = await supabase
       .from('posts')
-      .select('slug')
+      .select('slug, title_en')
       .order('created_at', { ascending: false })
-      .limit(50);
+      .limit(100);
 
     const existingSlugs = new Set((existingPosts || []).map((p: any) => p.slug));
+    const existingTitles = new Set(
+      (existingPosts || []).map((p: any) => normalizeTitle(p.title_en || ''))
+    );
 
     const createdPosts: string[] = [];
 
     for (const item of news.slice(0, maxPosts)) {
       try {
         const baseSlug = generateSlug(item.title);
+        const normalizedNewsTitle = normalizeTitle(item.title);
+
+        // Check slug AND title similarity
         if (existingSlugs.has(baseSlug)) {
-          console.log(`Skipping duplicate: ${baseSlug}`);
+          console.log(`Skipping duplicate slug: ${baseSlug}`);
+          continue;
+        }
+
+        // Check if a very similar title already exists
+        let isDuplicate = false;
+        for (const existing of existingTitles) {
+          if (existing === normalizedNewsTitle) {
+            isDuplicate = true;
+            break;
+          }
+          // Simple similarity: if 80%+ words match, skip
+          const newsWords = normalizedNewsTitle.split(' ');
+          const existWords = existing.split(' ');
+          if (newsWords.length > 3 && existWords.length > 3) {
+            const common = newsWords.filter(w => existWords.includes(w)).length;
+            const similarity = common / Math.max(newsWords.length, existWords.length);
+            if (similarity > 0.8) {
+              isDuplicate = true;
+              break;
+            }
+          }
+        }
+
+        if (isDuplicate) {
+          console.log(`Skipping similar title: ${item.title}`);
           continue;
         }
 
@@ -214,6 +264,9 @@ serve(async (req) => {
         const post = await generatePostFromNews(item, OPENAI_API_KEY);
 
         const slug = baseSlug + '-' + Date.now().toString(36);
+
+        // Add "ai-generated" tag to mark as AI content
+        const tags = [...(post.tags || []), 'ai-generated'];
 
         const { data, error } = await supabase.from('posts').insert({
           title_uz: post.title_uz,
@@ -232,7 +285,7 @@ serve(async (req) => {
           meta_description_ru: post.meta_description_ru || null,
           meta_description_en: post.meta_description_en || null,
           slug,
-          tags: post.tags || [],
+          tags,
           focus_keywords: post.focus_keywords || [],
           reading_time: post.reading_time || 5,
           published: true,
@@ -245,10 +298,10 @@ serve(async (req) => {
         }
 
         existingSlugs.add(baseSlug);
+        existingTitles.add(normalizedNewsTitle);
         createdPosts.push(data.slug);
         console.log(`Post created: ${data.slug}`);
 
-        // Small delay between API calls
         await new Promise(r => setTimeout(r, 2000));
       } catch (e) {
         console.error(`Failed to generate post for "${item.title}":`, e);

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Clock, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { HumanMadeSeal } from '@/components/HumanMadeSeal';
+import { AIMadeSeal } from '@/components/AIMadeSeal';
 
 interface BlogCardProps {
   id: string;
@@ -15,6 +16,7 @@ interface BlogCardProps {
   publishedAt: string;
   featured?: boolean;
   isLCP?: boolean;
+  tags?: string[];
 }
 
 export const BlogCard = ({
@@ -26,6 +28,7 @@ export const BlogCard = ({
   readTime,
   featured = false,
   isLCP = false,
+  tags = [],
 }: BlogCardProps) => {
   const { t } = useLanguage();
 
@@ -61,9 +64,9 @@ export const BlogCard = ({
             </div>
           )}
           
-          {/* Human-made seal */}
+          {/* Content origin seal */}
           <div className="absolute bottom-3 right-3 opacity-40 group-hover:opacity-80 transition-opacity duration-500">
-            <HumanMadeSeal size="sm" />
+            {tags.includes('ai-generated') ? <AIMadeSeal size="sm" /> : <HumanMadeSeal size="sm" />}
           </div>
         </div>
 

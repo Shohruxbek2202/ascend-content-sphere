@@ -32,6 +32,7 @@ interface Post {
   views: number | null;
   likes: number | null;
   published_at: string | null;
+  tags: string[] | null;
   category_id: string | null;
   categories?: {
     slug: string;
@@ -321,6 +322,7 @@ const Blog = () => {
                     likes={post.likes || 0}
                     comments={0}
                     publishedAt={post.published_at || ''}
+                    tags={post.tags || []}
                   />
                 </div>
               ))}

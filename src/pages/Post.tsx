@@ -19,6 +19,7 @@ import SEOHead from '@/components/SEOHead';
 import PostStructuredData from '@/components/PostStructuredData';
 import DOMPurify from 'dompurify';
 import { HumanMadeSeal } from '@/components/HumanMadeSeal';
+import { AIMadeSeal } from '@/components/AIMadeSeal';
 
 interface Post {
   id: string;
@@ -390,9 +391,13 @@ const Post = () => {
                 <span>{post.likes || 0}</span>
               </div>
               
-              {/* Human-made seal */}
+              {/* Content origin seal */}
               <div className="ml-auto">
-                <HumanMadeSeal size="md" />
+                {post.tags?.includes('ai-generated') ? (
+                  <AIMadeSeal size="md" />
+                ) : (
+                  <HumanMadeSeal size="md" />
+                )}
               </div>
             </div>
 
@@ -548,6 +553,7 @@ const Post = () => {
                         likes={related.likes || 0}
                         comments={0}
                         publishedAt={related.published_at || ''}
+                        tags={related.tags || []}
                       />
                     );
                   })}
