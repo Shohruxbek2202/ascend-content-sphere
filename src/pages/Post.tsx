@@ -553,6 +553,7 @@ const Post = () => {
                         likes={related.likes || 0}
                         comments={0}
                         publishedAt={related.published_at || ''}
+                        tags={related.tags || []}
                       />
                     );
                   })}

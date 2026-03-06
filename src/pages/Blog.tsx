@@ -321,6 +321,7 @@ const Blog = () => {
                     likes={post.likes || 0}
                     comments={0}
                     publishedAt={post.published_at || ''}
+                    tags={post.tags || []}
                   />
                 </div>
               ))}

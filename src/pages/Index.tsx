@@ -223,9 +223,10 @@ const Index = () => {
                   readTime={post.reading_time || 5}
                   likes={post.likes || 0}
                   comments={0}
-                  publishedAt={post.published_at || ''}
-                  isLCP={featuredPosts.length === 0 && index === 0}
-                />
+                    publishedAt={post.published_at || ''}
+                    isLCP={featuredPosts.length === 0 && index === 0}
+                    tags={post.tags || []}
+                  />
               ))}
             </div>
           ) : (
