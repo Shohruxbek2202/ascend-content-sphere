@@ -28,6 +28,7 @@ export const BlogCard = ({
   readTime,
   featured = false,
   isLCP = false,
+  tags = [],
 }: BlogCardProps) => {
   const { t } = useLanguage();
 
