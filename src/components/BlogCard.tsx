@@ -64,9 +64,9 @@ export const BlogCard = ({
             </div>
           )}
           
-          {/* Human-made seal */}
+          {/* Content origin seal */}
           <div className="absolute bottom-3 right-3 opacity-40 group-hover:opacity-80 transition-opacity duration-500">
-            <HumanMadeSeal size="sm" />
+            {tags.includes('ai-generated') ? <AIMadeSeal size="sm" /> : <HumanMadeSeal size="sm" />}
           </div>
         </div>
 

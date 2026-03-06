@@ -391,9 +391,13 @@ const Post = () => {
                 <span>{post.likes || 0}</span>
               </div>
               
-              {/* Human-made seal */}
+              {/* Content origin seal */}
               <div className="ml-auto">
-                <HumanMadeSeal size="md" />
+                {post.tags?.includes('ai-generated') ? (
+                  <AIMadeSeal size="md" />
+                ) : (
+                  <HumanMadeSeal size="md" />
+                )}
               </div>
             </div>
 
