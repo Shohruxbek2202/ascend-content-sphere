@@ -47,6 +47,7 @@ import PostWritingGuide from '@/components/admin/PostWritingGuide';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
+  { icon: Newspaper, label: 'Avto Yangiliklar', path: '/admin/auto-news' },
   { icon: FileText, label: 'Postlar', path: '/admin/posts' },
   { icon: BookOpen, label: 'Post Qo\'llanma', path: '/admin/writing-guide' },
   { icon: Folder, label: 'Kategoriyalar', path: '/admin/categories' },
