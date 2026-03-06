@@ -19,6 +19,7 @@ import {
   HelpCircle,
   Briefcase,
   Network,
+  Newspaper,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -41,10 +42,12 @@ import AdminBroadcast from '@/components/admin/AdminBroadcast';
 import AdminFAQ from '@/components/admin/AdminFAQ';
 import AdminCaseStudies from '@/components/admin/AdminCaseStudies';
 import AdminTopicClusters from '@/components/admin/AdminTopicClusters';
+import AdminAutoNews from '@/components/admin/AdminAutoNews';
 import PostWritingGuide from '@/components/admin/PostWritingGuide';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
+  { icon: Newspaper, label: 'Avto Yangiliklar', path: '/admin/auto-news' },
   { icon: FileText, label: 'Postlar', path: '/admin/posts' },
   { icon: BookOpen, label: 'Post Qo\'llanma', path: '/admin/writing-guide' },
   { icon: Folder, label: 'Kategoriyalar', path: '/admin/categories' },
@@ -239,6 +242,7 @@ const Admin = () => {
         <div className="p-4 md:p-8">
           <Routes>
             <Route path="/" element={<AdminDashboard />} />
+            <Route path="/auto-news" element={<AdminAutoNews />} />
             <Route path="/posts/*" element={<AdminPosts />} />
             <Route path="/writing-guide" element={<PostWritingGuide />} />
             <Route path="/categories" element={<AdminCategories />} />
