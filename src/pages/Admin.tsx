@@ -242,6 +242,7 @@ const Admin = () => {
         <div className="p-4 md:p-8">
           <Routes>
             <Route path="/" element={<AdminDashboard />} />
+            <Route path="/auto-news" element={<AdminAutoNews />} />
             <Route path="/posts/*" element={<AdminPosts />} />
             <Route path="/writing-guide" element={<PostWritingGuide />} />
             <Route path="/categories" element={<AdminCategories />} />
