@@ -19,6 +19,7 @@ import SEOHead from '@/components/SEOHead';
 import PostStructuredData from '@/components/PostStructuredData';
 import DOMPurify from 'dompurify';
 import { HumanMadeSeal } from '@/components/HumanMadeSeal';
+import { AIMadeSeal } from '@/components/AIMadeSeal';
 
 interface Post {
   id: string;
