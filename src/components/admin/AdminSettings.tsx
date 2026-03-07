@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Instagram, Youtube, Facebook, Twitter, Linkedin, Send, Globe } from 'lucide-react';
+import { Save, Instagram, Youtube, Facebook, Twitter, Linkedin, Send, Globe, Key, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
