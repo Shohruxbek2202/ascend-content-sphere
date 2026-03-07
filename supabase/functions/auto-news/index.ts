@@ -209,12 +209,23 @@ serve(async (req) => {
   }
 
   try {
-    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-    if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not configured');
+    let OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Check if admin has set a custom key in site_settings
+    const { data: keyData } = await supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'openai_api_key')
+      .single();
+    if (keyData?.value) {
+      OPENAI_API_KEY = keyData.value;
+    }
+
+    if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not configured');
 
     let maxPosts = 2;
     try {
