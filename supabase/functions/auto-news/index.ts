@@ -311,6 +311,7 @@ serve(async (req) => {
           tags,
           focus_keywords: post.focus_keywords || [],
           reading_time: post.reading_time || 5,
+          featured_image: item.image || null,
           published: true,
           published_at: new Date().toISOString(),
         }).select('id, slug').single();
