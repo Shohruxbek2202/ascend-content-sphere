@@ -15,8 +15,8 @@ const RSS_FEEDS = [
   { url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml', name: 'The Verge AI' },
 ];
 
-function parseRSSItems(xml: string): Array<{ title: string; link: string; description: string; pubDate: string }> {
-  const items: Array<{ title: string; link: string; description: string; pubDate: string }> = [];
+function parseRSSItems(xml: string): Array<{ title: string; link: string; description: string; pubDate: string; image: string }> {
+  const items: Array<{ title: string; link: string; description: string; pubDate: string; image: string }> = [];
   const itemRegex = /<item>([\s\S]*?)<\/item>/gi;
   let match;
 
@@ -28,11 +28,34 @@ function parseRSSItems(xml: string): Array<{ title: string; link: string; descri
       return m ? m[1].trim() : '';
     };
 
+    // Extract image from multiple possible sources
+    let image = '';
+    // 1. <media:content url="...">
+    const mediaMatch = itemXml.match(/<media:content[^>]+url=["']([^"']+)["']/i);
+    if (mediaMatch) image = mediaMatch[1];
+    // 2. <media:thumbnail url="...">
+    if (!image) {
+      const thumbMatch = itemXml.match(/<media:thumbnail[^>]+url=["']([^"']+)["']/i);
+      if (thumbMatch) image = thumbMatch[1];
+    }
+    // 3. <enclosure url="..." type="image/...">
+    if (!image) {
+      const encMatch = itemXml.match(/<enclosure[^>]+url=["']([^"']+)["'][^>]+type=["']image\/[^"']+["']/i);
+      if (encMatch) image = encMatch[1];
+    }
+    // 4. First <img src="..."> in description/content
+    if (!image) {
+      const content = getTag('content:encoded') || getTag('description');
+      const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+      if (imgMatch) image = imgMatch[1];
+    }
+
     items.push({
       title: getTag('title'),
       link: getTag('link') || getTag('guid'),
       description: getTag('description').replace(/<[^>]*>/g, '').substring(0, 500),
       pubDate: getTag('pubDate'),
+      image,
     });
   }
 
@@ -48,8 +71,8 @@ function normalizeTitle(title: string): string {
     .trim();
 }
 
-async function fetchLatestNews(): Promise<Array<{ title: string; link: string; description: string; source: string }>> {
-  const allNews: Array<{ title: string; link: string; description: string; source: string }> = [];
+async function fetchLatestNews(): Promise<Array<{ title: string; link: string; description: string; source: string; image: string }>> {
+  const allNews: Array<{ title: string; link: string; description: string; source: string; image: string }> = [];
   const now = Date.now();
   const twentyFourHoursAgo = now - 24 * 60 * 60 * 1000;
   const seenTitles = new Set<string>();
@@ -67,7 +90,6 @@ async function fetchLatestNews(): Promise<Array<{ title: string; link: string; d
         const pubDate = item.pubDate ? new Date(item.pubDate).getTime() : now;
         const normalized = normalizeTitle(item.title);
         
-        // Skip if we already have a very similar title from another feed
         if (pubDate >= twentyFourHoursAgo && !seenTitles.has(normalized)) {
           seenTitles.add(normalized);
           allNews.push({
@@ -75,6 +97,7 @@ async function fetchLatestNews(): Promise<Array<{ title: string; link: string; d
             link: item.link,
             description: item.description,
             source: feed.name,
+            image: item.image,
           });
         }
       }
@@ -97,7 +120,7 @@ function generateSlug(title: string): string {
 }
 
 async function generatePostFromNews(
-  news: { title: string; link: string; description: string; source: string },
+  news: { title: string; link: string; description: string; source: string; image: string },
   openaiKey: string
 ): Promise<any> {
   const systemPrompt = `Sen professional digital marketing va AI sohasidagi blog yozuvchisisan. Berilgan yangilik asosida SEO-optimallashtirilgan blog post yoz.
@@ -186,12 +209,23 @@ serve(async (req) => {
   }
 
   try {
-    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-    if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not configured');
+    let OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Check if admin has set a custom key in site_settings
+    const { data: keyData } = await supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'openai_api_key')
+      .single();
+    if (keyData?.value) {
+      OPENAI_API_KEY = keyData.value;
+    }
+
+    if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not configured');
 
     let maxPosts = 2;
     try {
@@ -288,6 +322,7 @@ serve(async (req) => {
           tags,
           focus_keywords: post.focus_keywords || [],
           reading_time: post.reading_time || 5,
+          featured_image: item.image || null,
           published: true,
           published_at: new Date().toISOString(),
         }).select('id, slug').single();

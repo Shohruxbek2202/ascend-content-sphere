@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Instagram, Youtube, Facebook, Twitter, Linkedin, Send, Globe } from 'lucide-react';
+import { Save, Instagram, Youtube, Facebook, Twitter, Linkedin, Send, Globe, Key, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,6 +16,9 @@ const AdminSettings = () => {
   const [settings, setSettings] = useState<Settings>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [openaiKey, setOpenaiKey] = useState('');
+  const [showOpenaiKey, setShowOpenaiKey] = useState(false);
+  const [isSavingKey, setIsSavingKey] = useState(false);
 
   useEffect(() => {
     fetchSettings();
@@ -89,6 +92,7 @@ const AdminSettings = () => {
         <TabsList>
           <TabsTrigger value="social">Ijtimoiy tarmoqlar</TabsTrigger>
           <TabsTrigger value="analytics">Analitika kodlari</TabsTrigger>
+          <TabsTrigger value="api">API Kalitlari</TabsTrigger>
         </TabsList>
 
         {/* Social Media Tab */}
@@ -224,6 +228,71 @@ const AdminSettings = () => {
                 />
                 <p className="text-xs text-muted-foreground">
                   Meta Business Suite dan olingan Pixel ID
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        {/* API Keys Tab */}
+        <TabsContent value="api">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Key className="w-5 h-5" />
+                API Kalitlari
+              </CardTitle>
+              <CardDescription>
+                Avto-yangiliklar uchun ishlatiladigan OpenAI API kalitini boshqaring
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label>OpenAI API Key</Label>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Input
+                      type={showOpenaiKey ? 'text' : 'password'}
+                      value={openaiKey}
+                      onChange={(e) => setOpenaiKey(e.target.value)}
+                      placeholder="sk-..."
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowOpenaiKey(!showOpenaiKey)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showOpenaiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <Button
+                    onClick={async () => {
+                      if (!openaiKey.trim()) {
+                        toast.error('API kalitni kiriting');
+                        return;
+                      }
+                      setIsSavingKey(true);
+                      try {
+                        const { error } = await supabase.functions.invoke('update-openai-key', {
+                          body: { key: openaiKey.trim() },
+                        });
+                        if (error) throw error;
+                        toast.success('OpenAI API kalit yangilandi');
+                        setOpenaiKey('');
+                      } catch (e) {
+                        toast.error('Xatolik: kalit saqlanmadi');
+                        console.error(e);
+                      } finally {
+                        setIsSavingKey(false);
+                      }
+                    }}
+                    disabled={isSavingKey}
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    {isSavingKey ? 'Saqlanmoqda...' : 'Yangilash'}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  OpenAI platformasidan olingan API kalit. Avto-yangiliklar generatsiyasi uchun ishlatiladi.
                 </p>
               </div>
             </CardContent>
