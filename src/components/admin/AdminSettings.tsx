@@ -92,6 +92,7 @@ const AdminSettings = () => {
         <TabsList>
           <TabsTrigger value="social">Ijtimoiy tarmoqlar</TabsTrigger>
           <TabsTrigger value="analytics">Analitika kodlari</TabsTrigger>
+          <TabsTrigger value="api">API Kalitlari</TabsTrigger>
         </TabsList>
 
         {/* Social Media Tab */}
