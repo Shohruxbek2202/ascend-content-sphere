@@ -120,7 +120,7 @@ function generateSlug(title: string): string {
 }
 
 async function generatePostFromNews(
-  news: { title: string; link: string; description: string; source: string },
+  news: { title: string; link: string; description: string; source: string; image: string },
   openaiKey: string
 ): Promise<any> {
   const systemPrompt = `Sen professional digital marketing va AI sohasidagi blog yozuvchisisan. Berilgan yangilik asosida SEO-optimallashtirilgan blog post yoz.
