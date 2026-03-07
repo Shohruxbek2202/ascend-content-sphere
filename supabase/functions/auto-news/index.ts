@@ -71,8 +71,8 @@ function normalizeTitle(title: string): string {
     .trim();
 }
 
-async function fetchLatestNews(): Promise<Array<{ title: string; link: string; description: string; source: string }>> {
-  const allNews: Array<{ title: string; link: string; description: string; source: string }> = [];
+async function fetchLatestNews(): Promise<Array<{ title: string; link: string; description: string; source: string; image: string }>> {
+  const allNews: Array<{ title: string; link: string; description: string; source: string; image: string }> = [];
   const now = Date.now();
   const twentyFourHoursAgo = now - 24 * 60 * 60 * 1000;
   const seenTitles = new Set<string>();
@@ -90,7 +90,6 @@ async function fetchLatestNews(): Promise<Array<{ title: string; link: string; d
         const pubDate = item.pubDate ? new Date(item.pubDate).getTime() : now;
         const normalized = normalizeTitle(item.title);
         
-        // Skip if we already have a very similar title from another feed
         if (pubDate >= twentyFourHoursAgo && !seenTitles.has(normalized)) {
           seenTitles.add(normalized);
           allNews.push({
@@ -98,6 +97,7 @@ async function fetchLatestNews(): Promise<Array<{ title: string; link: string; d
             link: item.link,
             description: item.description,
             source: feed.name,
+            image: item.image,
           });
         }
       }
