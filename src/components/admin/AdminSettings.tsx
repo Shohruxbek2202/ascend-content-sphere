@@ -16,6 +16,9 @@ const AdminSettings = () => {
   const [settings, setSettings] = useState<Settings>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [openaiKey, setOpenaiKey] = useState('');
+  const [showOpenaiKey, setShowOpenaiKey] = useState(false);
+  const [isSavingKey, setIsSavingKey] = useState(false);
 
   useEffect(() => {
     fetchSettings();
