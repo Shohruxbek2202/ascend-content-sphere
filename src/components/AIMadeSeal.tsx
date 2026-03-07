@@ -29,11 +29,11 @@ export const AIMadeSeal = ({ size = 'sm', className = '' }: AIMadeSealProps) => 
 
   return (
     <div
-      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border border-primary/30 bg-primary/5 select-none ${className}`}
+      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border border-secondary/30 bg-secondary/5 select-none ${className}`}
       title={labels[language]}
     >
-      <Bot className={`${iconSizes[size]} text-primary/70`} />
-      <span className={`${textSizes[size]} font-medium uppercase tracking-wider text-primary/70 leading-none`}>
+      <Bot className={`${iconSizes[size]} text-secondary/70`} />
+      <span className={`${textSizes[size]} font-medium uppercase tracking-wider text-secondary/70 leading-none`}>
         {labels[language]}
       </span>
     </div>
