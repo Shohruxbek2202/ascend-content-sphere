@@ -15,8 +15,8 @@ const RSS_FEEDS = [
   { url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml', name: 'The Verge AI' },
 ];
 
-function parseRSSItems(xml: string): Array<{ title: string; link: string; description: string; pubDate: string }> {
-  const items: Array<{ title: string; link: string; description: string; pubDate: string }> = [];
+function parseRSSItems(xml: string): Array<{ title: string; link: string; description: string; pubDate: string; image: string }> {
+  const items: Array<{ title: string; link: string; description: string; pubDate: string; image: string }> = [];
   const itemRegex = /<item>([\s\S]*?)<\/item>/gi;
   let match;
 
@@ -28,11 +28,34 @@ function parseRSSItems(xml: string): Array<{ title: string; link: string; descri
       return m ? m[1].trim() : '';
     };
 
+    // Extract image from multiple possible sources
+    let image = '';
+    // 1. <media:content url="...">
+    const mediaMatch = itemXml.match(/<media:content[^>]+url=["']([^"']+)["']/i);
+    if (mediaMatch) image = mediaMatch[1];
+    // 2. <media:thumbnail url="...">
+    if (!image) {
+      const thumbMatch = itemXml.match(/<media:thumbnail[^>]+url=["']([^"']+)["']/i);
+      if (thumbMatch) image = thumbMatch[1];
+    }
+    // 3. <enclosure url="..." type="image/...">
+    if (!image) {
+      const encMatch = itemXml.match(/<enclosure[^>]+url=["']([^"']+)["'][^>]+type=["']image\/[^"']+["']/i);
+      if (encMatch) image = encMatch[1];
+    }
+    // 4. First <img src="..."> in description/content
+    if (!image) {
+      const content = getTag('content:encoded') || getTag('description');
+      const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+      if (imgMatch) image = imgMatch[1];
+    }
+
     items.push({
       title: getTag('title'),
       link: getTag('link') || getTag('guid'),
       description: getTag('description').replace(/<[^>]*>/g, '').substring(0, 500),
       pubDate: getTag('pubDate'),
+      image,
     });
   }
 
