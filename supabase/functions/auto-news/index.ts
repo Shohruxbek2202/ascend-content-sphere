@@ -273,7 +273,7 @@ The image should feel professional, suitable for a digital marketing and SEO blo
 
 async function generatePostFromNews(
   news: { title: string; link: string; description: string; source: string; image: string },
-  openaiKey: string
+  apiKey: string
 ): Promise<any> {
   const systemPrompt = `Sen professional digital marketing, SEO va AI sohasidagi ekspert blog yozuvchisisan. Berilgan yangilik asosida GEO (Generative Engine Optimization) va AEO (Answer Engine Optimization) formatida blog post yoz.
 
