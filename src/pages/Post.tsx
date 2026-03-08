@@ -410,12 +410,26 @@ const Post = () => {
                 alt={getLocalizedContent('title')}
                 className="w-full h-auto rounded-xl mb-8 shadow-lg"
                 loading="eager"
+                fetchPriority="high"
+                decoding="sync"
+                width={1200}
+                height={630}
+                sizes="(max-width: 768px) 100vw, 768px"
               />
             )}
 
             {/* Content — DOMPurify ile himoyalangan */}
             <div
-              className="prose prose-lg dark:prose-invert max-w-none mb-12"
+              className="post-content prose prose-lg dark:prose-invert max-w-none mb-12 
+                prose-headings:scroll-mt-24 prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-10 prose-h2:mb-4
+                prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-8 prose-h3:mb-3
+                prose-p:leading-relaxed prose-p:mb-4
+                prose-table:border-collapse prose-table:w-full prose-th:bg-muted prose-th:p-3 prose-th:text-left prose-th:font-semibold prose-th:border prose-th:border-border
+                prose-td:p-3 prose-td:border prose-td:border-border
+                prose-blockquote:border-l-4 prose-blockquote:border-secondary prose-blockquote:bg-muted/50 prose-blockquote:rounded-r-lg prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:italic
+                prose-a:text-secondary prose-a:underline-offset-4 hover:prose-a:text-secondary/80
+                prose-strong:text-foreground prose-strong:font-bold
+                prose-ul:space-y-2 prose-ol:space-y-2 prose-li:leading-relaxed"
               dangerouslySetInnerHTML={{ __html: getLocalizedContent('content') }}
             />
 
