@@ -203,6 +203,54 @@ Shu yangilik asosida professional blog post yoz. Emoji ishlatma, jiddiy va profe
   return JSON.parse(content);
 }
 
+// Auto-assign category based on title, description and tags
+async function autoAssignCategory(
+  supabase: any,
+  title: string,
+  description: string,
+  tags: string[]
+): Promise<string | null> {
+  const { data: categories } = await supabase
+    .from('categories')
+    .select('id, slug, name_en');
+
+  if (!categories || categories.length === 0) return null;
+
+  const text = `${title} ${description} ${tags.join(' ')}`.toLowerCase();
+
+  const categoryKeywords: Record<string, string[]> = {
+    'seo': ['seo', 'search engine', 'ranking', 'serp', 'backlink', 'indexing', 'crawl', 'organic search', 'google search', 'keyword', 'link building', 'disavow'],
+    'digital-marketing': ['marketing', 'ads', 'advertising', 'ppc', 'campaign', 'brand', 'analytics', 'conversion', 'roi', 'google ads', 'meta ads', 'ceo', 'company', 'business'],
+    'social-media': ['social media', 'instagram', 'facebook', 'twitter', 'tiktok', 'linkedin', 'telegram', 'social network', 'influencer'],
+    'content-marketing': ['content', 'blog', 'writing', 'copywriting', 'grammarly', 'editorial', 'article'],
+    'prompt-engineering': ['prompt', 'chatgpt', 'openai', 'llm', 'gpt', 'ai model', 'gemini', 'claude'],
+    'personal-development': ['personal', 'career', 'growth', 'motivation', 'productivity'],
+  };
+
+  let bestCategory: string | null = null;
+  let bestScore = 0;
+
+  for (const cat of categories) {
+    const keywords = categoryKeywords[cat.slug] || [];
+    let score = 0;
+    for (const kw of keywords) {
+      if (text.includes(kw)) score++;
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      bestCategory = cat.id;
+    }
+  }
+
+  // Default to digital-marketing if no match
+  if (!bestCategory) {
+    const dm = categories.find((c: any) => c.slug === 'digital-marketing');
+    bestCategory = dm?.id || categories[0].id;
+  }
+
+  return bestCategory;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
