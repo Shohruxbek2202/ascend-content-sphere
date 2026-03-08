@@ -519,7 +519,7 @@ serve(async (req) => {
         }
 
         console.log(`Generating post (relevance=${item.relevanceScore}): ${item.title}`);
-        const post = await generatePostFromNews(item, OPENAI_API_KEY);
+        const post = await generatePostFromNews(item, LOVABLE_API_KEY);
 
         const slug = baseSlug + '-' + Date.now().toString(36);
         const tags = [...(post.tags || []), 'ai-generated'];
