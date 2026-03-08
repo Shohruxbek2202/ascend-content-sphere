@@ -68,6 +68,8 @@ const HomeStructuredData = ({
       knowsAbout: [
         'Digital Marketing', 'SMM', 'SEO', 'Google Ads', 'Facebook Ads',
         'Content Marketing', 'Personal Development', 'Prompt Engineering',
+        'GEO', 'Generative Engine Optimization', 'AEO', 'Answer Engine Optimization',
+        'AI Marketing', 'E-E-A-T', 'SXO', 'Search Experience Optimization',
       ],
       contactPoint: {
         '@type': 'ContactPoint',
