@@ -15,6 +15,72 @@ const RSS_FEEDS = [
   { url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml', name: 'The Verge AI' },
 ];
 
+// Keywords that define our site's focus areas
+const SITE_RELEVANT_KEYWORDS = [
+  // SEO
+  'seo', 'search engine', 'ranking', 'serp', 'backlink', 'indexing', 'crawl',
+  'organic search', 'google search', 'keyword research', 'link building', 'disavow',
+  'technical seo', 'on-page', 'off-page', 'core web vitals', 'sitemap',
+  // Digital Marketing
+  'digital marketing', 'ppc', 'google ads', 'meta ads', 'advertising', 'campaign',
+  'conversion rate', 'roi', 'analytics', 'marketing strategy', 'lead generation',
+  'email marketing', 'remarketing', 'retargeting', 'cpc', 'cpm', 'ctr',
+  // AI in Marketing/Business
+  'ai marketing', 'ai search', 'ai overview', 'ai mode', 'generative ai',
+  'chatgpt', 'openai', 'gemini', 'llm', 'machine learning', 'ai content',
+  'ai seo', 'ai advertising', 'ai analytics', 'prompt engineering',
+  // Social Media Marketing
+  'social media marketing', 'instagram marketing', 'facebook ads', 'tiktok ads',
+  'telegram marketing', 'influencer marketing', 'social media strategy',
+  // Content Marketing
+  'content marketing', 'content strategy', 'blogging', 'copywriting',
+  'content optimization', 'content creation',
+  // E-commerce
+  'ecommerce', 'e-commerce', 'online store', 'shopify', 'woocommerce',
+  // Web Development (related)
+  'web performance', 'page speed', 'mobile optimization', 'ux', 'user experience',
+  // Local/Regional
+  'uzbekistan', "o'zbekiston", 'central asia', 'markaziy osiyo',
+];
+
+// Topics to EXCLUDE — not relevant to our audience
+const IRRELEVANT_KEYWORDS = [
+  'stock price', 'ipo', 'quarterly earnings', 'lawsuit filed', 'court ruling',
+  'celebrity', 'entertainment', 'sports score', 'movie review', 'gaming console',
+  'cryptocurrency price', 'bitcoin price', 'nft drop', 'metaverse land',
+  'recipe', 'travel destination', 'weather forecast', 'political election',
+  'military conflict', 'healthcare policy', 'vaccine', 'space exploration',
+];
+
+function calculateRelevanceScore(title: string, description: string): number {
+  const text = `${title} ${description}`.toLowerCase();
+  let score = 0;
+  let irrelevantHits = 0;
+
+  // Check relevant keywords (each match = +2 points)
+  for (const kw of SITE_RELEVANT_KEYWORDS) {
+    if (text.includes(kw)) score += 2;
+  }
+
+  // Check irrelevant keywords (each match = -5 points)
+  for (const kw of IRRELEVANT_KEYWORDS) {
+    if (text.includes(kw)) {
+      score -= 5;
+      irrelevantHits++;
+    }
+  }
+
+  // Bonus for highly relevant topics
+  if (text.includes('seo') && (text.includes('google') || text.includes('search'))) score += 3;
+  if (text.includes('ai') && (text.includes('marketing') || text.includes('search') || text.includes('ads'))) score += 3;
+  if (text.includes('ppc') || text.includes('google ads') || text.includes('meta ads')) score += 3;
+
+  // Penalty if mostly irrelevant
+  if (irrelevantHits >= 2) score -= 10;
+
+  return score;
+}
+
 function parseRSSItems(xml: string): Array<{ title: string; link: string; description: string; pubDate: string; image: string }> {
   const items: Array<{ title: string; link: string; description: string; pubDate: string; image: string }> = [];
   const itemRegex = /<item>([\s\S]*?)<\/item>/gi;
@@ -28,22 +94,17 @@ function parseRSSItems(xml: string): Array<{ title: string; link: string; descri
       return m ? m[1].trim() : '';
     };
 
-    // Extract image from multiple possible sources
     let image = '';
-    // 1. <media:content url="...">
     const mediaMatch = itemXml.match(/<media:content[^>]+url=["']([^"']+)["']/i);
     if (mediaMatch) image = mediaMatch[1];
-    // 2. <media:thumbnail url="...">
     if (!image) {
       const thumbMatch = itemXml.match(/<media:thumbnail[^>]+url=["']([^"']+)["']/i);
       if (thumbMatch) image = thumbMatch[1];
     }
-    // 3. <enclosure url="..." type="image/...">
     if (!image) {
       const encMatch = itemXml.match(/<enclosure[^>]+url=["']([^"']+)["'][^>]+type=["']image\/[^"']+["']/i);
       if (encMatch) image = encMatch[1];
     }
-    // 4. First <img src="..."> in description/content
     if (!image) {
       const content = getTag('content:encoded') || getTag('description');
       const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
@@ -62,7 +123,6 @@ function parseRSSItems(xml: string): Array<{ title: string; link: string; descri
   return items;
 }
 
-// Normalize title for comparison (lowercase, remove punctuation/extra spaces)
 function normalizeTitle(title: string): string {
   return title
     .toLowerCase()
@@ -71,8 +131,12 @@ function normalizeTitle(title: string): string {
     .trim();
 }
 
-async function fetchLatestNews(): Promise<Array<{ title: string; link: string; description: string; source: string; image: string }>> {
-  const allNews: Array<{ title: string; link: string; description: string; source: string; image: string }> = [];
+function getSlugBase(slug: string): string {
+  return slug.replace(/-[a-z0-9]{6,10}$/, '');
+}
+
+async function fetchLatestNews(): Promise<Array<{ title: string; link: string; description: string; source: string; image: string; relevanceScore: number }>> {
+  const allNews: Array<{ title: string; link: string; description: string; source: string; image: string; relevanceScore: number }> = [];
   const now = Date.now();
   const twentyFourHoursAgo = now - 24 * 60 * 60 * 1000;
   const seenTitles = new Set<string>();
@@ -86,19 +150,27 @@ async function fetchLatestNews(): Promise<Array<{ title: string; link: string; d
       const xml = await resp.text();
       const items = parseRSSItems(xml);
 
-      for (const item of items.slice(0, 3)) {
+      for (const item of items.slice(0, 5)) {
         const pubDate = item.pubDate ? new Date(item.pubDate).getTime() : now;
         const normalized = normalizeTitle(item.title);
         
         if (pubDate >= twentyFourHoursAgo && !seenTitles.has(normalized)) {
-          seenTitles.add(normalized);
-          allNews.push({
-            title: item.title,
-            link: item.link,
-            description: item.description,
-            source: feed.name,
-            image: item.image,
-          });
+          const relevanceScore = calculateRelevanceScore(item.title, item.description);
+          
+          // Only include if relevance score >= 2 (at least one strong keyword match)
+          if (relevanceScore >= 2) {
+            seenTitles.add(normalized);
+            allNews.push({
+              title: item.title,
+              link: item.link,
+              description: item.description,
+              source: feed.name,
+              image: item.image,
+              relevanceScore,
+            });
+          } else {
+            console.log(`Skipping irrelevant (score=${relevanceScore}): ${item.title}`);
+          }
         }
       }
     } catch (e) {
@@ -106,6 +178,8 @@ async function fetchLatestNews(): Promise<Array<{ title: string; link: string; d
     }
   }
 
+  // Sort by relevance score (highest first)
+  allNews.sort((a, b) => b.relevanceScore - a.relevanceScore);
   return allNews;
 }
 
@@ -119,11 +193,94 @@ function generateSlug(title: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
+// Generate AI image when no feed image available
+async function generateAIImage(
+  title: string,
+  supabase: any
+): Promise<string | null> {
+  try {
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      console.log('No LOVABLE_API_KEY, skipping AI image generation');
+      return null;
+    }
+
+    const imagePrompt = `Create a professional, modern blog header image for an article titled: "${title}". 
+Style: Clean, corporate tech illustration with subtle gradients. 
+Colors: Use deep blues, teals, and accent oranges. 
+No text in the image. No watermarks. 
+The image should feel professional, suitable for a digital marketing and SEO blog.`;
+
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash-image',
+        messages: [{ role: 'user', content: imagePrompt }],
+        modalities: ['image', 'text'],
+      }),
+    });
+
+    if (!response.ok) {
+      console.error(`AI image generation failed: ${response.status}`);
+      return null;
+    }
+
+    const data = await response.json();
+    const imageData = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+
+    if (!imageData || !imageData.startsWith('data:image')) {
+      console.log('No valid image data returned');
+      return null;
+    }
+
+    // Extract base64 and upload to storage
+    const base64Match = imageData.match(/^data:image\/(\w+);base64,(.+)$/);
+    if (!base64Match) return null;
+
+    const ext = base64Match[1] === 'jpeg' ? 'jpg' : base64Match[1];
+    const base64Content = base64Match[2];
+    const binaryData = Uint8Array.from(atob(base64Content), c => c.charCodeAt(0));
+    
+    const fileName = `ai-generated/${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('post-images')
+      .upload(fileName, binaryData, {
+        contentType: `image/${base64Match[1]}`,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error('Upload error:', uploadError);
+      return null;
+    }
+
+    const { data: publicUrl } = supabase.storage
+      .from('post-images')
+      .getPublicUrl(fileName);
+
+    console.log(`AI image generated and uploaded: ${publicUrl.publicUrl}`);
+    return publicUrl.publicUrl;
+  } catch (e) {
+    console.error('AI image generation error:', e);
+    return null;
+  }
+}
+
 async function generatePostFromNews(
   news: { title: string; link: string; description: string; source: string; image: string },
   openaiKey: string
 ): Promise<any> {
   const systemPrompt = `Sen professional digital marketing va AI sohasidagi blog yozuvchisisan. Berilgan yangilik asosida SEO-optimallashtirilgan blog post yoz.
+
+MUHIM: Bu yangilikni O'ZBEKISTON va MARKAZIY OSIYO auditoriyasi uchun yoz. Yangilikni mahalliy kontekstda tahlil qil:
+- Bu O'zbekistondagi bizneslar uchun qanday ta'sir ko'rsatadi?
+- Mahalliy marketologlar nimani bilishi kerak?
+- Amaliy tavsiyalar ber
 
 MUHIM QOIDALAR:
 1. Har bir tilda original kontent yoz, tarjima qilma
@@ -139,6 +296,7 @@ MUHIM QOIDALAR:
     - Kirish: muammoni aniqlang (2-3 paragraf)
     - Asosiy qism: yechimlarni H2 bo'limlarga ajrating
     - Har bir bo'limda: tushuntirish → misol → natija
+    - O'zbekiston konteksti: mahalliy bizneslar uchun amaliy maslahatlar
     - Xulosa: asosiy fikrlarni takrorlang
     - CTA: harakatga chaqiring
 11. E-E-A-T signallariga amal qil: tajriba, ekspertiza, manbalar, ishonchlilik
@@ -171,7 +329,7 @@ Manba: ${news.source}
 Havola: ${news.link}
 Qisqa tavsif: ${news.description}
 
-Shu yangilik asosida professional blog post yoz. Emoji ishlatma, jiddiy va professional tonda yoz.`;
+Shu yangilik asosida professional blog post yoz. Emoji ishlatma, jiddiy va professional tonda yoz. O'zbekiston va Markaziy Osiyo auditoriyasi uchun moslashtir.`;
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -219,11 +377,11 @@ async function autoAssignCategory(
   const text = `${title} ${description} ${tags.join(' ')}`.toLowerCase();
 
   const categoryKeywords: Record<string, string[]> = {
-    'seo': ['seo', 'search engine', 'ranking', 'serp', 'backlink', 'indexing', 'crawl', 'organic search', 'google search', 'keyword', 'link building', 'disavow'],
-    'digital-marketing': ['marketing', 'ads', 'advertising', 'ppc', 'campaign', 'brand', 'analytics', 'conversion', 'roi', 'google ads', 'meta ads', 'ceo', 'company', 'business'],
+    'seo': ['seo', 'search engine', 'ranking', 'serp', 'backlink', 'indexing', 'crawl', 'organic search', 'google search', 'keyword', 'link building', 'disavow', 'sitemap', 'core web vitals'],
+    'digital-marketing': ['marketing', 'ads', 'advertising', 'ppc', 'campaign', 'brand', 'analytics', 'conversion', 'roi', 'google ads', 'meta ads', 'ceo', 'company', 'business', 'ecommerce'],
     'social-media': ['social media', 'instagram', 'facebook', 'twitter', 'tiktok', 'linkedin', 'telegram', 'social network', 'influencer'],
-    'content-marketing': ['content', 'blog', 'writing', 'copywriting', 'grammarly', 'editorial', 'article'],
-    'prompt-engineering': ['prompt', 'chatgpt', 'openai', 'llm', 'gpt', 'ai model', 'gemini', 'claude'],
+    'content-marketing': ['content', 'blog', 'writing', 'copywriting', 'grammarly', 'editorial', 'article', 'content strategy'],
+    'prompt-engineering': ['prompt', 'chatgpt', 'openai', 'llm', 'gpt', 'ai model', 'gemini', 'claude', 'ai tool'],
     'personal-development': ['personal', 'career', 'growth', 'motivation', 'productivity'],
   };
 
@@ -242,7 +400,6 @@ async function autoAssignCategory(
     }
   }
 
-  // Default to digital-marketing if no match
   if (!bestCategory) {
     const dm = categories.find((c: any) => c.slug === 'digital-marketing');
     bestCategory = dm?.id || categories[0].id;
@@ -283,54 +440,65 @@ serve(async (req) => {
 
     console.log('Fetching latest news...');
     const news = await fetchLatestNews();
-    console.log(`Found ${news.length} news items`);
+    console.log(`Found ${news.length} relevant news items (filtered by relevance)`);
 
     if (news.length === 0) {
       return new Response(
-        JSON.stringify({ success: true, message: 'No new articles found', posts_created: 0 }),
+        JSON.stringify({ success: true, message: 'No relevant articles found', posts_created: 0 }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Enhanced deduplication: check both slugs and normalized titles
+    // Enhanced deduplication: check slugs, slug bases, and normalized titles
     const { data: existingPosts } = await supabase
       .from('posts')
       .select('slug, title_en')
       .order('created_at', { ascending: false })
-      .limit(100);
+      .limit(200);
 
     const existingSlugs = new Set((existingPosts || []).map((p: any) => p.slug));
+    const existingSlugBases = new Set((existingPosts || []).map((p: any) => getSlugBase(p.slug)));
     const existingTitles = new Set(
       (existingPosts || []).map((p: any) => normalizeTitle(p.title_en || ''))
     );
 
     const createdPosts: string[] = [];
+    const skippedPosts: Array<{ title: string; reason: string }> = [];
 
-    for (const item of news.slice(0, maxPosts)) {
+    for (const item of news.slice(0, maxPosts + 3)) { // Fetch a few extra in case some are duplicates
+      if (createdPosts.length >= maxPosts) break;
+
       try {
         const baseSlug = generateSlug(item.title);
         const normalizedNewsTitle = normalizeTitle(item.title);
 
-        // Check slug AND title similarity
+        // Check slug
         if (existingSlugs.has(baseSlug)) {
+          skippedPosts.push({ title: item.title, reason: 'duplicate slug' });
           console.log(`Skipping duplicate slug: ${baseSlug}`);
           continue;
         }
 
-        // Check if a very similar title already exists
+        // Check slug base (catches variations like slug-mmXXXXXX)
+        if (existingSlugBases.has(baseSlug)) {
+          skippedPosts.push({ title: item.title, reason: 'duplicate slug base' });
+          console.log(`Skipping duplicate slug base: ${baseSlug}`);
+          continue;
+        }
+
+        // Check title similarity
         let isDuplicate = false;
         for (const existing of existingTitles) {
           if (existing === normalizedNewsTitle) {
             isDuplicate = true;
             break;
           }
-          // Simple similarity: if 80%+ words match, skip
-          const newsWords = normalizedNewsTitle.split(' ');
-          const existWords = existing.split(' ');
+          const newsWords = normalizedNewsTitle.split(' ').filter(w => w.length >= 4);
+          const existWords = existing.split(' ').filter(w => w.length >= 4);
           if (newsWords.length > 3 && existWords.length > 3) {
             const common = newsWords.filter(w => existWords.includes(w)).length;
-            const similarity = common / Math.max(newsWords.length, existWords.length);
-            if (similarity > 0.8) {
+            const similarity = common / Math.min(newsWords.length, existWords.length);
+            if (similarity > 0.6) {
               isDuplicate = true;
               break;
             }
@@ -338,20 +506,24 @@ serve(async (req) => {
         }
 
         if (isDuplicate) {
+          skippedPosts.push({ title: item.title, reason: 'similar title exists' });
           console.log(`Skipping similar title: ${item.title}`);
           continue;
         }
 
-        console.log(`Generating post for: ${item.title}`);
+        console.log(`Generating post (relevance=${item.relevanceScore}): ${item.title}`);
         const post = await generatePostFromNews(item, OPENAI_API_KEY);
 
         const slug = baseSlug + '-' + Date.now().toString(36);
-
-        // Add "ai-generated" tag to mark as AI content
         const tags = [...(post.tags || []), 'ai-generated'];
-
-        // Auto-assign category based on keywords
         const categoryId = await autoAssignCategory(supabase, item.title, item.description, post.tags || []);
+
+        // Get image: use feed image, or generate with AI
+        let featuredImage = item.image || null;
+        if (!featuredImage) {
+          console.log('No feed image, generating AI image...');
+          featuredImage = await generateAIImage(post.title_en || item.title, supabase);
+        }
 
         const { data, error } = await supabase.from('posts').insert({
           title_uz: post.title_uz,
@@ -373,7 +545,7 @@ serve(async (req) => {
           tags,
           focus_keywords: post.focus_keywords || [],
           reading_time: post.reading_time || 5,
-          featured_image: item.image || null,
+          featured_image: featuredImage,
           category_id: categoryId,
           published: true,
           published_at: new Date().toISOString(),
@@ -385,9 +557,10 @@ serve(async (req) => {
         }
 
         existingSlugs.add(baseSlug);
+        existingSlugBases.add(baseSlug);
         existingTitles.add(normalizedNewsTitle);
         createdPosts.push(data.slug);
-        console.log(`Post created: ${data.slug}`);
+        console.log(`Post created: ${data.slug} (with ${featuredImage ? 'image' : 'no image'})`);
 
         await new Promise(r => setTimeout(r, 2000));
       } catch (e) {
@@ -401,6 +574,8 @@ serve(async (req) => {
         message: `${createdPosts.length} post(s) created`,
         posts_created: createdPosts.length,
         slugs: createdPosts,
+        skipped: skippedPosts,
+        total_relevant_news: news.length,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
