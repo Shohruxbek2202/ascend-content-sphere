@@ -559,6 +559,25 @@ const AdminSEOAudit = () => {
                       <Button 
                         variant="outline" 
                         size="sm"
+                        onClick={async () => {
+                          toast.loading('GEO formatga o\'tkazilmoqda...');
+                          const { data, error } = await supabase.functions.invoke('geo-reformat', {
+                            body: { post_id: post.id }
+                          });
+                          toast.dismiss();
+                          if (error || data?.error) {
+                            toast.error(data?.error || 'Xatolik yuz berdi');
+                          } else {
+                            toast.success('Post GEO formatga o\'tkazildi!');
+                          }
+                        }}
+                      >
+                        <RefreshCw className="w-4 h-4 mr-1" />
+                        GEO
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
                         onClick={() => navigate(`/admin/posts/edit/${post.id}`)}
                       >
                         <Edit className="w-4 h-4 mr-1" />

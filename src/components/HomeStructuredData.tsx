@@ -45,7 +45,7 @@ const HomeStructuredData = ({
       '@type': 'Organization',
       '@id': `${siteUrl}/#organization`,
       name: siteName,
-      alternateName: ['Shohrux Digital', 'ShohruxDigital.uz'],
+      alternateName: ['Shohrux Digital', 'ShohruxDigital.uz', 'Шохрух Диджитал'],
       url: siteUrl,
       logo: {
         '@type': 'ImageObject',
@@ -56,14 +56,20 @@ const HomeStructuredData = ({
       description: description,
       foundingDate: '2024',
       founder: { '@type': 'Person', '@id': `${siteUrl}/#person` },
-      sameAs: socialLinks.filter(Boolean),
-      areaServed: {
-        '@type': 'Country',
-        name: 'Uzbekistan',
-      },
+      sameAs: [
+        ...socialLinks.filter(Boolean),
+        'https://t.me/shohruxdigital',
+        'https://www.linkedin.com/in/shohruxbek/',
+      ].filter((v, i, a) => a.indexOf(v) === i),
+      areaServed: [
+        { '@type': 'Country', name: 'Uzbekistan' },
+        { '@type': 'Place', name: 'Central Asia' },
+      ],
       knowsAbout: [
         'Digital Marketing', 'SMM', 'SEO', 'Google Ads', 'Facebook Ads',
         'Content Marketing', 'Personal Development', 'Prompt Engineering',
+        'GEO', 'Generative Engine Optimization', 'AEO', 'Answer Engine Optimization',
+        'AI Marketing', 'E-E-A-T', 'SXO', 'Search Experience Optimization',
       ],
       contactPoint: {
         '@type': 'ContactPoint',

@@ -275,53 +275,70 @@ async function generatePostFromNews(
   news: { title: string; link: string; description: string; source: string; image: string },
   openaiKey: string
 ): Promise<any> {
-  const systemPrompt = `Sen professional digital marketing va AI sohasidagi blog yozuvchisisan. Berilgan yangilik asosida SEO-optimallashtirilgan blog post yoz.
+  const systemPrompt = `Sen professional digital marketing, SEO va AI sohasidagi ekspert blog yozuvchisisan. Berilgan yangilik asosida GEO (Generative Engine Optimization) va AEO (Answer Engine Optimization) formatida blog post yoz.
 
-MUHIM: Bu yangilikni O'ZBEKISTON va MARKAZIY OSIYO auditoriyasi uchun yoz. Yangilikni mahalliy kontekstda tahlil qil:
-- Bu O'zbekistondagi bizneslar uchun qanday ta'sir ko'rsatadi?
-- Mahalliy marketologlar nimani bilishi kerak?
-- Amaliy tavsiyalar ber
+MUHIM — GEO/AEO STRATEGIYA (2026):
+Bu yangilikni O'ZBEKISTON va MARKAZIY OSIYO auditoriyasi uchun yoz.
 
-MUHIM QOIDALAR:
-1. Har bir tilda original kontent yoz, tarjima qilma
-2. O'zbek tilida asosiy kontent yoz, keyin rus va ingliz tillarida
-3. HTML formatda yoz — faqat quyidagi teglarni ishlat: <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <em>, <blockquote>, <a>, <hr>
-4. <h1> ISHLATMA — sahifa o'zi qo'shadi
-5. Inline style (style="...") ISHLATMA
-6. Kamida 800 so'z bo'lsin
-7. SEO uchun kalit so'zlarni tabiiy ravishda joylashtir
-8. Manba havolasini kontentga qo'sh
-9. Emoji va stiker ISHLATMA — professional, jiddiy ton bilan yoz
-10. Kontent strukturasi:
-    - Kirish: muammoni aniqlang (2-3 paragraf)
-    - Asosiy qism: yechimlarni H2 bo'limlarga ajrating
-    - Har bir bo'limda: tushuntirish → misol → natija
-    - O'zbekiston konteksti: mahalliy bizneslar uchun amaliy maslahatlar
-    - Xulosa: asosiy fikrlarni takrorlang
-    - CTA: harakatga chaqiring
-11. E-E-A-T signallariga amal qil: tajriba, ekspertiza, manbalar, ishonchlilik
-12. AI qidiruv tizimlariga (GEO) mos: savol-javob formati, aniq natijalar, raqamlar
+KONTENT ARXITEKTURASI (Answer-First formati):
+1. Sarlavha: Foydalanuvchi savoli formatida (masalan: "Google AI Rejimi nima va u SEO'ga qanday ta'sir qiladi?")
+2. TL;DR blok: Dastlab 2-3 gaplik aniq, ensiklopedik javob — AI tizimlar oson ajratib olishi uchun
+3. Asosiy qism: H2 bo'limlarga ajratilgan chuqur tahlil
+4. Har bir bo'limda: Tushuntirish → Statistika/raqam → O'zbekiston konteksti → Amaliy tavsiya
+5. FAQ bo'lim: Kamida 3 ta savol-javob (H3 sarlavhali, <strong>Savol:</strong> formatda)
+6. Xulosa: Asosiy xulosalar ro'yxati (numbered list)
+7. CTA: Harakatga chaqirish
+
+E-E-A-T SIGNALLARI:
+- Manba havolalarini <a href="..." target="_blank" rel="noopener"> bilan qo'sh
+- Statistikalar va raqamlarni ko'p ishlat (masalan: "60% foydalanuvchilar...", "40% o'sish...")
+- Ekspert fikrlarini blockquote bilan ajrat
+- O'zbekiston bozoriga oid ma'lumotlar qo'sh
+
+TEXNIK QOIDALAR:
+1. HTML formatda yoz: <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <em>, <blockquote>, <a>, <hr>, <table>, <thead>, <tbody>, <tr>, <th>, <td>
+2. <h1> ISHLATMA
+3. Inline style ISHLATMA
+4. Kamida 1000 so'z
+5. Emoji va stiker ISHLATMA — professional, jiddiy ton
+6. Jadval (comparison table) qo'sh — AI tizimlar jadvallarni yaxshi ko'radi
+7. Marokli faktlar va "Bilasizmi?" bloklari qo'sh
+
+MASHHUR FORMAT NAMUNASI:
+<p><strong>Qisqa javob:</strong> [2-3 gaplik to'g'ridan-to'g'ri javob]</p>
+<h2>Batafsil tahlil</h2>
+...
+<h2>O'zbekiston uchun ahamiyati</h2>
+...
+<h2>Ko'p so'raladigan savollar</h2>
+<h3>Savol: [savol matni]?</h3>
+<p>[javob]</p>
 
 JSON formatda quyidagilarni qaytar:
 {
-  "title_uz": "O'zbek tilidagi sarlavha (emoji yoq)",
-  "title_ru": "Русский заголовок (без эмодзи)",
-  "title_en": "English title (no emoji)",
-  "content_uz": "O'zbek tilidagi to'liq HTML kontent",
-  "content_ru": "Полный HTML контент на русском",
-  "content_en": "Full HTML content in English",
-  "excerpt_uz": "Qisqa tavsif (160 belgi, emoji yoq)",
-  "excerpt_ru": "Краткое описание (160 символов, без эмодзи)",
-  "excerpt_en": "Short description (160 chars, no emoji)",
-  "meta_title_uz": "SEO sarlavha (60 belgi)",
+  "title_uz": "Savol formatidagi sarlavha (emoji yoq)",
+  "title_ru": "Заголовок в формате вопроса (без эмодзи)",
+  "title_en": "Question format title (no emoji)",
+  "content_uz": "GEO/AEO formatidagi to'liq HTML kontent (answer-first, FAQ, jadvallar)",
+  "content_ru": "Полный HTML в GEO/AEO формате (answer-first, FAQ, таблицы)",
+  "content_en": "Full GEO/AEO HTML (answer-first, FAQ, tables)",
+  "excerpt_uz": "Qisqa javob formati (160 belgi)",
+  "excerpt_ru": "Краткий ответ (160 символов)",
+  "excerpt_en": "Brief answer (160 chars)",
+  "meta_title_uz": "SEO sarlavha (60 belgi, savol formati)",
   "meta_title_ru": "SEO заголовок (60 символов)",
   "meta_title_en": "SEO title (60 chars)",
-  "meta_description_uz": "Meta tavsif (160 belgi)",
-  "meta_description_ru": "Мета описание (160 символов)",
-  "meta_description_en": "Meta description (160 chars)",
+  "meta_description_uz": "Meta tavsif — javob formati (160 belgi)",
+  "meta_description_ru": "Мета описание — формат ответа (160 символов)",
+  "meta_description_en": "Meta description — answer format (160 chars)",
   "tags": ["tag1", "tag2", "tag3"],
   "focus_keywords": ["keyword1", "keyword2"],
-  "reading_time": 5
+  "reading_time": 7,
+  "faq": [
+    {"question_uz": "...", "answer_uz": "...", "question_ru": "...", "answer_ru": "...", "question_en": "...", "answer_en": "..."},
+    {"question_uz": "...", "answer_uz": "...", "question_ru": "...", "answer_ru": "...", "question_en": "...", "answer_en": "..."},
+    {"question_uz": "...", "answer_uz": "...", "question_ru": "...", "answer_ru": "...", "question_en": "...", "answer_en": "..."}
+  ]
 }`;
 
   const userPrompt = `Yangilik: "${news.title}"
@@ -329,7 +346,7 @@ Manba: ${news.source}
 Havola: ${news.link}
 Qisqa tavsif: ${news.description}
 
-Shu yangilik asosida professional blog post yoz. Emoji ishlatma, jiddiy va professional tonda yoz. O'zbekiston va Markaziy Osiyo auditoriyasi uchun moslashtir.`;
+Shu yangilik asosida GEO/AEO formatida professional blog post yoz. Answer-first arxitektura, FAQ bo'lim, jadval va statistikalar bilan. O'zbekiston auditoriyasi uchun moslashtir. Emoji ishlatma.`;
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
