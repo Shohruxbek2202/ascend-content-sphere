@@ -302,6 +302,9 @@ serve(async (req) => {
         // Add "ai-generated" tag to mark as AI content
         const tags = [...(post.tags || []), 'ai-generated'];
 
+        // Auto-assign category based on keywords
+        const categoryId = await autoAssignCategory(supabase, item.title, item.description, post.tags || []);
+
         const { data, error } = await supabase.from('posts').insert({
           title_uz: post.title_uz,
           title_ru: post.title_ru,
@@ -323,6 +326,7 @@ serve(async (req) => {
           focus_keywords: post.focus_keywords || [],
           reading_time: post.reading_time || 5,
           featured_image: item.image || null,
+          category_id: categoryId,
           published: true,
           published_at: new Date().toISOString(),
         }).select('id, slug').single();
