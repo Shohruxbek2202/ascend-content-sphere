@@ -346,6 +346,8 @@ const Post = () => {
         url={seoUrl}
         tags={post.tags || []}
         category={categoryName}
+        wordCount={getLocalizedContent('content')?.split(/\s+/).length}
+        isAIGenerated={post.tags?.includes('ai-generated') || false}
       />
       <Header />
 
