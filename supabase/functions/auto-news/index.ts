@@ -348,33 +348,32 @@ Qisqa tavsif: ${news.description}
 
 Shu yangilik asosida GEO/AEO formatida professional blog post yoz. Answer-first arxitektura, FAQ bo'lim, jadval va statistikalar bilan. O'zbekiston auditoriyasi uchun moslashtir. Emoji ishlatma.`;
 
-  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'google/gemini-3-flash-preview',
+      model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
       temperature: 0.7,
+      max_tokens: 4000,
       response_format: { type: 'json_object' },
     }),
   });
 
   if (!response.ok) {
-    if (response.status === 429) throw new Error('Rate limit exceeded, try again later');
-    if (response.status === 402) throw new Error('AI credits exhausted');
     const errText = await response.text();
-    throw new Error(`AI API error [${response.status}]: ${errText}`);
+    throw new Error(`OpenAI API error [${response.status}]: ${errText}`);
   }
 
   const data = await response.json();
   const content = data.choices?.[0]?.message?.content;
-  if (!content) throw new Error('Empty response from AI');
+  if (!content) throw new Error('Empty response from OpenAI');
 
   return JSON.parse(content);
 }
@@ -432,12 +431,23 @@ serve(async (req) => {
   }
 
   try {
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY is not configured');
+    let OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Check if admin has set a custom key in site_settings
+    const { data: keyData } = await supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'openai_api_key')
+      .single();
+    if (keyData?.value) {
+      OPENAI_API_KEY = keyData.value;
+    }
+
+    if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not configured');
 
     let maxPosts = 2;
     try {
@@ -519,7 +529,7 @@ serve(async (req) => {
         }
 
         console.log(`Generating post (relevance=${item.relevanceScore}): ${item.title}`);
-        const post = await generatePostFromNews(item, LOVABLE_API_KEY);
+        const post = await generatePostFromNews(item, OPENAI_API_KEY);
 
         const slug = baseSlug + '-' + Date.now().toString(36);
         const tags = [...(post.tags || []), 'ai-generated'];
