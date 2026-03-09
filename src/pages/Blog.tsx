@@ -50,6 +50,8 @@ interface Category {
   name_en: string;
 }
 
+const POSTS_PER_PAGE = 9;
+
 const Blog = () => {
   const { t, language } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -58,6 +60,8 @@ const Blog = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   // Sync URL param with state
   useEffect(() => {
