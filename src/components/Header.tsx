@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { ThemeToggle } from './ThemeToggle';
+import { GlobalSearch } from './GlobalSearch';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export const Header = () => {
@@ -112,6 +113,9 @@ export const Header = () => {
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
+              <div className="hidden md:block">
+                <GlobalSearch />
+              </div>
               <ThemeToggle />
               <LanguageSwitcher />
               <Button
