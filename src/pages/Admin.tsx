@@ -55,6 +55,7 @@ const menuItems = [
   { icon: HelpCircle, label: 'FAQ', path: '/admin/faq' },
   { icon: Briefcase, label: 'Case Studies', path: '/admin/case-studies' },
   { icon: Network, label: 'Topic Clusters', path: '/admin/topic-clusters' },
+  { icon: Users, label: 'About Sahifa', path: '/admin/about' },
   { icon: MessageSquare, label: 'Izohlar', path: '/admin/comments' },
   { icon: Mail, label: 'Xabarlar', path: '/admin/messages' },
   { icon: Users, label: 'Obunchilar', path: '/admin/subscribers' },
