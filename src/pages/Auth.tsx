@@ -113,14 +113,8 @@ const Auth = () => {
             </div>
           </div>
           <div className="text-center">
-            <CardTitle className="text-2xl font-display">
-              {isFirstTimeSetup ? 'Birinchi marta sozlash' : 'Admin Kirish'}
-            </CardTitle>
-            <CardDescription>
-              {isFirstTimeSetup
-                ? 'Admin hisobini yaratish'
-                : 'Admin paneliga kirish'}
-            </CardDescription>
+            <CardTitle className="text-2xl font-display">Admin Kirish</CardTitle>
+            <CardDescription>Admin paneliga kirish</CardDescription>
           </div>
         </CardHeader>
 
