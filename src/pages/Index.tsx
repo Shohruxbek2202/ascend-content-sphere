@@ -28,8 +28,8 @@ const Index = () => {
   const { t, language } = useLanguage();
   const { settings } = useSiteSettings();
   const { getField } = useLocalized();
-  const [featuredPosts, setFeaturedPosts] = useState<Post[]>([]);
-  const [latestPosts, setLatestPosts] = useState<Post[]>([]);
+  const [featuredPosts, setFeaturedPosts] = useState<any[]>([]);
+  const [latestPosts, setLatestPosts] = useState<any[]>([]);
   const [stats, setStats] = useState<Stats>({ posts: 0, categories: 0, subscribers: 0 });
   const [isLoading, setIsLoading] = useState(true);
 
