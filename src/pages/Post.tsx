@@ -44,16 +44,16 @@ const Post = () => {
         setPost(postData);
 
         // Parallel: increment views, fetch comments, fetch related posts
-        const promises: Promise<void>[] = [
-          supabase.rpc('increment_post_views', { post_id: postData.id }).then(() => {}),
+        const promises: Array<Promise<unknown>> = [
+          supabase.rpc('increment_post_views', { post_id: postData.id }),
           supabase
             .from('public_comments' as never)
             .select('*')
             .eq('post_id', postData.id)
             .eq('approved', true)
             .order('created_at', { ascending: false })
-            .then(({ data }) => {
-              if (data) setComments(data as unknown as Comment[]);
+            .then(({ data }: { data: unknown }) => {
+              if (data) setComments(data as Comment[]);
             }),
         ];
 
