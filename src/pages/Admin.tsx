@@ -43,6 +43,7 @@ import AdminFAQ from '@/components/admin/AdminFAQ';
 import AdminCaseStudies from '@/components/admin/AdminCaseStudies';
 import AdminTopicClusters from '@/components/admin/AdminTopicClusters';
 import AdminAutoNews from '@/components/admin/AdminAutoNews';
+import AdminAbout from '@/components/admin/AdminAbout';
 import PostWritingGuide from '@/components/admin/PostWritingGuide';
 
 const menuItems = [
