@@ -111,12 +111,8 @@ const Blog = () => {
 
   const totalPages = Math.ceil(totalCount / POSTS_PER_PAGE);
 
-  const filteredPosts = posts.filter((post) => {
-    const title = getField(post, 'title').toLowerCase();
-    const excerpt = getField(post, 'excerpt').toLowerCase();
-    const query = searchQuery.toLowerCase();
-    return title.includes(query) || excerpt.includes(query);
-  });
+  // Search is now server-side, no client-side filtering needed
+  const filteredPosts = posts;
 
   const seoTitle = language === 'uz' 
     ? 'Blog - Barcha Maqolalar | Shohruxbek Foziljonov'

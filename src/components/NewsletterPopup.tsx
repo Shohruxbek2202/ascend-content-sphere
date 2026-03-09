@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { X, Mail, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,33 +11,29 @@ export const NewsletterPopup = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasTriggered, setHasTriggered] = useState(false);
 
-  useEffect(() => {
-    // Check if user already subscribed or dismissed 3 times
+  const shouldShow = useCallback(() => {
     const alreadySubscribed = localStorage.getItem('newsletter_subscribed');
     const dismissCount = parseInt(localStorage.getItem('newsletter_dismiss_count') || '0');
-    
-    if (alreadySubscribed || dismissCount >= 3) return;
+    return !alreadySubscribed && dismissCount < 3;
+  }, []);
 
-    // First popup after 5 seconds
-    const firstTimer = setTimeout(() => {
-      setIsOpen(true);
-    }, 5000);
+  useEffect(() => {
+    if (!shouldShow()) return;
 
-    // Then show every 30 seconds
-    const intervalTimer = setInterval(() => {
-      const stillSubscribed = localStorage.getItem('newsletter_subscribed');
-      const currentDismissCount = parseInt(localStorage.getItem('newsletter_dismiss_count') || '0');
-      if (!stillSubscribed && currentDismissCount < 3) {
+    const handleScroll = () => {
+      if (hasTriggered) return;
+      const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+      if (scrollPercent >= 40) {
+        setHasTriggered(true);
         setIsOpen(true);
       }
-    }, 30000);
-
-    return () => {
-      clearTimeout(firstTimer);
-      clearInterval(intervalTimer);
     };
-  }, []);
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [hasTriggered, shouldShow]);
 
   const handleClose = () => {
     const currentCount = parseInt(localStorage.getItem('newsletter_dismiss_count') || '0');
@@ -111,15 +107,12 @@ export const NewsletterPopup = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
-      {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={handleClose}
       />
       
-      {/* Modal */}
       <div className="relative w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl overflow-hidden animate-scale-in">
-        {/* Close button */}
         <button
           onClick={handleClose}
           className="absolute top-4 right-4 p-2 rounded-full hover:bg-muted transition-colors z-10"
@@ -128,7 +121,6 @@ export const NewsletterPopup = () => {
           <X className="w-5 h-5 text-muted-foreground" />
         </button>
 
-        {/* Gradient header */}
         <div className="bg-gradient-to-r from-secondary to-secondary/80 p-8 text-center">
           <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <Mail className="w-8 h-8 text-secondary-foreground" />
@@ -141,7 +133,6 @@ export const NewsletterPopup = () => {
           </p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <Input
             type="email"

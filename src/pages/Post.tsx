@@ -42,30 +42,37 @@ const Post = () => {
 
       if (postData) {
         setPost(postData);
-        await supabase.rpc('increment_post_views', { post_id: postData.id });
 
-        const { data: commentsData } = await supabase
-          .from('public_comments' as never)
-          .select('*')
-          .eq('post_id', postData.id)
-          .eq('approved', true)
-          .order('created_at', { ascending: false });
-
-        if (commentsData) {
-          setComments(commentsData as unknown as Comment[]);
-        }
+        // Parallel: increment views, fetch comments, fetch related posts
+        const promises: Promise<void>[] = [
+          supabase.rpc('increment_post_views', { post_id: postData.id }).then(() => {}),
+          supabase
+            .from('public_comments' as never)
+            .select('*')
+            .eq('post_id', postData.id)
+            .eq('approved', true)
+            .order('created_at', { ascending: false })
+            .then(({ data }) => {
+              if (data) setComments(data as unknown as Comment[]);
+            }),
+        ];
 
         if (postData.category_id) {
-          const { data: relatedData } = await supabase
-            .from('posts')
-            .select(`*, categories (slug, name_uz, name_ru, name_en)`)
-            .eq('category_id', postData.category_id)
-            .eq('published', true)
-            .neq('id', postData.id)
-            .limit(3);
-
-          if (relatedData) setRelatedPosts(relatedData);
+          promises.push(
+            supabase
+              .from('posts')
+              .select(`*, categories (slug, name_uz, name_ru, name_en)`)
+              .eq('category_id', postData.category_id)
+              .eq('published', true)
+              .neq('id', postData.id)
+              .limit(3)
+              .then(({ data }) => {
+                if (data) setRelatedPosts(data);
+              })
+          );
         }
+
+        await Promise.all(promises);
       }
 
       setIsLoading(false);

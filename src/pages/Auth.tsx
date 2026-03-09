@@ -148,15 +148,9 @@ const Auth = () => {
               </div>
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Kutilmoqda...' : isFirstTimeSetup ? 'Hisob yaratish' : 'Kirish'}
+              {isLoading ? 'Kutilmoqda...' : 'Kirish'}
             </Button>
           </form>
-          <div className="mt-4 text-center">
-            <button type="button" onClick={() => setIsFirstTimeSetup(!isFirstTimeSetup)}
-              className="text-sm text-muted-foreground hover:text-primary underline">
-              {isFirstTimeSetup ? 'Hisobingiz bormi? Kirish' : 'Birinchi marta kiryapsizmi? Hisob yarating'}
-            </button>
-          </div>
         </CardContent>
       </Card>
     </div>
