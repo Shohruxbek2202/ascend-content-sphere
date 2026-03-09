@@ -5,6 +5,9 @@ services:
     buildCommand: npm run build
     staticPublishPath: ./dist
     routes:
+      - type: rewrite
+        source: /ads.txt
+        destination: /ads.txt
       - type: redirect
         source: /sitemap.xml
         destination: https://shfnpzfqtrfzdklnhatf.supabase.co/functions/v1/sitemap
