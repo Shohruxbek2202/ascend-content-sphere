@@ -7,20 +7,53 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Verify API key
+    // Support both API key auth (external) and JWT auth (admin panel)
     const apiKey = req.headers.get('x-api-key');
     const expectedApiKey = Deno.env.get('LOVABLE_API_KEY');
-    
-    if (!apiKey || apiKey !== expectedApiKey) {
-      console.error('Invalid or missing API key');
+    const authHeader = req.headers.get('Authorization');
+
+    let isAuthorized = false;
+
+    // Method 1: API key for external integrations
+    if (apiKey && apiKey === expectedApiKey) {
+      isAuthorized = true;
+    }
+
+    // Method 2: JWT + admin role check
+    if (!isAuthorized && authHeader?.startsWith('Bearer ')) {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+      const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } }
+      });
+
+      const token = authHeader.replace('Bearer ', '');
+      const { data: claimsData, error: claimsError } = await userClient.auth.getClaims(token);
+
+      if (!claimsError && claimsData?.claims) {
+        const userId = claimsData.claims.sub;
+        const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+        const { data: roleData } = await adminClient
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', userId)
+          .eq('role', 'admin')
+          .single();
+
+        if (roleData) isAuthorized = true;
+      }
+    }
+
+    if (!isAuthorized) {
       return new Response(
-        JSON.stringify({ error: 'Unauthorized - Invalid API key' }),
+        JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -35,7 +68,6 @@ serve(async (req) => {
     const body = await req.json();
     console.log('Received post data:', JSON.stringify(body, null, 2));
 
-    // Validate required fields
     const requiredFields = ['title_uz', 'title_ru', 'title_en', 'content_uz', 'content_ru', 'content_en', 'slug'];
     for (const field of requiredFields) {
       if (!body[field]) {
@@ -46,12 +78,10 @@ serve(async (req) => {
       }
     }
 
-    // Create Supabase client with service role
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Prepare post data
     const postData = {
       title_uz: body.title_uz,
       title_ru: body.title_ru,
@@ -79,7 +109,6 @@ serve(async (req) => {
       focus_keywords: body.focus_keywords || [],
     };
 
-    // Insert the post
     const { data, error } = await supabase
       .from('posts')
       .insert(postData)
