@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { ThemeToggle } from './ThemeToggle';
+import { GlobalSearch } from './GlobalSearch';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export const Header = () => {
