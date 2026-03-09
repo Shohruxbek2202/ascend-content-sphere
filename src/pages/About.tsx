@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Target, Award, ArrowRight, BookOpen, FolderOpen, Globe } from 'lucide-react';
+import { Users, Target, Award, ArrowRight, BookOpen, FolderOpen, Globe, Briefcase, GraduationCap, CheckCircle, Linkedin, Mail } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -41,6 +41,25 @@ const About = () => {
     uz: {
       title: 'Biz Haqimizda',
       subtitle: 'Digital marketing va shaxsiy rivojlanish sohasida professional bilim va tajribalar ulashuvchi platforma',
+      authorSection: {
+        title: 'Muallif Haqida',
+        name: 'Shohruxbek Fayzullayev',
+        role: 'Digital Marketing Mutaxassisi & SEO Eksperti',
+        bio: 'Men 5+ yillik tajribaga ega professional digital marketolog va SEO ekspertiman. Google Ads, Meta Ads, va qidiruv tizimlarini optimallashtirish sohasida 100+ muvaffaqiyatli loyihalarni amalga oshirganman. Mening maqsadim — O\'zbekistonda digital marketing madaniyatini rivojlantirish va professional bilimlarni ulashish.',
+        experience: [
+          '5+ yillik digital marketing tajribasi',
+          '100+ muvaffaqiyatli SEO loyihalari',
+          'Google Ads & Meta Ads sertifikatlari',
+          'O\'zbekistondagi yirik brendlar bilan hamkorlik'
+        ],
+        certifications: 'Sertifikatlar',
+        certList: [
+          'Google Ads Search Certification',
+          'Google Analytics Individual Qualification',
+          'HubSpot Inbound Marketing Certification',
+          'Meta Blueprint Certification'
+        ]
+      },
       mission: {
         title: 'Bizning Maqsadimiz',
         description: 'Zamonaviy marketing strategiyalari va shaxsiy rivojlanish bo\'yicha professional bilimlarni ulashish orqali marketologlar va tadbirkorlarning o\'sishiga yordam berish.',
@@ -70,6 +89,25 @@ const About = () => {
     ru: {
       title: 'О Нас',
       subtitle: 'Платформа для обмена профессиональными знаниями о цифровом маркетинге и личном развитии',
+      authorSection: {
+        title: 'Об Авторе',
+        name: 'Шохрухбек Файзуллаев',
+        role: 'Специалист по Digital Marketing & SEO Эксперт',
+        bio: 'Я профессиональный digital маркетолог и SEO эксперт с опытом более 5 лет. Реализовал более 100 успешных проектов в области Google Ads, Meta Ads и поисковой оптимизации. Моя цель — развивать культуру digital маркетинга в Узбекистане и делиться профессиональными знаниями.',
+        experience: [
+          '5+ лет опыта в digital маркетинге',
+          '100+ успешных SEO проектов',
+          'Сертификаты Google Ads & Meta Ads',
+          'Сотрудничество с крупными брендами Узбекистана'
+        ],
+        certifications: 'Сертификаты',
+        certList: [
+          'Google Ads Search Certification',
+          'Google Analytics Individual Qualification',
+          'HubSpot Inbound Marketing Certification',
+          'Meta Blueprint Certification'
+        ]
+      },
       mission: {
         title: 'Наша Миссия',
         description: 'Помогать маркетологам и предпринимателям расти, делясь профессиональными знаниями о современных маркетинговых стратегиях.',
@@ -99,6 +137,25 @@ const About = () => {
     en: {
       title: 'About Us',
       subtitle: 'A platform for sharing professional knowledge in digital marketing and personal development',
+      authorSection: {
+        title: 'About the Author',
+        name: 'Shohruxbek Fayzullayev',
+        role: 'Digital Marketing Specialist & SEO Expert',
+        bio: 'I am a professional digital marketer and SEO expert with over 5 years of experience. I have successfully completed 100+ projects in Google Ads, Meta Ads, and search engine optimization. My goal is to develop the digital marketing culture in Uzbekistan and share professional knowledge.',
+        experience: [
+          '5+ years of digital marketing experience',
+          '100+ successful SEO projects',
+          'Google Ads & Meta Ads certified',
+          'Collaboration with major brands in Uzbekistan'
+        ],
+        certifications: 'Certifications',
+        certList: [
+          'Google Ads Search Certification',
+          'Google Analytics Individual Qualification',
+          'HubSpot Inbound Marketing Certification',
+          'Meta Blueprint Certification'
+        ]
+      },
       mission: {
         title: 'Our Mission',
         description: 'To help marketers and entrepreneurs grow by sharing professional knowledge about modern marketing strategies.',
@@ -175,6 +232,82 @@ const About = () => {
             <p className="text-lg md:text-xl text-muted-foreground">
               {t.subtitle}
             </p>
+          </section>
+
+          {/* Author Section - E-E-A-T Critical */}
+          <section className="max-w-4xl mx-auto mb-12">
+            <div className="rounded-2xl bg-white/10 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-xl p-6 md:p-8">
+              <div className="flex flex-col md:flex-row gap-6 items-start">
+                {/* Author Avatar */}
+                <div className="flex-shrink-0">
+                  <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl bg-gradient-to-br from-secondary to-primary flex items-center justify-center text-white text-3xl md:text-4xl font-bold shadow-xl">
+                    SF
+                  </div>
+                </div>
+                
+                {/* Author Info */}
+                <div className="flex-1">
+                  <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-1">
+                    {t.authorSection.name}
+                  </h2>
+                  <p className="text-secondary font-semibold mb-3 flex items-center gap-2">
+                    <Briefcase className="w-4 h-4" />
+                    {t.authorSection.role}
+                  </p>
+                  <p className="text-muted-foreground mb-4 leading-relaxed">
+                    {t.authorSection.bio}
+                  </p>
+                  
+                  {/* Experience Points */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+                    {t.authorSection.experience.map((exp, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-sm">
+                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                        <span className="text-foreground">{exp}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Social Links */}
+                  <div className="flex gap-3">
+                    <a 
+                      href="https://linkedin.com/in/shohruxbek" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0077B5]/10 text-[#0077B5] hover:bg-[#0077B5]/20 transition-colors text-sm font-medium"
+                    >
+                      <Linkedin className="w-4 h-4" />
+                      LinkedIn
+                    </a>
+                    <a 
+                      href="mailto:shohruxbek@shohruxdigital.com"
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary/10 text-secondary hover:bg-secondary/20 transition-colors text-sm font-medium"
+                    >
+                      <Mail className="w-4 h-4" />
+                      Email
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Certifications */}
+              <div className="mt-6 pt-6 border-t border-white/10">
+                <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <GraduationCap className="w-5 h-5 text-secondary" />
+                  {t.authorSection.certifications}
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {t.authorSection.certList.map((cert, idx) => (
+                    <span 
+                      key={idx}
+                      className="px-3 py-1.5 rounded-lg bg-secondary/10 text-secondary text-sm font-medium"
+                    >
+                      {cert}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
           </section>
 
           {/* Mission Section - Liquid Glass */}
