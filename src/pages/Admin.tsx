@@ -20,6 +20,7 @@ import {
   Briefcase,
   Network,
   Newspaper,
+  UserCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -43,6 +44,7 @@ import AdminFAQ from '@/components/admin/AdminFAQ';
 import AdminCaseStudies from '@/components/admin/AdminCaseStudies';
 import AdminTopicClusters from '@/components/admin/AdminTopicClusters';
 import AdminAutoNews from '@/components/admin/AdminAutoNews';
+import AdminAbout from '@/components/admin/AdminAbout';
 import PostWritingGuide from '@/components/admin/PostWritingGuide';
 
 const menuItems = [
@@ -54,6 +56,7 @@ const menuItems = [
   { icon: HelpCircle, label: 'FAQ', path: '/admin/faq' },
   { icon: Briefcase, label: 'Case Studies', path: '/admin/case-studies' },
   { icon: Network, label: 'Topic Clusters', path: '/admin/topic-clusters' },
+  { icon: UserCircle, label: 'About Sahifa', path: '/admin/about' },
   { icon: MessageSquare, label: 'Izohlar', path: '/admin/comments' },
   { icon: Mail, label: 'Xabarlar', path: '/admin/messages' },
   { icon: Users, label: 'Obunchilar', path: '/admin/subscribers' },
@@ -249,6 +252,7 @@ const Admin = () => {
             <Route path="/faq" element={<AdminFAQ />} />
             <Route path="/case-studies" element={<AdminCaseStudies />} />
             <Route path="/topic-clusters" element={<AdminTopicClusters />} />
+            <Route path="/about" element={<AdminAbout />} />
             <Route path="/comments" element={<AdminComments />} />
             <Route path="/messages" element={<AdminMessages />} />
             <Route path="/subscribers" element={<AdminSubscribers />} />

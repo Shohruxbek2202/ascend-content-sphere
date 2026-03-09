@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      about_settings: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          updated_at: string
+          value_en: string | null
+          value_ru: string | null
+          value_uz: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          updated_at?: string
+          value_en?: string | null
+          value_ru?: string | null
+          value_uz?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          updated_at?: string
+          value_en?: string | null
+          value_ru?: string | null
+          value_uz?: string | null
+        }
+        Relationships: []
+      }
       analytics_events: {
         Row: {
           created_at: string
@@ -57,6 +87,93 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      author_certifications: {
+        Row: {
+          cert_url: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          cert_url?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          cert_url?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      author_experience: {
+        Row: {
+          created_at: string
+          id: string
+          sort_order: number
+          text_en: string
+          text_ru: string
+          text_uz: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          sort_order?: number
+          text_en?: string
+          text_ru?: string
+          text_uz?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          sort_order?: number
+          text_en?: string
+          text_ru?: string
+          text_uz?: string
+        }
+        Relationships: []
+      }
+      author_social_links: {
+        Row: {
+          created_at: string
+          icon: string | null
+          id: string
+          platform: string
+          sort_order: number
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          platform: string
+          sort_order?: number
+          updated_at?: string
+          url?: string
+        }
+        Update: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          platform?: string
+          sort_order?: number
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
       }
       case_studies: {
         Row: {
