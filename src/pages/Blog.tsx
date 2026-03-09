@@ -317,31 +317,76 @@ const Blog = () => {
               ))}
             </div>
           ) : filteredPosts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {filteredPosts.map((post, index) => (
-                <div 
-                  key={post.id}
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <BlogCard
-                    id={post.slug}
-                    title={getLocalizedTitle(post)}
-                    excerpt={getLocalizedExcerpt(post)}
-                    image={
-                      post.featured_image ||
-                      'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800'
-                    }
-                    category={getLocalizedCategoryName(post.categories as Category | undefined)}
-                    readTime={post.reading_time || 5}
-                    likes={post.likes || 0}
-                    comments={0}
-                    publishedAt={post.published_at || ''}
-                    tags={post.tags || []}
-                  />
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                {filteredPosts.map((post, index) => (
+                  <div 
+                    key={post.id}
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    <BlogCard
+                      id={post.slug}
+                      title={getLocalizedTitle(post)}
+                      excerpt={getLocalizedExcerpt(post)}
+                      image={
+                        post.featured_image ||
+                        'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800'
+                      }
+                      category={getLocalizedCategoryName(post.categories as Category | undefined)}
+                      readTime={post.reading_time || 5}
+                      likes={post.likes || 0}
+                      comments={0}
+                      publishedAt={post.published_at || ''}
+                      tags={post.tags || []}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-8">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  >
+                    {language === 'uz' ? 'Oldingi' : language === 'ru' ? 'Назад' : 'Previous'}
+                  </Button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(page => 
+                      page === 1 || page === totalPages ||
+                      Math.abs(page - currentPage) <= 1
+                    )
+                    .map((page, idx, arr) => {
+                      const showEllipsis = idx > 0 && page - arr[idx - 1] > 1;
+                      return (
+                        <span key={page} className="flex items-center">
+                          {showEllipsis && <span className="px-2 text-muted-foreground">...</span>}
+                          <Button
+                            variant={page === currentPage ? 'default' : 'outline'}
+                            size="sm"
+                            className="w-10 h-10"
+                            onClick={() => setCurrentPage(page)}
+                          >
+                            {page}
+                          </Button>
+                        </span>
+                      );
+                    })}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  >
+                    {language === 'uz' ? 'Keyingi' : language === 'ru' ? 'Далее' : 'Next'}
+                  </Button>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           ) : (
             <div className="text-center py-12 md:py-16">
               <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
