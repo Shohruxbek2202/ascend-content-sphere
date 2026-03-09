@@ -1,16 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { 
-  Clock, Heart, MessageCircle, Share2, ArrowLeft, 
-  Facebook, Linkedin, Twitter, Send, User, Calendar
-} from 'lucide-react';
+import { Clock, Heart, ArrowLeft, Calendar } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ReadingProgressBar } from '@/components/ReadingProgressBar';
-import { BlogCard } from '@/components/BlogCard';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,76 +14,19 @@ import PostStructuredData from '@/components/PostStructuredData';
 import DOMPurify from 'dompurify';
 import { HumanMadeSeal } from '@/components/HumanMadeSeal';
 import { AIMadeSeal } from '@/components/AIMadeSeal';
-
-interface Post {
-  id: string;
-  slug: string;
-  title_uz: string;
-  title_ru: string;
-  title_en: string;
-  excerpt_uz: string | null;
-  excerpt_ru: string | null;
-  excerpt_en: string | null;
-  content_uz: string;
-  content_ru: string;
-  content_en: string;
-  featured_image: string | null;
-  reading_time: number | null;
-  views: number | null;
-  likes: number | null;
-  tags: string[] | null;
-  published_at: string | null;
-  categories?: {
-    slug: string;
-    name_uz: string;
-    name_ru: string;
-    name_en: string;
-  };
-}
-
-interface Comment {
-  id: string;
-  author_name: string;
-  content: string;
-  created_at: string;
-}
-
-// Rate limit: 1 comment per 5 minutes per post
-const COMMENT_COOLDOWN_MS = 5 * 60 * 1000;
-
-const getCommentCooldownKey = (slug: string) => `comment_cooldown_${slug}`;
-
-const isOnCooldown = (slug: string): boolean => {
-  try {
-    const last = localStorage.getItem(getCommentCooldownKey(slug));
-    if (!last) return false;
-    return Date.now() - parseInt(last) < COMMENT_COOLDOWN_MS;
-  } catch {
-    return false;
-  }
-};
-
-const setCooldown = (slug: string) => {
-  try {
-    localStorage.setItem(getCommentCooldownKey(slug), Date.now().toString());
-  } catch {
-    // ignore private mode errors
-  }
-};
+import ShareButtons from '@/components/post/ShareButtons';
+import CommentSection from '@/components/post/CommentSection';
+import RelatedPosts from '@/components/post/RelatedPosts';
+import type { Post as PostType, Comment } from '@/types/post';
 
 const Post = () => {
   const { slug } = useParams();
   const { t, language } = useLanguage();
-  const [post, setPost] = useState<Post | null>(null);
+  const [post, setPost] = useState<PostType | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
-  const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
+  const [relatedPosts, setRelatedPosts] = useState<PostType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasLiked, setHasLiked] = useState(false);
-  
-  // Comment form
-  const [authorName, setAuthorName] = useState('');
-  const [commentContent, setCommentContent] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -107,7 +44,6 @@ const Post = () => {
         setPost(postData);
         await supabase.rpc('increment_post_views', { post_id: postData.id });
 
-        // Only show approved comments publicly
         const { data: commentsData } = await supabase
           .from('public_comments' as never)
           .select('*')
@@ -143,37 +79,26 @@ const Post = () => {
         const parsed = JSON.parse(likedPosts);
         setHasLiked(parsed.includes(slug));
       }
-    } catch {
-      // ignore localStorage errors
-    }
+    } catch {}
   }, [slug]);
 
-  // [KRITIK-1] DOMPurify ile XSS himoya
   const sanitizeContent = (html: string): string => {
     let clean = html;
-    // Strip document wrappers
     clean = clean.replace(/<!DOCTYPE[^>]*>/gi, '');
     clean = clean.replace(/<\/?html[^>]*>/gi, '');
     clean = clean.replace(/<head[\s\S]*?<\/head>/gi, '');
     clean = clean.replace(/<\/?body[^>]*>/gi, '');
-    // Remove duplicate H1
     clean = clean.replace(/<h1[^>]*>[\s\S]*?<\/h1>/gi, '');
-    // Remove inline styles
     clean = clean.replace(/\s*style="[^"]*"/gi, '');
     clean = clean.replace(/\s*style='[^']*'/gi, '');
 
-    // DOMPurify ile XSS tozalash
     return DOMPurify.sanitize(clean, {
       ALLOWED_TAGS: [
-        'p', 'br', 'hr',
-        'h2', 'h3', 'h4', 'h5', 'h6',
-        'ul', 'ol', 'li',
-        'strong', 'b', 'em', 'i', 's', 'u',
-        'a', 'img',
-        'blockquote', 'code', 'pre',
+        'p', 'br', 'hr', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'ul', 'ol', 'li', 'strong', 'b', 'em', 'i', 's', 'u',
+        'a', 'img', 'blockquote', 'code', 'pre',
         'table', 'thead', 'tbody', 'tr', 'th', 'td',
-        'div', 'span',
-        'figure', 'figcaption',
+        'div', 'span', 'figure', 'figcaption',
       ],
       ALLOWED_ATTR: ['href', 'src', 'alt', 'class', 'target', 'rel', 'title', 'width', 'height'],
       ADD_ATTR: ['target'],
@@ -182,7 +107,7 @@ const Post = () => {
 
   const getLocalizedContent = (field: 'title' | 'content' | 'excerpt') => {
     if (!post) return '';
-    const key = `${field}_${language}` as keyof Post;
+    const key = `${field}_${language}` as keyof PostType;
     const raw = (post[key] as string) || '';
     if (field === 'content') return sanitizeContent(raw);
     return raw;
@@ -197,80 +122,11 @@ const Post = () => {
       const likedPosts = localStorage.getItem('likedPosts');
       const parsed = likedPosts ? JSON.parse(likedPosts) : [];
       localStorage.setItem('likedPosts', JSON.stringify([...parsed, post.slug]));
-    } catch { /* ignore */ }
+    } catch {}
     toast.success('Like qo\'shildi!');
   };
 
-  const handleCommentSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!post || !authorName.trim() || !commentContent.trim()) {
-      toast.error('Iltimos, barcha maydonlarni to\'ldiring');
-      return;
-    }
-
-    // [UX-1] Rate limiting
-    if (slug && isOnCooldown(slug)) {
-      toast.error(
-        language === 'uz' ? '5 daqiqa ichida faqat 1 ta izoh yuborishingiz mumkin'
-        : language === 'ru' ? 'Можно оставить только 1 комментарий в 5 минут'
-        : 'You can only post 1 comment every 5 minutes'
-      );
-      return;
-    }
-
-    // Input length validation
-    if (authorName.trim().length > 100) {
-      toast.error('Ism 100 ta belgidan oshmasligi kerak');
-      return;
-    }
-    if (commentContent.trim().length > 2000) {
-      toast.error('Izoh 2000 ta belgidan oshmasligi kerak');
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    const { error } = await supabase.from('comments').insert({
-      post_id: post.id,
-      author_name: authorName.trim().substring(0, 100),
-      content: commentContent.trim().substring(0, 2000),
-      approved: true,
-    });
-
-    if (error) {
-      toast.error(
-        language === 'uz' ? 'Izoh yuborishda xatolik yuz berdi'
-        : language === 'ru' ? 'Ошибка при отправке комментария'
-        : 'Error submitting comment'
-      );
-    } else {
-      if (slug) setCooldown(slug);
-      toast.success(
-        language === 'uz' ? 'Izohingiz muvaffaqiyatli qo\'shildi!'
-        : language === 'ru' ? 'Комментарий успешно добавлен!'
-        : 'Your comment has been added!'
-      );
-      // Refresh comments list
-      setComments(prev => [{
-        id: crypto.randomUUID(),
-        author_name: authorName.trim(),
-        content: commentContent.trim(),
-        created_at: new Date().toISOString(),
-      }, ...prev]);
-      setAuthorName('');
-      setCommentContent('');
-    }
-
-    setIsSubmitting(false);
-  };
-
   const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
-  const shareLinks = {
-    telegram: `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(getLocalizedContent('title'))}`,
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
-    linkedin: `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(getLocalizedContent('title'))}`,
-    twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(getLocalizedContent('title'))}`,
-  };
 
   if (isLoading) {
     return (
@@ -297,21 +153,15 @@ const Post = () => {
         <main className="pt-24 pb-16">
           <div className="container mx-auto px-4 text-center">
             <h1 className="text-2xl font-bold mb-2">
-              {language === 'uz' ? 'Maqola topilmadi'
-               : language === 'ru' ? 'Статья не найдена'
-               : 'Article not found'}
+              {language === 'uz' ? 'Maqola topilmadi' : language === 'ru' ? 'Статья не найдена' : 'Article not found'}
             </h1>
             <p className="text-muted-foreground mb-6">
-              {language === 'uz' ? 'Bu maqola mavjud emas yoki o\'chirilgan'
-               : language === 'ru' ? 'Эта статья не существует или была удалена'
-               : 'This article does not exist or has been deleted'}
+              {language === 'uz' ? 'Bu maqola mavjud emas yoki o\'chirilgan' : language === 'ru' ? 'Эта статья не существует или была удалена' : 'This article does not exist or has been deleted'}
             </p>
             <Button asChild>
               <Link to="/blog">
                 <ArrowLeft className="mr-2 w-4 h-4" />
-                {language === 'uz' ? 'Blogga qaytish'
-                 : language === 'ru' ? 'Вернуться к блогу'
-                 : 'Back to Blog'}
+                {language === 'uz' ? 'Blogga qaytish' : language === 'ru' ? 'Вернуться к блогу' : 'Back to Blog'}
               </Link>
             </Button>
           </div>
@@ -322,9 +172,7 @@ const Post = () => {
   }
 
   const categoryName = post.categories
-    ? language === 'uz' ? post.categories.name_uz
-      : language === 'ru' ? post.categories.name_ru
-      : post.categories.name_en
+    ? language === 'uz' ? post.categories.name_uz : language === 'ru' ? post.categories.name_ru : post.categories.name_en
     : '';
 
   const seoTitle = getLocalizedContent('title') + ' | Shohruxbek Foziljonov';
@@ -376,7 +224,6 @@ const Post = () => {
               )}
             </div>
 
-            {/* Title */}
             <h1 className="font-display text-3xl md:text-5xl font-bold text-foreground leading-tight mb-6">
               {getLocalizedContent('title')}
             </h1>
@@ -399,18 +246,11 @@ const Post = () => {
                 <Heart className="w-4 h-4" />
                 <span>{post.likes || 0}</span>
               </div>
-              
-              {/* Content origin seal */}
               <div className="ml-auto">
-                {post.tags?.includes('ai-generated') ? (
-                  <AIMadeSeal size="md" />
-                ) : (
-                  <HumanMadeSeal size="md" />
-                )}
+                {post.tags?.includes('ai-generated') ? <AIMadeSeal size="md" /> : <HumanMadeSeal size="md" />}
               </div>
             </div>
 
-            {/* Featured Image */}
             {post.featured_image && (
               <img
                 src={post.featured_image}
@@ -425,7 +265,6 @@ const Post = () => {
               />
             )}
 
-            {/* Content — DOMPurify ile himoyalangan */}
             <div
               className="post-content prose prose-lg dark:prose-invert max-w-none mb-12 
                 prose-headings:scroll-mt-24 prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-10 prose-h2:mb-4
@@ -440,7 +279,6 @@ const Post = () => {
               dangerouslySetInnerHTML={{ __html: getLocalizedContent('content') }}
             />
 
-            {/* Tags */}
             {post.tags && post.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-8">
                 {post.tags.map((tag) => (
@@ -463,126 +301,18 @@ const Post = () => {
 
               <div className="flex items-center gap-2">
                 <span className="text-muted-foreground">{t.post.share}:</span>
-                <a href={shareLinks.telegram} target="_blank" rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg bg-muted hover:bg-primary hover:text-primary-foreground transition-colors flex items-center justify-center">
-                  <Send className="w-5 h-5" />
-                </a>
-                <a href={shareLinks.facebook} target="_blank" rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg bg-muted hover:bg-primary hover:text-primary-foreground transition-colors flex items-center justify-center">
-                  <Facebook className="w-5 h-5" />
-                </a>
-                <a href={shareLinks.linkedin} target="_blank" rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg bg-muted hover:bg-primary hover:text-primary-foreground transition-colors flex items-center justify-center">
-                  <Linkedin className="w-5 h-5" />
-                </a>
-                <a href={shareLinks.twitter} target="_blank" rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg bg-muted hover:bg-primary hover:text-primary-foreground transition-colors flex items-center justify-center">
-                  <Twitter className="w-5 h-5" />
-                </a>
+                <ShareButtons shareUrl={shareUrl} title={getLocalizedContent('title')} />
               </div>
             </div>
 
-            {/* Comments */}
-            <section className="mb-12">
-              <h2 className="font-display text-2xl font-bold mb-6 flex items-center gap-2">
-                <MessageCircle className="w-6 h-6" />
-                {t.post.comments} ({comments.length})
-              </h2>
+            <CommentSection
+              postId={post.id}
+              slug={post.slug}
+              comments={comments}
+              onCommentAdded={(comment) => setComments(prev => [comment, ...prev])}
+            />
 
-              {/* Comment Form */}
-              <form onSubmit={handleCommentSubmit} className="bg-muted/30 rounded-xl p-6 mb-8">
-                <p className="text-sm text-muted-foreground mb-4">
-                  {language === 'uz' ? '💬 Fikringizni qoldiring'
-                   : language === 'ru' ? '💬 Оставьте свой комментарий'
-                   : '💬 Leave your comment'}
-                </p>
-                <div className="space-y-4">
-                  <Input
-                    placeholder={language === 'uz' ? 'Ismingiz (max 100 belgi)' : language === 'ru' ? 'Ваше имя' : 'Your name'}
-                    value={authorName}
-                    onChange={(e) => setAuthorName(e.target.value)}
-                    disabled={isSubmitting}
-                    maxLength={100}
-                  />
-                  <Textarea
-                    placeholder={language === 'uz' ? 'Izohingiz... (max 2000 belgi)' : language === 'ru' ? 'Ваш комментарий...' : 'Your comment...'}
-                    value={commentContent}
-                    onChange={(e) => setCommentContent(e.target.value)}
-                    rows={4}
-                    disabled={isSubmitting}
-                    maxLength={2000}
-                  />
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">{commentContent.length}/2000</span>
-                    <Button type="submit" disabled={isSubmitting}>
-                      {isSubmitting ? (language === 'uz' ? 'Yuborilmoqda...' : language === 'ru' ? 'Отправка...' : 'Sending...')
-                       : (language === 'uz' ? 'Yuborish' : language === 'ru' ? 'Отправить' : 'Submit')}
-                    </Button>
-                  </div>
-                </div>
-              </form>
-
-              {/* Comments List */}
-              <div className="space-y-6">
-                {comments.map((comment) => (
-                  <div key={comment.id} className="bg-card rounded-xl p-6 shadow-sm">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <User className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-medium">{comment.author_name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(comment.created_at).toLocaleDateString(
-                            language === 'ru' ? 'ru-RU' : language === 'en' ? 'en-US' : 'uz-UZ'
-                          )}
-                        </p>
-                      </div>
-                    </div>
-                    <p className="text-muted-foreground">{comment.content}</p>
-                  </div>
-                ))}
-
-                {comments.length === 0 && (
-                  <p className="text-center text-muted-foreground py-8">
-                    {language === 'uz' ? 'Hali izohlar yo\'q. Birinchi bo\'ling!'
-                     : language === 'ru' ? 'Комментариев пока нет. Будьте первым!'
-                     : 'No comments yet. Be the first!'}
-                  </p>
-                )}
-              </div>
-            </section>
-
-            {/* Related Posts */}
-            {relatedPosts.length > 0 && (
-              <section>
-                <h2 className="font-display text-2xl font-bold mb-6">{t.post.relatedPosts}</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {relatedPosts.map((related) => {
-                    const relTitle = related[`title_${language}` as keyof Post] as string || related.title_en;
-                    const relExcerpt = (related[`excerpt_${language}` as keyof Post] as string) || related.excerpt_en || '';
-                    const relCategory = related.categories
-                      ? (related.categories[`name_${language}` as keyof typeof related.categories] as string) || related.categories.name_en
-                      : '';
-                    return (
-                      <BlogCard
-                        key={related.id}
-                        id={related.slug}
-                        title={relTitle}
-                        excerpt={relExcerpt}
-                        image={related.featured_image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'}
-                        category={relCategory}
-                        readTime={related.reading_time || 5}
-                        likes={related.likes || 0}
-                        comments={0}
-                        publishedAt={related.published_at || ''}
-                        tags={related.tags || []}
-                      />
-                    );
-                  })}
-                </div>
-              </section>
-            )}
+            <RelatedPosts posts={relatedPosts} />
           </div>
         </article>
       </main>

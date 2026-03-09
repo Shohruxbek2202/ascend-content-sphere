@@ -1,51 +1,41 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import {
-  LayoutDashboard,
-  FileText,
-  Folder,
-  MessageSquare,
-  Users,
-  BarChart3,
-  Settings,
-  LogOut,
-  BookOpen,
-  Menu,
-  X,
-  Mail,
-  Search,
-  Send,
-  Megaphone,
-  HelpCircle,
-  Briefcase,
-  Network,
-  Newspaper,
-  UserCircle,
+  LayoutDashboard, FileText, Folder, MessageSquare, Users,
+  BarChart3, Settings, LogOut, BookOpen, Menu, X, Mail,
+  Search, Send, Megaphone, HelpCircle, Briefcase, Network,
+  Newspaper, UserCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-// Admin Sub-pages
-import AdminDashboard from '@/components/admin/AdminDashboard';
-import AdminPosts from '@/components/admin/AdminPosts';
-import AdminCategories from '@/components/admin/AdminCategories';
-import AdminComments from '@/components/admin/AdminComments';
-import AdminSubscribers from '@/components/admin/AdminSubscribers';
-import AdminAnalytics from '@/components/admin/AdminAnalytics';
-import AdminSettings from '@/components/admin/AdminSettings';
-import AdminMessages from '@/components/admin/AdminMessages';
-import AdminSEO from '@/components/admin/AdminSEO';
-import AdminNewsletterLogs from '@/components/admin/AdminNewsletterLogs';
-import AdminSEOAudit from '@/components/admin/AdminSEOAudit';
-import AdminSitemapRobots from '@/components/admin/AdminSitemapRobots';
-import AdminBroadcast from '@/components/admin/AdminBroadcast';
-import AdminFAQ from '@/components/admin/AdminFAQ';
-import AdminCaseStudies from '@/components/admin/AdminCaseStudies';
-import AdminTopicClusters from '@/components/admin/AdminTopicClusters';
-import AdminAutoNews from '@/components/admin/AdminAutoNews';
-import AdminAbout from '@/components/admin/AdminAbout';
-import PostWritingGuide from '@/components/admin/PostWritingGuide';
+// Lazy load all admin sub-pages
+const AdminDashboard = lazy(() => import('@/components/admin/AdminDashboard'));
+const AdminPosts = lazy(() => import('@/components/admin/AdminPosts'));
+const AdminCategories = lazy(() => import('@/components/admin/AdminCategories'));
+const AdminComments = lazy(() => import('@/components/admin/AdminComments'));
+const AdminSubscribers = lazy(() => import('@/components/admin/AdminSubscribers'));
+const AdminAnalytics = lazy(() => import('@/components/admin/AdminAnalytics'));
+const AdminSettings = lazy(() => import('@/components/admin/AdminSettings'));
+const AdminMessages = lazy(() => import('@/components/admin/AdminMessages'));
+const AdminSEO = lazy(() => import('@/components/admin/AdminSEO'));
+const AdminNewsletterLogs = lazy(() => import('@/components/admin/AdminNewsletterLogs'));
+const AdminSEOAudit = lazy(() => import('@/components/admin/AdminSEOAudit'));
+const AdminSitemapRobots = lazy(() => import('@/components/admin/AdminSitemapRobots'));
+const AdminBroadcast = lazy(() => import('@/components/admin/AdminBroadcast'));
+const AdminFAQ = lazy(() => import('@/components/admin/AdminFAQ'));
+const AdminCaseStudies = lazy(() => import('@/components/admin/AdminCaseStudies'));
+const AdminTopicClusters = lazy(() => import('@/components/admin/AdminTopicClusters'));
+const AdminAutoNews = lazy(() => import('@/components/admin/AdminAutoNews'));
+const AdminAbout = lazy(() => import('@/components/admin/AdminAbout'));
+const PostWritingGuide = lazy(() => import('@/components/admin/PostWritingGuide'));
+
+const AdminLoader = () => (
+  <div className="flex items-center justify-center py-20">
+    <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
@@ -102,8 +92,6 @@ const Admin = () => {
       }
     };
 
-    // onAuthStateChange ichida async/await ishlatmang — deadlock bo'ladi
-    // setTimeout(0) bilan defer qilamiz
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (!isMounted) return;
@@ -113,7 +101,6 @@ const Admin = () => {
           navigate('/auth');
           return;
         }
-        // Defer to avoid Supabase internal deadlock
         setTimeout(async () => {
           if (!isMounted) return;
           const isAdmin = await checkAdminAccess(session.user.id);
@@ -124,7 +111,6 @@ const Admin = () => {
       }
     );
 
-    // Initial load — isLoading faqat shu yerda false bo'ladi
     const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -166,13 +152,10 @@ const Admin = () => {
     );
   }
 
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-muted/30 flex">
-      {/* Mobile Menu Button */}
       <Button
         variant="ghost"
         size="sm"
@@ -182,14 +165,12 @@ const Admin = () => {
         {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </Button>
 
-      {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-40 w-64 bg-card border-r transform transition-transform duration-300 md:translate-x-0 ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="flex flex-col h-full">
-          {/* Logo */}
           <div className="p-6 border-b">
             <Link to="/" className="flex items-center gap-2">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
@@ -199,12 +180,10 @@ const Admin = () => {
             </Link>
           </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1">
+          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
             {menuItems.map((item) => {
               const isActive = location.pathname === item.path ||
                 (item.path !== '/admin' && location.pathname.startsWith(item.path));
-
               return (
                 <Link
                   key={item.path}
@@ -223,16 +202,9 @@ const Admin = () => {
             })}
           </nav>
 
-          {/* User Info & Logout */}
           <div className="p-4 border-t">
-            <div className="text-sm text-muted-foreground mb-3 truncate">
-              {user.email}
-            </div>
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              onClick={handleLogout}
-            >
+            <div className="text-sm text-muted-foreground mb-3 truncate">{user.email}</div>
+            <Button variant="outline" className="w-full justify-start" onClick={handleLogout}>
               <LogOut className="w-4 h-4 mr-2" />
               Chiqish
             </Button>
@@ -240,34 +212,34 @@ const Admin = () => {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 md:ml-64">
         <div className="p-4 md:p-8">
-          <Routes>
-            <Route path="/" element={<AdminDashboard />} />
-            <Route path="/auto-news" element={<AdminAutoNews />} />
-            <Route path="/posts/*" element={<AdminPosts />} />
-            <Route path="/writing-guide" element={<PostWritingGuide />} />
-            <Route path="/categories" element={<AdminCategories />} />
-            <Route path="/faq" element={<AdminFAQ />} />
-            <Route path="/case-studies" element={<AdminCaseStudies />} />
-            <Route path="/topic-clusters" element={<AdminTopicClusters />} />
-            <Route path="/about" element={<AdminAbout />} />
-            <Route path="/comments" element={<AdminComments />} />
-            <Route path="/messages" element={<AdminMessages />} />
-            <Route path="/subscribers" element={<AdminSubscribers />} />
-            <Route path="/newsletter" element={<AdminNewsletterLogs />} />
-            <Route path="/broadcast" element={<AdminBroadcast />} />
-            <Route path="/seo-audit" element={<AdminSEOAudit />} />
-            <Route path="/seo" element={<AdminSEO />} />
-            <Route path="/sitemap" element={<AdminSitemapRobots />} />
-            <Route path="/analytics" element={<AdminAnalytics />} />
-            <Route path="/settings" element={<AdminSettings />} />
-          </Routes>
+          <Suspense fallback={<AdminLoader />}>
+            <Routes>
+              <Route path="/" element={<AdminDashboard />} />
+              <Route path="/auto-news" element={<AdminAutoNews />} />
+              <Route path="/posts/*" element={<AdminPosts />} />
+              <Route path="/writing-guide" element={<PostWritingGuide />} />
+              <Route path="/categories" element={<AdminCategories />} />
+              <Route path="/faq" element={<AdminFAQ />} />
+              <Route path="/case-studies" element={<AdminCaseStudies />} />
+              <Route path="/topic-clusters" element={<AdminTopicClusters />} />
+              <Route path="/about" element={<AdminAbout />} />
+              <Route path="/comments" element={<AdminComments />} />
+              <Route path="/messages" element={<AdminMessages />} />
+              <Route path="/subscribers" element={<AdminSubscribers />} />
+              <Route path="/newsletter" element={<AdminNewsletterLogs />} />
+              <Route path="/broadcast" element={<AdminBroadcast />} />
+              <Route path="/seo-audit" element={<AdminSEOAudit />} />
+              <Route path="/seo" element={<AdminSEO />} />
+              <Route path="/sitemap" element={<AdminSitemapRobots />} />
+              <Route path="/analytics" element={<AdminAnalytics />} />
+              <Route path="/settings" element={<AdminSettings />} />
+            </Routes>
+          </Suspense>
         </div>
       </main>
 
-      {/* Mobile Overlay */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-30 md:hidden"
