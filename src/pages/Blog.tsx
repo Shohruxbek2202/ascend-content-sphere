@@ -103,11 +103,11 @@ const Blog = () => {
     };
 
     fetchData();
-  }, [selectedCategory, currentPage]);
+  }, [selectedCategory, currentPage, searchQuery]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory]);
+  }, [selectedCategory, searchQuery]);
 
   const totalPages = Math.ceil(totalCount / POSTS_PER_PAGE);
 
