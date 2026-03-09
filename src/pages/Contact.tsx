@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { MessageSquare, Send, Mail, User, FileText } from 'lucide-react';
+import { MessageSquare, Send, Mail, User, FileText, MapPin, Clock, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import SEOHead from '@/components/SEOHead';
@@ -35,7 +35,17 @@ const Contact = () => {
         sending: 'Yuborilmoqda...'
       },
       success: 'Xabaringiz muvaffaqiyatli yuborildi!',
-      error: 'Xatolik yuz berdi. Qaytadan urinib ko\'ring.'
+      error: 'Xatolik yuz berdi. Qaytadan urinib ko\'ring.',
+      contactInfo: {
+        title: 'Bog\'lanish ma\'lumotlari',
+        email: 'Email',
+        location: 'Manzil',
+        locationValue: 'Toshkent, O\'zbekiston',
+        hours: 'Ish vaqti',
+        hoursValue: 'Dushanba - Juma: 9:00 - 18:00',
+        response: 'Javob vaqti',
+        responseValue: '24 soat ichida'
+      }
     },
     ru: {
       title: 'Свяжитесь с нами',
@@ -49,7 +59,17 @@ const Contact = () => {
         sending: 'Отправка...'
       },
       success: 'Ваше сообщение успешно отправлено!',
-      error: 'Произошла ошибка. Попробуйте снова.'
+      error: 'Произошла ошибка. Попробуйте снова.',
+      contactInfo: {
+        title: 'Контактная информация',
+        email: 'Email',
+        location: 'Адрес',
+        locationValue: 'Ташкент, Узбекистан',
+        hours: 'Рабочие часы',
+        hoursValue: 'Понедельник - Пятница: 9:00 - 18:00',
+        response: 'Время ответа',
+        responseValue: 'В течение 24 часов'
+      }
     },
     en: {
       title: 'Contact Us',
@@ -63,7 +83,17 @@ const Contact = () => {
         sending: 'Sending...'
       },
       success: 'Your message has been sent successfully!',
-      error: 'An error occurred. Please try again.'
+      error: 'An error occurred. Please try again.',
+      contactInfo: {
+        title: 'Contact Information',
+        email: 'Email',
+        location: 'Location',
+        locationValue: 'Tashkent, Uzbekistan',
+        hours: 'Business Hours',
+        hoursValue: 'Monday - Friday: 9:00 AM - 6:00 PM',
+        response: 'Response Time',
+        responseValue: 'Within 24 hours'
+      }
     }
   };
 
@@ -95,6 +125,33 @@ const Contact = () => {
     }
   };
 
+  const contactItems = [
+    {
+      icon: Mail,
+      label: t.contactInfo.email,
+      value: 'contact@shohruxdigital.com',
+      href: 'mailto:contact@shohruxdigital.com'
+    },
+    {
+      icon: MapPin,
+      label: t.contactInfo.location,
+      value: t.contactInfo.locationValue,
+      href: null
+    },
+    {
+      icon: Clock,
+      label: t.contactInfo.hours,
+      value: t.contactInfo.hoursValue,
+      href: null
+    },
+    {
+      icon: Phone,
+      label: t.contactInfo.response,
+      value: t.contactInfo.responseValue,
+      href: null
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
@@ -114,9 +171,9 @@ const Contact = () => {
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-xl mx-auto">
+          <div className="max-w-5xl mx-auto">
             {/* Header */}
-            <div className="text-center mb-8">
+            <div className="text-center mb-10">
               <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-5">
                 <MessageSquare className="w-8 h-8 text-primary" />
               </div>
@@ -124,80 +181,110 @@ const Contact = () => {
               <p className="text-muted-foreground text-lg max-w-md mx-auto">{t.subtitle}</p>
             </div>
 
-            {/* Form Card */}
-            <div className="rounded-2xl bg-card border border-border shadow-xl p-6 md:p-8">
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="text-sm font-medium">{t.form.name}</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                        className="pl-10 h-11 rounded-xl bg-background border-border focus:border-secondary"
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+              {/* Contact Info Sidebar */}
+              <div className="lg:col-span-2">
+                <div className="rounded-2xl bg-card border border-border shadow-xl p-6">
+                  <h2 className="font-semibold text-lg text-foreground mb-5">{t.contactInfo.title}</h2>
+                  <div className="space-y-5">
+                    {contactItems.map((item, idx) => (
+                      <div key={idx} className="flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center flex-shrink-0">
+                          <item.icon className="w-5 h-5 text-secondary" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">{item.label}</p>
+                          {item.href ? (
+                            <a href={item.href} className="text-foreground font-medium hover:text-secondary transition-colors">
+                              {item.value}
+                            </a>
+                          ) : (
+                            <p className="text-foreground font-medium">{item.value}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Form Card */}
+              <div className="lg:col-span-3">
+                <div className="rounded-2xl bg-card border border-border shadow-xl p-6 md:p-8">
+                  <form onSubmit={handleSubmit} className="space-y-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="name" className="text-sm font-medium">{t.form.name}</Label>
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            id="name"
+                            value={formData.name}
+                            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                            className="pl-10 h-11 rounded-xl bg-background border-border focus:border-secondary"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email" className="text-sm font-medium">{t.form.email}</Label>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            id="email"
+                            type="email"
+                            value={formData.email}
+                            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                            className="pl-10 h-11 rounded-xl bg-background border-border focus:border-secondary"
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="subject" className="text-sm font-medium">{t.form.subject}</Label>
+                      <div className="relative">
+                        <FileText className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input
+                          id="subject"
+                          value={formData.subject}
+                          onChange={(e) => setFormData(prev => ({ ...prev, subject: e.target.value }))}
+                          className="pl-10 h-11 rounded-xl bg-background border-border focus:border-secondary"
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="message" className="text-sm font-medium">{t.form.message}</Label>
+                      <Textarea
+                        id="message"
+                        rows={5}
+                        value={formData.message}
+                        onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
+                        className="rounded-xl bg-background border-border focus:border-secondary resize-none"
                         required
                       />
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium">{t.form.email}</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                        className="pl-10 h-11 rounded-xl bg-background border-border focus:border-secondary"
-                        required
-                      />
-                    </div>
-                  </div>
+                    
+                    <Button 
+                      type="submit" 
+                      className="w-full h-12 rounded-xl bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold shadow-lg shadow-secondary/20 transition-all duration-300 hover:shadow-xl hover:shadow-secondary/30" 
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        t.form.sending
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4 mr-2" />
+                          {t.form.submit}
+                        </>
+                      )}
+                    </Button>
+                  </form>
                 </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="subject" className="text-sm font-medium">{t.form.subject}</Label>
-                  <div className="relative">
-                    <FileText className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      id="subject"
-                      value={formData.subject}
-                      onChange={(e) => setFormData(prev => ({ ...prev, subject: e.target.value }))}
-                      className="pl-10 h-11 rounded-xl bg-background border-border focus:border-secondary"
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="message" className="text-sm font-medium">{t.form.message}</Label>
-                  <Textarea
-                    id="message"
-                    rows={5}
-                    value={formData.message}
-                    onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
-                    className="rounded-xl bg-background border-border focus:border-secondary resize-none"
-                    required
-                  />
-                </div>
-                
-                <Button 
-                  type="submit" 
-                  className="w-full h-12 rounded-xl bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold shadow-lg shadow-secondary/20 transition-all duration-300 hover:shadow-xl hover:shadow-secondary/30" 
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    t.form.sending
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4 mr-2" />
-                      {t.form.submit}
-                    </>
-                  )}
-                </Button>
-              </form>
+              </div>
             </div>
           </div>
         </div>
