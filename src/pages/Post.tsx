@@ -234,7 +234,7 @@ const Post = () => {
       post_id: post.id,
       author_name: authorName.trim().substring(0, 100),
       content: commentContent.trim().substring(0, 2000),
-      approved: true, // Izohlar moderatsiyasiz qabul qilinadi
+      approved: true,
     });
 
     if (error) {
@@ -250,6 +250,13 @@ const Post = () => {
         : language === 'ru' ? 'Комментарий успешно добавлен!'
         : 'Your comment has been added!'
       );
+      // Refresh comments list
+      setComments(prev => [{
+        id: crypto.randomUUID(),
+        author_name: authorName.trim(),
+        content: commentContent.trim(),
+        created_at: new Date().toISOString(),
+      }, ...prev]);
       setAuthorName('');
       setCommentContent('');
     }
