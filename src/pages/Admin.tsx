@@ -251,6 +251,7 @@ const Admin = () => {
             <Route path="/faq" element={<AdminFAQ />} />
             <Route path="/case-studies" element={<AdminCaseStudies />} />
             <Route path="/topic-clusters" element={<AdminTopicClusters />} />
+            <Route path="/about" element={<AdminAbout />} />
             <Route path="/comments" element={<AdminComments />} />
             <Route path="/messages" element={<AdminMessages />} />
             <Route path="/subscribers" element={<AdminSubscribers />} />
