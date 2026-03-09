@@ -44,35 +44,34 @@ const Post = () => {
         setPost(postData);
 
         // Parallel: increment views, fetch comments, fetch related posts
-        const promises: Array<Promise<unknown>> = [
-          supabase.rpc('increment_post_views', { post_id: postData.id }),
-          supabase
+        const viewsPromise = (async () => {
+          await supabase.rpc('increment_post_views', { post_id: postData.id });
+        })();
+
+        const commentsPromise = (async () => {
+          const { data } = await supabase
             .from('public_comments' as never)
             .select('*')
             .eq('post_id', postData.id)
             .eq('approved', true)
-            .order('created_at', { ascending: false })
-            .then(({ data }: { data: unknown }) => {
-              if (data) setComments(data as Comment[]);
-            }),
-        ];
+            .order('created_at', { ascending: false });
+          if (data) setComments(data as unknown as Comment[]);
+        })();
 
-        if (postData.category_id) {
-          promises.push(
-            supabase
-              .from('posts')
-              .select(`*, categories (slug, name_uz, name_ru, name_en)`)
-              .eq('category_id', postData.category_id)
-              .eq('published', true)
-              .neq('id', postData.id)
-              .limit(3)
-              .then(({ data }) => {
-                if (data) setRelatedPosts(data);
-              })
-          );
-        }
+        const relatedPromise = postData.category_id
+          ? (async () => {
+              const { data } = await supabase
+                .from('posts')
+                .select(`*, categories (slug, name_uz, name_ru, name_en)`)
+                .eq('category_id', postData.category_id!)
+                .eq('published', true)
+                .neq('id', postData.id)
+                .limit(3);
+              if (data) setRelatedPosts(data);
+            })()
+          : Promise.resolve();
 
-        await Promise.all(promises);
+        await Promise.all([viewsPromise, commentsPromise, relatedPromise]);
       }
 
       setIsLoading(false);
