@@ -113,6 +113,9 @@ export const Header = () => {
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
+              <div className="hidden md:block">
+                <GlobalSearch />
+              </div>
               <ThemeToggle />
               <LanguageSwitcher />
               <Button

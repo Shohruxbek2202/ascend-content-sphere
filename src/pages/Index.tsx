@@ -7,7 +7,6 @@ import { BlogCard } from '@/components/BlogCard';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 
-// Lazy load below-fold components
 const SubscribeSection = lazy(() => import('@/components/SubscribeSection').then(m => ({ default: m.SubscribeSection })));
 const NewsletterPopup = lazy(() => import('@/components/NewsletterPopup').then(m => ({ default: m.NewsletterPopup })));
 const CTABanner = lazy(() => import('@/components/CTABanner').then(m => ({ default: m.CTABanner })));
@@ -16,28 +15,8 @@ import { supabase } from '@/integrations/supabase/client';
 import SEOHead from '@/components/SEOHead';
 import HomeStructuredData from '@/components/HomeStructuredData';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
-
-interface Post {
-  id: string;
-  slug: string;
-  title_uz: string;
-  title_ru: string;
-  title_en: string;
-  excerpt_uz: string | null;
-  excerpt_ru: string | null;
-  excerpt_en: string | null;
-  featured_image: string | null;
-  reading_time: number | null;
-  likes: number | null;
-  published_at: string | null;
-  featured: boolean | null;
-  tags: string[] | null;
-  categories?: {
-    name_uz: string;
-    name_ru: string;
-    name_en: string;
-  };
-}
+import { useLocalized } from '@/hooks/useLocalized';
+import type { Post } from '@/types/post';
 
 interface Stats {
   posts: number;
@@ -48,6 +27,7 @@ interface Stats {
 const Index = () => {
   const { t, language } = useLanguage();
   const { settings } = useSiteSettings();
+  const { getField } = useLocalized();
   const [featuredPosts, setFeaturedPosts] = useState<Post[]>([]);
   const [latestPosts, setLatestPosts] = useState<Post[]>([]);
   const [stats, setStats] = useState<Stats>({ posts: 0, categories: 0, subscribers: 0 });
@@ -55,7 +35,6 @@ const Index = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      // All queries in parallel - single network round-trip
       const [latestResult, postsCount, categoriesCount, subscribersCount] = await Promise.all([
         supabase
           .from('posts')
@@ -70,7 +49,6 @@ const Index = () => {
 
       const latest = latestResult.data || [];
       setLatestPosts(latest);
-      // Featured posts derived from the same result set - no extra query needed
       setFeaturedPosts(latest.filter((p) => p.featured).slice(0, 2));
       setStats({
         posts: postsCount.count || 0,
@@ -79,7 +57,6 @@ const Index = () => {
       });
       setIsLoading(false);
 
-      // Preload LCP image - the first visible post image
       const lcpPost = latest[0];
       if (lcpPost?.featured_image) {
         const link = document.createElement('link');
@@ -94,11 +71,6 @@ const Index = () => {
     fetchData();
   }, []);
 
-  const getTitle = (post: Post) => post[`title_${language}`] || post.title_en;
-  const getExcerpt = (post: Post) => post[`excerpt_${language}`] || post.excerpt_en || '';
-  const getCategoryName = (post: Post) => 
-    post.categories ? (post.categories[`name_${language}`] || post.categories.name_en) : '';
-
   const seoTitle = language === 'uz' 
     ? 'ShohruxDigital - Digital Marketing, SMM, SEO va Shaxsiy Rivojlanish Blogi | Shohruxbek Foziljonov'
     : language === 'ru'
@@ -112,53 +84,27 @@ const Index = () => {
     : 'Professional articles, practical tips and modern strategies on digital marketing, SMM, SEO, PPC advertising and personal development by Shohruxbek Foziljonov. Free learning materials.';
 
   const seoKeywords = language === 'uz'
-    ? ['digital marketing', 'SMM', 'SEO', 'shaxsiy rivojlanish', 'marketing strategiya', 'Shohruxbek Foziljonov', 'kontekstli reklama', 'Instagram reklama', 'Facebook reklama']
+    ? ['digital marketing', 'SMM', 'SEO', 'shaxsiy rivojlanish', 'marketing strategiya', 'Shohruxbek Foziljonov']
     : language === 'ru'
-    ? ['цифровой маркетинг', 'SMM', 'SEO', 'личностное развитие', 'маркетинговая стратегия', 'Шохрухбек Фозилжонов', 'контекстная реклама', 'реклама в Instagram', 'реклама в Facebook']
-    : ['digital marketing', 'SMM', 'SEO', 'personal development', 'marketing strategy', 'Shohruxbek Foziljonov', 'PPC advertising', 'Instagram ads', 'Facebook ads'];
+    ? ['цифровой маркетинг', 'SMM', 'SEO', 'личностное развитие', 'маркетинговая стратегия', 'Шохрухбек Фозилжонов']
+    : ['digital marketing', 'SMM', 'SEO', 'personal development', 'marketing strategy', 'Shohruxbek Foziljonov'];
 
   const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://shohruxdigital.uz';
 
   const socialLinks = [
-    settings.instagram_url,
-    settings.telegram_url,
-    settings.twitter_url,
-    settings.youtube_url,
-    settings.facebook_url,
-    settings.linkedin_url,
+    settings.instagram_url, settings.telegram_url, settings.twitter_url,
+    settings.youtube_url, settings.facebook_url, settings.linkedin_url,
   ].filter(Boolean) as string[];
-
-  const formatNumber = (num: number) => {
-    if (num === 0) return '0';
-    if (num < 10) return `${num}`;
-    if (num < 100) return `${Math.floor(num / 10) * 10}+`;
-    if (num < 1000) return `${Math.floor(num / 100) * 100}+`;
-    return `${Math.floor(num / 1000)}K+`;
-  };
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead
-        title={seoTitle}
-        description={seoDescription}
-        keywords={seoKeywords}
-        url={siteUrl}
-        type="website"
-        image={`${siteUrl}/og-image.png`}
-        siteName="ShohruxDigital"
-      />
-      <HomeStructuredData
-        siteName="ShohruxDigital"
-        siteUrl={siteUrl}
-        description={seoDescription}
-        socialLinks={socialLinks}
-      />
+      <SEOHead title={seoTitle} description={seoDescription} keywords={seoKeywords} url={siteUrl} type="website" image={`${siteUrl}/og-image.png`} siteName="ShohruxDigital" />
+      <HomeStructuredData siteName="ShohruxDigital" siteUrl={siteUrl} description={seoDescription} socialLinks={socialLinks} />
       <Header />
       
       <main>
         <Hero />
 
-        {/* Featured Posts */}
         {featuredPosts.length > 0 && (
           <section className="container mx-auto px-4 py-10 md:py-16 lg:py-20" aria-labelledby="featured-heading">
             <h2 id="featured-heading" className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-6 md:mb-10">
@@ -169,24 +115,23 @@ const Index = () => {
                 <BlogCard
                   key={post.id}
                   id={post.slug}
-                  title={getTitle(post)}
-                  excerpt={getExcerpt(post)}
+                  title={getField(post, 'title')}
+                  excerpt={getField(post, 'excerpt')}
                   image={post.featured_image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'}
-                  category={getCategoryName(post)}
+                  category={post.categories ? getField(post.categories, 'name') : ''}
                   readTime={post.reading_time || 5}
                   likes={post.likes || 0}
                   comments={0}
-                    publishedAt={post.published_at || ''}
-                    featured
-                    isLCP={index === 0}
-                    tags={post.tags || []}
-                  />
+                  publishedAt={post.published_at || ''}
+                  featured
+                  isLCP={index === 0}
+                  tags={post.tags || []}
+                />
               ))}
             </div>
           </section>
         )}
 
-        {/* Latest Posts */}
         <section className="container mx-auto px-4 py-10 md:py-16 lg:py-20" aria-labelledby="latest-heading">
           <div className="flex items-center justify-between mb-6 md:mb-10">
             <h2 id="latest-heading" className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
@@ -217,17 +162,17 @@ const Index = () => {
                 <BlogCard
                   key={post.id}
                   id={post.slug}
-                  title={getTitle(post)}
-                  excerpt={getExcerpt(post)}
+                  title={getField(post, 'title')}
+                  excerpt={getField(post, 'excerpt')}
                   image={post.featured_image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'}
-                  category={getCategoryName(post)}
+                  category={post.categories ? getField(post.categories, 'name') : ''}
                   readTime={post.reading_time || 5}
                   likes={post.likes || 0}
                   comments={0}
-                    publishedAt={post.published_at || ''}
-                    isLCP={featuredPosts.length === 0 && index === 0}
-                    tags={post.tags || []}
-                  />
+                  publishedAt={post.published_at || ''}
+                  isLCP={featuredPosts.length === 0 && index === 0}
+                  tags={post.tags || []}
+                />
               ))}
             </div>
           ) : (
@@ -248,21 +193,11 @@ const Index = () => {
           )}
         </section>
 
-        {/* CTA Banner - MPBS.uz */}
-        <Suspense fallback={null}>
-          <CTABanner />
-        </Suspense>
-
-        <Suspense fallback={null}>
-          <SubscribeSection />
-        </Suspense>
+        <Suspense fallback={null}><CTABanner /></Suspense>
+        <Suspense fallback={null}><SubscribeSection /></Suspense>
       </main>
 
-      {/* Newsletter Popup */}
-      <Suspense fallback={null}>
-        <NewsletterPopup />
-      </Suspense>
-
+      <Suspense fallback={null}><NewsletterPopup /></Suspense>
       <Footer />
     </div>
   );
