@@ -80,6 +80,13 @@ const Blog = () => {
           }
         }
 
+        // Server-side search
+        if (searchQuery.trim()) {
+          const q = `%${searchQuery.trim()}%`;
+          const titleField = `title_${language}` as 'title_uz' | 'title_ru' | 'title_en';
+          query = query.ilike(titleField, q);
+        }
+
         const from = (currentPage - 1) * POSTS_PER_PAGE;
         const to = from + POSTS_PER_PAGE - 1;
         query = query.range(from, to);
@@ -96,20 +103,16 @@ const Blog = () => {
     };
 
     fetchData();
-  }, [selectedCategory, currentPage]);
+  }, [selectedCategory, currentPage, searchQuery]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory]);
+  }, [selectedCategory, searchQuery]);
 
   const totalPages = Math.ceil(totalCount / POSTS_PER_PAGE);
 
-  const filteredPosts = posts.filter((post) => {
-    const title = getField(post, 'title').toLowerCase();
-    const excerpt = getField(post, 'excerpt').toLowerCase();
-    const query = searchQuery.toLowerCase();
-    return title.includes(query) || excerpt.includes(query);
-  });
+  // Search is now server-side, no client-side filtering needed
+  const filteredPosts = posts;
 
   const seoTitle = language === 'uz' 
     ? 'Blog - Barcha Maqolalar | Shohruxbek Foziljonov'

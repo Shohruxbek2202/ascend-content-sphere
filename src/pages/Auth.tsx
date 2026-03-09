@@ -18,7 +18,6 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isFirstTimeSetup, setIsFirstTimeSetup] = useState(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -80,36 +79,17 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      if (isFirstTimeSetup) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: `${window.location.origin}/admin` },
-        });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-        if (error) {
-          if (error.message.includes('already registered')) {
-            toast.error('Bu email allaqachon ro\'yxatdan o\'tgan. Login qiling.');
-            setIsFirstTimeSetup(false);
-          } else {
-            toast.error(error.message);
-          }
-          return;
+      if (error) {
+        if (error.message === 'Invalid login credentials') {
+          toast.error('Email yoki parol noto\'g\'ri');
+        } else {
+          toast.error(error.message);
         }
-        toast.success('Hisob yaratildi! Email tasdiqlang yoki kirish qiling.');
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-        if (error) {
-          if (error.message === 'Invalid login credentials') {
-            toast.error('Email yoki parol noto\'g\'ri');
-          } else {
-            toast.error(error.message);
-          }
-          return;
-        }
-        toast.success('Muvaffaqiyatli kirdingiz!');
+        return;
       }
+      toast.success('Muvaffaqiyatli kirdingiz!');
     } catch {
       toast.error('Kutilmagan xatolik yuz berdi');
     } finally {
@@ -133,14 +113,8 @@ const Auth = () => {
             </div>
           </div>
           <div className="text-center">
-            <CardTitle className="text-2xl font-display">
-              {isFirstTimeSetup ? 'Birinchi marta sozlash' : 'Admin Kirish'}
-            </CardTitle>
-            <CardDescription>
-              {isFirstTimeSetup
-                ? 'Admin hisobini yaratish'
-                : 'Admin paneliga kirish'}
-            </CardDescription>
+            <CardTitle className="text-2xl font-display">Admin Kirish</CardTitle>
+            <CardDescription>Admin paneliga kirish</CardDescription>
           </div>
         </CardHeader>
 
@@ -174,15 +148,9 @@ const Auth = () => {
               </div>
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Kutilmoqda...' : isFirstTimeSetup ? 'Hisob yaratish' : 'Kirish'}
+              {isLoading ? 'Kutilmoqda...' : 'Kirish'}
             </Button>
           </form>
-          <div className="mt-4 text-center">
-            <button type="button" onClick={() => setIsFirstTimeSetup(!isFirstTimeSetup)}
-              className="text-sm text-muted-foreground hover:text-primary underline">
-              {isFirstTimeSetup ? 'Hisobingiz bormi? Kirish' : 'Birinchi marta kiryapsizmi? Hisob yarating'}
-            </button>
-          </div>
         </CardContent>
       </Card>
     </div>

@@ -42,30 +42,36 @@ const Post = () => {
 
       if (postData) {
         setPost(postData);
-        await supabase.rpc('increment_post_views', { post_id: postData.id });
 
-        const { data: commentsData } = await supabase
-          .from('public_comments' as never)
-          .select('*')
-          .eq('post_id', postData.id)
-          .eq('approved', true)
-          .order('created_at', { ascending: false });
+        // Parallel: increment views, fetch comments, fetch related posts
+        const viewsPromise = (async () => {
+          await supabase.rpc('increment_post_views', { post_id: postData.id });
+        })();
 
-        if (commentsData) {
-          setComments(commentsData as unknown as Comment[]);
-        }
+        const commentsPromise = (async () => {
+          const { data } = await supabase
+            .from('public_comments' as never)
+            .select('*')
+            .eq('post_id', postData.id)
+            .eq('approved', true)
+            .order('created_at', { ascending: false });
+          if (data) setComments(data as unknown as Comment[]);
+        })();
 
-        if (postData.category_id) {
-          const { data: relatedData } = await supabase
-            .from('posts')
-            .select(`*, categories (slug, name_uz, name_ru, name_en)`)
-            .eq('category_id', postData.category_id)
-            .eq('published', true)
-            .neq('id', postData.id)
-            .limit(3);
+        const relatedPromise = postData.category_id
+          ? (async () => {
+              const { data } = await supabase
+                .from('posts')
+                .select(`*, categories (slug, name_uz, name_ru, name_en)`)
+                .eq('category_id', postData.category_id!)
+                .eq('published', true)
+                .neq('id', postData.id)
+                .limit(3);
+              if (data) setRelatedPosts(data);
+            })()
+          : Promise.resolve();
 
-          if (relatedData) setRelatedPosts(relatedData);
-        }
+        await Promise.all([viewsPromise, commentsPromise, relatedPromise]);
       }
 
       setIsLoading(false);
