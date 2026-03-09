@@ -80,6 +80,13 @@ const Blog = () => {
           }
         }
 
+        // Server-side search
+        if (searchQuery.trim()) {
+          const q = `%${searchQuery.trim()}%`;
+          const titleField = `title_${language}` as 'title_uz' | 'title_ru' | 'title_en';
+          query = query.ilike(titleField, q);
+        }
+
         const from = (currentPage - 1) * POSTS_PER_PAGE;
         const to = from + POSTS_PER_PAGE - 1;
         query = query.range(from, to);
