@@ -79,36 +79,17 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      if (isFirstTimeSetup) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: `${window.location.origin}/admin` },
-        });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-        if (error) {
-          if (error.message.includes('already registered')) {
-            toast.error('Bu email allaqachon ro\'yxatdan o\'tgan. Login qiling.');
-            setIsFirstTimeSetup(false);
-          } else {
-            toast.error(error.message);
-          }
-          return;
+      if (error) {
+        if (error.message === 'Invalid login credentials') {
+          toast.error('Email yoki parol noto\'g\'ri');
+        } else {
+          toast.error(error.message);
         }
-        toast.success('Hisob yaratildi! Email tasdiqlang yoki kirish qiling.');
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-        if (error) {
-          if (error.message === 'Invalid login credentials') {
-            toast.error('Email yoki parol noto\'g\'ri');
-          } else {
-            toast.error(error.message);
-          }
-          return;
-        }
-        toast.success('Muvaffaqiyatli kirdingiz!');
+        return;
       }
+      toast.success('Muvaffaqiyatli kirdingiz!');
     } catch {
       toast.error('Kutilmagan xatolik yuz berdi');
     } finally {
