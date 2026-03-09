@@ -86,7 +86,6 @@ const Blog = () => {
     const fetchData = async () => {
       setIsLoading(true);
 
-      // Fetch categories first
       const { data: categoriesData } = await supabase
         .from('categories')
         .select('*')
@@ -95,7 +94,6 @@ const Blog = () => {
       if (categoriesData) {
         setCategories(categoriesData);
 
-        // Fetch published posts
         let query = supabase
           .from('posts')
           .select(`
@@ -106,7 +104,7 @@ const Blog = () => {
               name_ru,
               name_en
             )
-          `)
+          `, { count: 'exact' })
           .eq('published', true)
           .order('published_at', { ascending: false });
 
@@ -117,10 +115,16 @@ const Blog = () => {
           }
         }
 
-        const { data: postsData } = await query;
+        // Server-side pagination
+        const from = (currentPage - 1) * POSTS_PER_PAGE;
+        const to = from + POSTS_PER_PAGE - 1;
+        query = query.range(from, to);
+
+        const { data: postsData, count } = await query;
 
         if (postsData) {
           setPosts(postsData);
+          setTotalCount(count || 0);
         }
       }
 
@@ -128,7 +132,14 @@ const Blog = () => {
     };
 
     fetchData();
+  }, [selectedCategory, currentPage]);
+
+  // Reset page when category changes
+  useEffect(() => {
+    setCurrentPage(1);
   }, [selectedCategory]);
+
+  const totalPages = Math.ceil(totalCount / POSTS_PER_PAGE);
 
   const getLocalizedTitle = (post: Post) => {
     switch (language) {
