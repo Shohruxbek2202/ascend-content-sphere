@@ -151,7 +151,7 @@ Requirements:
 - Meta title: ~50-60 chars
 - Meta description: 150-160 chars
 - Excerpt: 2-3 sentences
-- Slug: short, descriptive, keyword-rich, latin lowercase with hyphens
+- Slug: MAXIMUM 3-5 words, latin lowercase with hyphens, keyword-focused (e.g. "ai-seo-strategy-2026", "google-ads-tips"). Never longer than 50 characters.
 - Tags: 5-7 tags
 - Focus keywords: 3-5
 - Reading time: integer minutes (estimate)
