@@ -286,8 +286,7 @@ KONTENT ARXITEKTURASI (Answer-First formati):
 3. Asosiy qism: H2 bo'limlarga ajratilgan chuqur tahlil
 4. Har bir bo'limda: Tushuntirish → Statistika/raqam → O'zbekiston konteksti → Amaliy tavsiya
 5. FAQ bo'lim: Kamida 3 ta savol-javob (H3 sarlavhali, <strong>Savol:</strong> formatda)
-6. Xulosa: Asosiy xulosalar ro'yxati (numbered list)
-7. CTA: Harakatga chaqirish
+6. Xulosa: Asosiy xulosalar ro'yxati (numbered list) — xulosa ichida tabiiy ravishda harakatga undovchi gap qo'sh, lekin alohida "Harakatga chaqirish" yoki "CTA" bo'limi YOZMA
 
 E-E-A-T SIGNALLARI:
 - Manba havolalarini <a href="..." target="_blank" rel="noopener"> bilan qo'sh
