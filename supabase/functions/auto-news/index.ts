@@ -183,14 +183,32 @@ async function fetchLatestNews(): Promise<Array<{ title: string; link: string; d
   return allNews;
 }
 
+// Common filler words to strip from slugs
+const SLUG_STOP_WORDS = new Set([
+  'the','a','an','and','or','but','in','on','at','to','for','of','with','by',
+  'from','is','it','its','this','that','are','was','were','be','been','has',
+  'have','had','do','does','did','will','would','could','should','may','might',
+  'how','what','why','when','where','which','who','whom','can','not','no','so',
+  'if','then','than','into','over','such','very','just','about','also',
+]);
+
 function generateSlug(title: string): string {
-  return title
+  const words = title
     .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .substring(0, 80)
-    .replace(/^-+|-+$/g, '');
+    .replace(/[^a-z0-9\s]/g, '')
+    .split(/\s+/)
+    .filter(w => w.length > 0 && !SLUG_STOP_WORDS.has(w));
+
+  // Take first 4-5 meaningful words, max 50 chars
+  let slug = '';
+  for (const w of words) {
+    const next = slug ? `${slug}-${w}` : w;
+    if (next.length > 50) break;
+    slug = next;
+    if (slug.split('-').length >= 5) break;
+  }
+
+  return slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').substring(0, 40).replace(/^-|-$/g, '');
 }
 
 // Generate AI image when no feed image available
@@ -286,8 +304,7 @@ KONTENT ARXITEKTURASI (Answer-First formati):
 3. Asosiy qism: H2 bo'limlarga ajratilgan chuqur tahlil
 4. Har bir bo'limda: Tushuntirish → Statistika/raqam → O'zbekiston konteksti → Amaliy tavsiya
 5. FAQ bo'lim: Kamida 3 ta savol-javob (H3 sarlavhali, <strong>Savol:</strong> formatda)
-6. Xulosa: Asosiy xulosalar ro'yxati (numbered list)
-7. CTA: Harakatga chaqirish
+6. Xulosa: Asosiy xulosalar ro'yxati (numbered list) — xulosa ichida tabiiy ravishda harakatga undovchi gap qo'sh, lekin alohida "Harakatga chaqirish" yoki "CTA" bo'limi YOZMA
 
 E-E-A-T SIGNALLARI:
 - Manba havolalarini <a href="..." target="_blank" rel="noopener"> bilan qo'sh
