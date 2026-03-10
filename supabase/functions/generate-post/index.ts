@@ -236,7 +236,8 @@ ${keywords ? `Primary keywords: ${keywords}` : ''}
 
 Structure requirements:
 - Return ONLY valid HTML wrapped in a single <article>...</article>
-- Include: intro 100-150 words, 4-6 H2 sections each with at least one H3, short paragraphs, lists, examples, conclusion with CTA 100-150 words
+- Include: intro 100-150 words, 4-6 H2 sections each with at least one H3, short paragraphs, lists, examples, conclusion 100-150 words
+- IMPORTANT: Do NOT write a separate "Harakatga chaqirish" or "Call to Action" section. Instead, naturally weave any call-to-action into the conclusion paragraph.
 - No markdown fences.
 - Must be complete and not truncated.`;
 
