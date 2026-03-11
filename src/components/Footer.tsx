@@ -134,7 +134,6 @@ export const Footer = () => {
             © {currentYear} ShohruxDigital. {t.footer.rights}
           </p>
           <div className="flex items-center gap-3">
-            <HumanMadeSeal size="sm" />
             <p className="text-background/40 dark:text-foreground/40 text-sm">
               Made with ❤️ in Uzbekistan
             </p>

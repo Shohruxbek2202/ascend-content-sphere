@@ -250,9 +250,6 @@ const Post = () => {
                 <Heart className="w-4 h-4" />
                 <span>{post.likes || 0}</span>
               </div>
-              <div className="ml-auto">
-                {post.tags?.includes('ai-generated') ? <AIMadeSeal size="md" /> : <HumanMadeSeal size="md" />}
-              </div>
             </div>
 
             {post.featured_image && (
