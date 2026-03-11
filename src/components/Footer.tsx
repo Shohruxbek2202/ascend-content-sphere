@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Instagram, Send, Youtube, Facebook, Twitter, Linkedin } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
-import { HumanMadeSeal } from '@/components/HumanMadeSeal';
+
 
 export const Footer = () => {
   const { t, language } = useLanguage();
@@ -134,7 +134,6 @@ export const Footer = () => {
             © {currentYear} ShohruxDigital. {t.footer.rights}
           </p>
           <div className="flex items-center gap-3">
-            <HumanMadeSeal size="sm" />
             <p className="text-background/40 dark:text-foreground/40 text-sm">
               Made with ❤️ in Uzbekistan
             </p>

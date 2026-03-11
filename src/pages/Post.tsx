@@ -12,8 +12,6 @@ import { toast } from 'sonner';
 import SEOHead from '@/components/SEOHead';
 import PostStructuredData from '@/components/PostStructuredData';
 import DOMPurify from 'dompurify';
-import { HumanMadeSeal } from '@/components/HumanMadeSeal';
-import { AIMadeSeal } from '@/components/AIMadeSeal';
 import ShareButtons from '@/components/post/ShareButtons';
 import CommentSection from '@/components/post/CommentSection';
 import RelatedPosts from '@/components/post/RelatedPosts';
@@ -251,9 +249,6 @@ const Post = () => {
               <div className="flex items-center gap-1">
                 <Heart className="w-4 h-4" />
                 <span>{post.likes || 0}</span>
-              </div>
-              <div className="ml-auto">
-                {post.tags?.includes('ai-generated') ? <AIMadeSeal size="md" /> : <HumanMadeSeal size="md" />}
               </div>
             </div>
 
