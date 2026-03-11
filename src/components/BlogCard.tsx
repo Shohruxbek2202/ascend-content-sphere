@@ -1,8 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Clock, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { HumanMadeSeal } from '@/components/HumanMadeSeal';
-import { AIMadeSeal } from '@/components/AIMadeSeal';
 
 interface BlogCardProps {
   id: string;
