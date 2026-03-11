@@ -12,8 +12,6 @@ import { toast } from 'sonner';
 import SEOHead from '@/components/SEOHead';
 import PostStructuredData from '@/components/PostStructuredData';
 import DOMPurify from 'dompurify';
-import { HumanMadeSeal } from '@/components/HumanMadeSeal';
-import { AIMadeSeal } from '@/components/AIMadeSeal';
 import ShareButtons from '@/components/post/ShareButtons';
 import CommentSection from '@/components/post/CommentSection';
 import RelatedPosts from '@/components/post/RelatedPosts';
