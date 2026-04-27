@@ -667,6 +667,165 @@ export type Database = {
         }
         Relationships: []
       }
+      strava_activities: {
+        Row: {
+          achievement_count: number | null
+          average_heartrate: number | null
+          average_speed: number | null
+          created_at: string
+          distance: number
+          elapsed_time: number
+          id: number
+          kudos_count: number | null
+          location_city: string | null
+          location_country: string | null
+          max_heartrate: number | null
+          max_speed: number | null
+          moving_time: number
+          name: string
+          sport_type: string | null
+          start_date: string
+          start_date_local: string
+          timezone: string | null
+          total_elevation_gain: number
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          achievement_count?: number | null
+          average_heartrate?: number | null
+          average_speed?: number | null
+          created_at?: string
+          distance?: number
+          elapsed_time?: number
+          id: number
+          kudos_count?: number | null
+          location_city?: string | null
+          location_country?: string | null
+          max_heartrate?: number | null
+          max_speed?: number | null
+          moving_time?: number
+          name: string
+          sport_type?: string | null
+          start_date: string
+          start_date_local: string
+          timezone?: string | null
+          total_elevation_gain?: number
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          achievement_count?: number | null
+          average_heartrate?: number | null
+          average_speed?: number | null
+          created_at?: string
+          distance?: number
+          elapsed_time?: number
+          id?: number
+          kudos_count?: number | null
+          location_city?: string | null
+          location_country?: string | null
+          max_heartrate?: number | null
+          max_speed?: number | null
+          moving_time?: number
+          name?: string
+          sport_type?: string | null
+          start_date?: string
+          start_date_local?: string
+          timezone?: string | null
+          total_elevation_gain?: number
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      strava_summary: {
+        Row: {
+          all_ride_count: number | null
+          all_ride_distance: number | null
+          all_run_count: number | null
+          all_run_distance: number | null
+          athlete_id: number
+          city: string | null
+          country: string | null
+          created_at: string
+          firstname: string | null
+          id: string
+          last_synced_at: string
+          lastname: string | null
+          profile_url: string | null
+          recent_ride_count: number | null
+          recent_ride_distance: number | null
+          recent_ride_moving_time: number | null
+          recent_run_count: number | null
+          recent_run_distance: number | null
+          recent_run_moving_time: number | null
+          updated_at: string
+          ytd_ride_count: number | null
+          ytd_ride_distance: number | null
+          ytd_ride_moving_time: number | null
+          ytd_run_count: number | null
+          ytd_run_distance: number | null
+          ytd_run_moving_time: number | null
+        }
+        Insert: {
+          all_ride_count?: number | null
+          all_ride_distance?: number | null
+          all_run_count?: number | null
+          all_run_distance?: number | null
+          athlete_id: number
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          firstname?: string | null
+          id?: string
+          last_synced_at?: string
+          lastname?: string | null
+          profile_url?: string | null
+          recent_ride_count?: number | null
+          recent_ride_distance?: number | null
+          recent_ride_moving_time?: number | null
+          recent_run_count?: number | null
+          recent_run_distance?: number | null
+          recent_run_moving_time?: number | null
+          updated_at?: string
+          ytd_ride_count?: number | null
+          ytd_ride_distance?: number | null
+          ytd_ride_moving_time?: number | null
+          ytd_run_count?: number | null
+          ytd_run_distance?: number | null
+          ytd_run_moving_time?: number | null
+        }
+        Update: {
+          all_ride_count?: number | null
+          all_ride_distance?: number | null
+          all_run_count?: number | null
+          all_run_distance?: number | null
+          athlete_id?: number
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          firstname?: string | null
+          id?: string
+          last_synced_at?: string
+          lastname?: string | null
+          profile_url?: string | null
+          recent_ride_count?: number | null
+          recent_ride_distance?: number | null
+          recent_ride_moving_time?: number | null
+          recent_run_count?: number | null
+          recent_run_distance?: number | null
+          recent_run_moving_time?: number | null
+          updated_at?: string
+          ytd_ride_count?: number | null
+          ytd_ride_distance?: number | null
+          ytd_ride_moving_time?: number | null
+          ytd_run_count?: number | null
+          ytd_run_distance?: number | null
+          ytd_run_moving_time?: number | null
+        }
+        Relationships: []
+      }
       subscribers: {
         Row: {
           active: boolean | null
