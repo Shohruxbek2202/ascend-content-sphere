@@ -27,6 +27,7 @@ async function getAccessToken(): Promise<string> {
   });
   if (!res.ok) throw new Error(`Strava token refresh failed: ${res.status} ${await res.text()}`);
   const data = await res.json();
+  console.log("Token refresh OK, scope:", data.scope, "expires_at:", data.expires_at);
   return data.access_token as string;
 }
 
