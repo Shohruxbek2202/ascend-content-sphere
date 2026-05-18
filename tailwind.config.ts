@@ -65,6 +65,8 @@ export default {
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
         display: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+        editorial: ['"Space Grotesk"', 'Inter', 'system-ui', 'sans-serif'],
+        body: ['"DM Sans"', 'Inter', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
         'sm': 'var(--shadow-sm)',
