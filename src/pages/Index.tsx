@@ -93,10 +93,10 @@ const Index = () => {
     : 'ShohruxDigital — Digital Marketing, SEO & Personal Performance';
 
   const seoDescription = language === 'uz'
-    ? 'Shohruxbek Foziljonov — brendlarni o\'stiruvchi digital marketolog va uzoq masofa yuguruvchisi. Marketing strategiyasi, real raqamlar va chidamlilik mental modellari — bitta tahririyatda.'
+    ? 'Shohruxbek Foziljonov — brendlarni o\'stiruvchi digital marketolog. Marketing strategiyasi, real raqamlar va ishlaydigan playbook\'lar — bitta tahririyatda.'
     : language === 'ru'
-    ? 'Шохрухбек Фозилжонов — digital-маркетолог, который растит бренды, и бегун на длинные дистанции. Стратегия, живые цифры и ментальные модели выносливости — в одной редакции.'
-    : 'Shohruxbek Foziljonov — a digital marketer who grows brands and a long-distance runner who studies pace. Strategy, real numbers, and endurance mental models — under one masthead.';
+    ? 'Шохрухбек Фозилжонов — digital-маркетолог, который растит бренды. Стратегия, живые цифры и рабочие плейбуки — в одной редакции.'
+    : 'Shohruxbek Foziljonov — a digital marketer who grows brands. Strategy, real numbers, and playbooks that actually ship — under one masthead.';
 
   const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://shohruxdigital.uz';
   const socialLinks = [
@@ -125,7 +125,7 @@ const Index = () => {
         <section className="px-6 md:px-8 pt-16 md:pt-24 pb-12 md:pb-16 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 border-b border-[hsl(var(--rule))]">
           <div className="lg:col-span-9">
             <p className="text-[#4f46e5] font-bold uppercase tracking-[0.4em] mb-6 text-[10px]">
-              {language === 'uz' ? 'Strateg va chidamlilik atleti' : language === 'ru' ? 'Стратег и атлет на выносливость' : 'Strategist & Endurance Athlete'}
+              {language === 'uz' ? 'Digital marketing strategi' : language === 'ru' ? 'Стратег digital-маркетинга' : 'Digital Marketing Strategist'}
             </p>
             <h1 className="text-[clamp(3rem,10vw,8.5rem)] font-bold leading-[0.85] tracking-tighter uppercase mb-10 md:mb-12" style={{ fontFamily: '"Space Grotesk", system-ui, sans-serif' }}>
               {heroTitle}
@@ -275,7 +275,7 @@ const Index = () => {
               {language === 'uz' ? <>The <span className="text-[#4f46e5]">Grit</span> Dispatch</> : language === 'ru' ? <>The <span className="text-[#4f46e5]">Grit</span> Dispatch</> : <>The <span className="text-[#4f46e5]">Grit</span> Dispatch</>}
             </h2>
             <p className="text-lg md:text-xl text-zinc-400">
-              {language === 'uz' ? 'Bir email, bir g\'oya, bitta ishlatsa bo\'ladigan xulosa. Real kampaniyalardan olingan raqamlar va chidamlilik mental modellari — har yakshanba kechqurun, pochta qutingizda.' : language === 'ru' ? 'Одно письмо, одна идея, один применимый вывод. Цифры из живых кампаний и ментальные модели выносливости — каждое воскресенье вечером в вашем ящике.' : 'One email, one idea, one takeaway you can use on Monday. Numbers from live campaigns and endurance mental models — every Sunday evening, in your inbox.'}
+              {language === 'uz' ? 'Bir email, bir g\'oya, bitta ishlatsa bo\'ladigan xulosa. Real kampaniyalardan olingan raqamlar va marketing playbook\'lari — har yakshanba kechqurun, pochta qutingizda.' : language === 'ru' ? 'Одно письмо, одна идея, один применимый вывод. Цифры из живых кампаний и рабочие маркетинг-плейбуки — каждое воскресенье вечером в вашем ящике.' : 'One email, one idea, one takeaway you can use on Monday. Numbers from live campaigns and marketing playbooks that ship — every Sunday evening, in your inbox.'}
             </p>
           </div>
           <form onSubmit={handleSubscribe} className="lg:col-span-6 w-full">
