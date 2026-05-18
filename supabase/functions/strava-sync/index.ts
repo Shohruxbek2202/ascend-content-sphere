@@ -7,28 +7,47 @@ const corsHeaders = {
 
 const STRAVA_API = "https://www.strava.com/api/v3";
 
-async function getAccessToken(): Promise<string> {
+async function getAccessToken(supabase: any): Promise<string> {
   const clientId = Deno.env.get("STRAVA_CLIENT_ID")?.trim();
   const clientSecret = Deno.env.get("STRAVA_CLIENT_SECRET")?.trim();
-  const refreshToken = Deno.env.get("STRAVA_REFRESH_TOKEN")?.trim();
-  console.log("DEBUG lengths -> clientId:", clientId?.length, "clientSecret:", clientSecret?.length, "refreshToken:", refreshToken?.length, "first6:", refreshToken?.slice(0,6), "last6:", refreshToken?.slice(-6));
-  if (!clientId || !clientSecret || !refreshToken) {
-    throw new Error("Missing Strava credentials");
+  if (!clientId || !clientSecret) throw new Error("Missing Strava client credentials");
+
+  // Read latest auth from DB
+  const { data: auth, error } = await supabase
+    .from("strava_auth")
+    .select("refresh_token, access_token, access_token_expires_at")
+    .eq("id", 1)
+    .maybeSingle();
+  if (error || !auth) throw new Error("No Strava auth row in DB");
+
+  // Reuse access_token if still valid (with 5 min buffer)
+  const expMs = auth.access_token_expires_at ? new Date(auth.access_token_expires_at).getTime() : 0;
+  if (auth.access_token && expMs - Date.now() > 5 * 60_000) {
+    return auth.access_token;
   }
 
+  // Refresh
   const res = await fetch("https://www.strava.com/oauth/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       client_id: clientId,
       client_secret: clientSecret,
-      refresh_token: refreshToken,
+      refresh_token: auth.refresh_token.trim(),
       grant_type: "refresh_token",
     }),
   });
   if (!res.ok) throw new Error(`Strava token refresh failed: ${res.status} ${await res.text()}`);
   const data = await res.json();
-  console.log("Token refresh OK, scope:", data.scope, "expires_at:", data.expires_at);
+
+  // Strava rotates refresh tokens — save the new one
+  await supabase.from("strava_auth").update({
+    refresh_token: data.refresh_token,
+    access_token: data.access_token,
+    access_token_expires_at: new Date(data.expires_at * 1000).toISOString(),
+    updated_at: new Date().toISOString(),
+  }).eq("id", 1);
+
   return data.access_token as string;
 }
 
@@ -36,34 +55,28 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const token = await getAccessToken();
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // 1. Athlete info
-    const athleteRes = await fetch(`${STRAVA_API}/athlete`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const token = await getAccessToken(supabase);
+
+    // 1. Athlete
+    const athleteRes = await fetch(`${STRAVA_API}/athlete`, { headers: { Authorization: `Bearer ${token}` } });
     if (!athleteRes.ok) throw new Error(`Athlete fetch failed: ${athleteRes.status}`);
     const athlete = await athleteRes.json();
 
-    // 2. Athlete stats
-    const statsRes = await fetch(`${STRAVA_API}/athletes/${athlete.id}/stats`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    // 2. Stats
+    const statsRes = await fetch(`${STRAVA_API}/athletes/${athlete.id}/stats`, { headers: { Authorization: `Bearer ${token}` } });
     if (!statsRes.ok) throw new Error(`Stats fetch failed: ${statsRes.status}`);
     const stats = await statsRes.json();
 
-    // 3. Recent activities (last 30, paginated could be added)
-    const actsRes = await fetch(`${STRAVA_API}/athlete/activities?per_page=30&page=1`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    // 3. Recent activities
+    const actsRes = await fetch(`${STRAVA_API}/athlete/activities?per_page=100&page=1`, { headers: { Authorization: `Bearer ${token}` } });
     if (!actsRes.ok) throw new Error(`Activities fetch failed: ${actsRes.status}`);
     const activities = await actsRes.json();
 
-    // Upsert summary
     await supabase.from("strava_summary").upsert({
       athlete_id: athlete.id,
       firstname: athlete.firstname,
@@ -90,28 +103,16 @@ Deno.serve(async (req) => {
       last_synced_at: new Date().toISOString(),
     }, { onConflict: "athlete_id" });
 
-    // Upsert activities
     if (Array.isArray(activities) && activities.length > 0) {
       const rows = activities.map((a: any) => ({
-        id: a.id,
-        name: a.name,
-        type: a.type,
-        sport_type: a.sport_type,
-        distance: a.distance,
-        moving_time: a.moving_time,
-        elapsed_time: a.elapsed_time,
+        id: a.id, name: a.name, type: a.type, sport_type: a.sport_type,
+        distance: a.distance, moving_time: a.moving_time, elapsed_time: a.elapsed_time,
         total_elevation_gain: a.total_elevation_gain,
-        average_speed: a.average_speed,
-        max_speed: a.max_speed,
-        average_heartrate: a.average_heartrate,
-        max_heartrate: a.max_heartrate,
-        start_date: a.start_date,
-        start_date_local: a.start_date_local,
-        timezone: a.timezone,
-        location_city: a.location_city,
-        location_country: a.location_country,
-        kudos_count: a.kudos_count ?? 0,
-        achievement_count: a.achievement_count ?? 0,
+        average_speed: a.average_speed, max_speed: a.max_speed,
+        average_heartrate: a.average_heartrate, max_heartrate: a.max_heartrate,
+        start_date: a.start_date, start_date_local: a.start_date_local, timezone: a.timezone,
+        location_city: a.location_city, location_country: a.location_country,
+        kudos_count: a.kudos_count ?? 0, achievement_count: a.achievement_count ?? 0,
       }));
       await supabase.from("strava_activities").upsert(rows, { onConflict: "id" });
     }
