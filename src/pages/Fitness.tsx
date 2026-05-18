@@ -73,11 +73,6 @@ const Fitness = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Helmet>
-        <title>Fitness & Strava — Shohrux Foziljonov</title>
-        <meta name="description" content="Shohrux Foziljonovning yugurish, yurish va sport faolligi statistikasi (Strava bilan jonli sinxron)." />
-        <link rel="canonical" href="https://shohruxdigital.uz/fitness" />
-      </Helmet>
       <Header />
       <main className="container max-w-6xl mx-auto px-4 py-12">
         <div className="mb-10 text-center">
