@@ -11,6 +11,7 @@ async function getAccessToken(): Promise<string> {
   const clientId = Deno.env.get("STRAVA_CLIENT_ID")?.trim();
   const clientSecret = Deno.env.get("STRAVA_CLIENT_SECRET")?.trim();
   const refreshToken = Deno.env.get("STRAVA_REFRESH_TOKEN")?.trim();
+  console.log("DEBUG lengths -> clientId:", clientId?.length, "clientSecret:", clientSecret?.length, "refreshToken:", refreshToken?.length, "first6:", refreshToken?.slice(0,6), "last6:", refreshToken?.slice(-6));
   if (!clientId || !clientSecret || !refreshToken) {
     throw new Error("Missing Strava credentials");
   }
