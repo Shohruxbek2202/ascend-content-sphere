@@ -15,6 +15,7 @@ import SEOHead from '@/components/SEOHead';
 import BreadcrumbJsonLd from '@/components/BreadcrumbJsonLd';
 import { useLocalized } from '@/hooks/useLocalized';
 import type { Post } from '@/types/post';
+import { PublicPageHero } from '@/components/PublicPageHero';
 
 interface Category {
   id: string;
