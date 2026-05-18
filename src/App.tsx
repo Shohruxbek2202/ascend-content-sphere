@@ -23,6 +23,7 @@ const Subscribe = lazy(() => import("./pages/Subscribe"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const CaseStudies = lazy(() => import("./pages/CaseStudies"));
 const FAQ = lazy(() => import("./pages/FAQ"));
+const Fitness = lazy(() => import("./pages/Fitness"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Lazy load analytics - not needed for initial render
