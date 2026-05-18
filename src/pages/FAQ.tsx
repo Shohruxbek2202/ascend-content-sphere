@@ -4,11 +4,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { PublicPageHero } from '@/components/PublicPageHero';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Badge } from '@/components/ui/badge';
-import { HelpCircle } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import BreadcrumbJsonLd from '@/components/BreadcrumbJsonLd';
+
+const editorial = { fontFamily: '"Space Grotesk", system-ui, sans-serif' };
 
 const SERVICE_LABELS: Record<string, { uz: string; ru: string; en: string }> = {
   general: { uz: 'Umumiy', ru: 'Общие', en: 'General' },
@@ -28,23 +29,17 @@ const FAQ = () => {
     queryKey: ['public-faqs'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('faqs')
-        .select('*')
-        .eq('published', true)
-        .order('service_category')
-        .order('sort_order');
+        .from('faqs').select('*').eq('published', true)
+        .order('service_category').order('sort_order');
       if (error) throw error;
       return data;
     },
   });
 
-  const t = (uz: string, ru: string, en: string) =>
-    language === 'uz' ? uz : language === 'ru' ? ru : en;
-
+  const t = (uz: string, ru: string, en: string) => (language === 'uz' ? uz : language === 'ru' ? ru : en);
   const getField = (item: any, field: string) =>
     item[`${field}_${language}`] || item[`${field}_en`] || item[`${field}_uz`];
 
-  // Group FAQs by category
   const grouped = faqs?.reduce((acc: Record<string, any[]>, faq) => {
     const cat = faq.service_category || 'general';
     if (!acc[cat]) acc[cat] = [];
@@ -52,29 +47,20 @@ const FAQ = () => {
     return acc;
   }, {}) || {};
 
-  // FAQPage JSON-LD schema — inject into head via useEffect
   useEffect(() => {
     if (!faqs || faqs.length === 0) return;
-    
     const faqSchema = {
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
+      '@context': 'https://schema.org', '@type': 'FAQPage',
       mainEntity: faqs.map(faq => ({
-        '@type': 'Question',
-        name: getField(faq, 'question'),
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: getField(faq, 'answer'),
-        },
+        '@type': 'Question', name: getField(faq, 'question'),
+        acceptedAnswer: { '@type': 'Answer', text: getField(faq, 'answer') },
       })),
     };
-
     const script = document.createElement('script');
     script.type = 'application/ld+json';
     script.setAttribute('data-type', 'faq-page');
     script.textContent = JSON.stringify(faqSchema);
     document.head.appendChild(script);
-
     return () => {
       const el = document.querySelector('script[data-type="faq-page"]');
       if (el) el.remove();
@@ -82,75 +68,94 @@ const FAQ = () => {
   }, [faqs, language]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div
+      className="min-h-screen bg-[hsl(var(--ink))] text-[hsl(var(--paper))] selection:bg-[#4f46e5] selection:text-white"
+      style={{ fontFamily: '"DM Sans", system-ui, sans-serif' }}
+    >
       <SEOHead
-        title={t('Ko\'p beriladigan savollar — FAQ', 'Часто задаваемые вопросы — FAQ', 'Frequently Asked Questions — FAQ')}
+        title={t('Savollar — FAQ', 'Вопросы — FAQ', 'Questions — FAQ')}
         description={t(
-          'Digital marketing xizmatlari haqida ko\'p beriladigan savollar va javoblar',
-          'Часто задаваемые вопросы и ответы о услугах цифрового маркетинга',
-          'Frequently asked questions and answers about digital marketing services'
+          'Tez-tez beriladigan savollarga aniq, qisqa javoblar — strategiya, narx, vaqt va hamkorlik.',
+          'Прямые ответы на частые вопросы — стратегия, бюджеты, сроки и сотрудничество.',
+          'Direct answers to frequent questions — strategy, pricing, timelines and partnerships.'
         )}
         url="https://shohruxdigital.uz/faq"
       />
-      <BreadcrumbJsonLd items={[{ name: t('FAQ', 'FAQ', 'FAQ'), url: '/faq' }]} />
+      <BreadcrumbJsonLd items={[{ name: 'FAQ', url: '/faq' }]} />
       <Header />
-      <main className="container mx-auto px-4 py-12">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-12 pt-16">
-            <h1 className="text-4xl font-bold mb-4 flex items-center justify-center gap-3">
-              <HelpCircle className="w-8 h-8 text-primary" />
-              {t('Ko\'p beriladigan savollar', 'Часто задаваемые вопросы', 'Frequently Asked Questions')}
-            </h1>
-            <p className="text-lg text-muted-foreground">
-              {t(
-                'Xizmatlarimiz haqida eng ko\'p beriladigan savollar',
-                'Самые популярные вопросы о наших услугах',
-                'Most popular questions about our services'
-              )}
-            </p>
-          </div>
 
+      <main className="max-w-screen-2xl mx-auto">
+        <PublicPageHero
+          eyebrow={t('Savol-javob jurnali', 'Раздел вопросов', 'Q&A Index')}
+          title={
+            <>
+              {t('Savollar', 'Вопросы', 'Questions')} <br />
+              <span className="italic font-light text-zinc-500">&amp; {t('Javoblar', 'Ответы', 'Answers')}</span>
+            </>
+          }
+          meta={`${faqs?.length || 0} ${t('yozuv', 'записей', 'entries')}`}
+          lede={t(
+            'Pochtaga eng ko\'p tushadigan savollar — yig\'ib, qisqartirib, javob bilan birga.',
+            'Самые частые вопросы из почты — собраны, сжаты и снабжены ответами.',
+            'The most frequent inbox questions — collected, compressed, answered.'
+          )}
+        />
+
+        <section className="px-6 md:px-8 py-16 md:py-20">
           {isLoading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto" />
+            <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">
+              <span className="w-2 h-2 bg-[#4f46e5] animate-pulse" />
+              {t('Yuklanmoqda', 'Загрузка', 'Loading')}
             </div>
+          ) : !faqs || faqs.length === 0 ? (
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">
+              {t('Hozircha savol yo\'q', 'Пока нет вопросов', 'No questions yet')}
+            </p>
           ) : (
-            <div className="space-y-8">
-              {Object.entries(grouped).map(([category, items]) => (
+            <div className="space-y-16 md:space-y-20">
+              {Object.entries(grouped).map(([category, items], catIdx) => (
                 <section key={category}>
-                  <div className="flex items-center gap-2 mb-4">
-                    <Badge variant="secondary" className="text-sm px-3 py-1">
-                      {SERVICE_LABELS[category]?.[language] || category}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">({items.length})</span>
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mb-8">
+                    <div className="lg:col-span-3">
+                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 mb-2">
+                        §&nbsp;{String(catIdx + 1).padStart(2, '0')}
+                      </p>
+                      <h2 className="text-2xl md:text-4xl font-bold uppercase tracking-tighter leading-tight" style={editorial}>
+                        {SERVICE_LABELS[category]?.[language] || category}
+                      </h2>
+                      <p className="mt-3 text-[10px] font-black uppercase tracking-[0.3em] text-[#4f46e5]">
+                        {String(items.length).padStart(2, '0')} {t('savol', 'вопросов', 'questions')}
+                      </p>
+                    </div>
+                    <div className="lg:col-span-9">
+                      <Accordion type="multiple" className="border-t border-[hsl(var(--rule))]">
+                        {items.map((faq: any, idx: number) => (
+                          <AccordionItem key={faq.id} value={faq.id} className="border-b border-[hsl(var(--rule))] last:border-b">
+                            <AccordionTrigger className="text-left hover:no-underline py-6 group">
+                              <div className="flex items-start gap-6 pr-4">
+                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 mt-1.5 shrink-0">
+                                  Q.{String(idx + 1).padStart(2, '0')}
+                                </span>
+                                <span className="text-lg md:text-2xl font-bold uppercase tracking-tight leading-tight text-[hsl(var(--paper))] group-hover:text-[#4f46e5] transition-colors" style={editorial}>
+                                  {getField(faq, 'question')}
+                                </span>
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="pb-8 text-base md:text-lg text-zinc-400 leading-relaxed pl-[5.5rem] max-w-3xl">
+                              {getField(faq, 'answer')}
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    </div>
                   </div>
-                  <Accordion type="multiple" className="space-y-2">
-                    {items.map((faq: any) => (
-                      <AccordionItem
-                        key={faq.id}
-                        value={faq.id}
-                        className="border rounded-lg px-4 bg-card"
-                      >
-                        <AccordionTrigger className="text-left font-medium hover:no-underline">
-                          {getField(faq, 'question')}
-                        </AccordionTrigger>
-                        <AccordionContent className="text-muted-foreground leading-relaxed">
-                          {getField(faq, 'answer')}
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
                 </section>
               ))}
-              {(!faqs || faqs.length === 0) && (
-                <div className="text-center py-16 text-muted-foreground">
-                  {t('Tez orada savollar qo\'shiladi', 'Скоро будут добавлены вопросы', 'Questions coming soon')}
-                </div>
-              )}
             </div>
           )}
-        </div>
+        </section>
       </main>
+
       <Footer />
     </div>
   );
