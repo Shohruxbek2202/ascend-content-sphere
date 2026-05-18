@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { PublicPageHero } from '@/components/PublicPageHero';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Bell, CheckCircle, Mail, Sparkles, Gift, Zap } from 'lucide-react';
+import { CheckCircle, ArrowUpRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import SEOHead from '@/components/SEOHead';
 import BreadcrumbJsonLd from '@/components/BreadcrumbJsonLd';
+
+const editorial = { fontFamily: '"Space Grotesk", system-ui, sans-serif' };
 
 const Subscribe = () => {
   const { language } = useLanguage();
@@ -16,173 +17,121 @@ const Subscribe = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
 
-  const content = {
-    uz: {
-      title: 'Yangiliklardan xabardor bo\'ling',
-      subtitle: 'Har hafta eng sara maqolalar va foydali maslahatlar to\'g\'ridan-to\'g\'ri emailingizga!',
-      benefits: [
-        { icon: Sparkles, text: 'Yangi maqolalar haqida birinchi bo\'lib bilib oling' },
-        { icon: Gift, text: 'Faqat obunachilarga maxsus materiallar' },
-        { icon: Zap, text: 'Har hafta eng yaxshi 5ta maqola tavsiyasi' },
-      ],
-      placeholder: 'Email manzilingiz',
-      button: 'Obuna bo\'lish',
-      loading: 'Yuklanmoqda...',
-      success: 'Tabriklaymiz!',
-      successSubtitle: 'Siz muvaffaqiyatli obuna bo\'ldingiz. Tez orada yangiliklar emailingizga keladi.',
-      error: 'Xatolik yuz berdi. Qaytadan urinib ko\'ring.',
-      note: 'Istalgan vaqtda obunani bekor qilish mumkin'
-    },
-    ru: {
-      title: 'Будьте в курсе новостей',
-      subtitle: 'Лучшие статьи и полезные советы каждую неделю прямо на ваш email!',
-      benefits: [
-        { icon: Sparkles, text: 'Узнавайте о новых статьях первыми' },
-        { icon: Gift, text: 'Эксклюзивные материалы только для подписчиков' },
-        { icon: Zap, text: 'Топ-5 статей каждую неделю' },
-      ],
-      placeholder: 'Ваш email',
-      button: 'Подписаться',
-      loading: 'Загрузка...',
-      success: 'Поздравляем!',
-      successSubtitle: 'Вы успешно подписались. Скоро новости придут на ваш email.',
-      error: 'Произошла ошибка. Попробуйте снова.',
-      note: 'Отписаться можно в любой момент'
-    },
-    en: {
-      title: 'Stay Updated',
-      subtitle: 'Get the best articles and useful tips delivered to your inbox every week!',
-      benefits: [
-        { icon: Sparkles, text: 'Be the first to know about new articles' },
-        { icon: Gift, text: 'Exclusive content for subscribers only' },
-        { icon: Zap, text: 'Top 5 articles every week' },
-      ],
-      placeholder: 'Your email address',
-      button: 'Subscribe',
-      loading: 'Loading...',
-      success: 'Congratulations!',
-      successSubtitle: 'You have successfully subscribed. News will arrive in your email soon.',
-      error: 'An error occurred. Please try again.',
-      note: 'Unsubscribe anytime'
-    }
-  };
-
-  const t = content[language];
+  const t = (uz: string, ru: string, en: string) => (language === 'uz' ? uz : language === 'ru' ? ru : en);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
-      const { error } = await supabase
-        .from('subscribers')
-        .insert({ email, language });
-
+      const { error } = await supabase.from('subscribers').insert({ email, language });
       if (error) {
         if (error.code === '23505') {
-          toast.error('Bu email allaqachon ro\'yxatdan o\'tgan');
+          toast.error(t('Bu email allaqachon obuna', 'Этот email уже подписан', 'This email is already subscribed'));
         } else {
-          toast.error(t.error);
+          toast.error(t('Xatolik yuz berdi', 'Произошла ошибка', 'An error occurred'));
         }
       } else {
         setIsSubscribed(true);
-        toast.success(t.success);
       }
     } catch {
-      toast.error(t.error);
+      toast.error(t('Xatolik yuz berdi', 'Произошла ошибка', 'An error occurred'));
     } finally {
       setIsLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-background">
-      <SEOHead
-        title={language === 'uz' ? 'Obuna bo\'lish | ShohruxDigital' : language === 'ru' ? 'Подписка | ShohruxDigital' : 'Subscribe | ShohruxDigital'}
-        description={language === 'uz' ? 'ShohruxDigital yangiliklariga obuna bo\'ling — har hafta eng yaxshi maqolalar emailingizga' : language === 'ru' ? 'Подпишитесь на ShohruxDigital — лучшие статьи каждую неделю на ваш email' : 'Subscribe to ShohruxDigital — best articles delivered weekly to your inbox'}
-        url={typeof window !== 'undefined' ? window.location.href : ''}
-        type="website"
-      />
-      <BreadcrumbJsonLd items={[{ name: language === 'uz' ? 'Obuna' : language === 'ru' ? 'Подписка' : 'Subscribe', url: '/subscribe' }]} />
-      <Header />
-      
-      <main className="relative pt-20 pb-12">
-        {/* Liquid Glass Background */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-1/4 w-[400px] h-[400px] rounded-full bg-gradient-to-br from-secondary/20 via-secondary/5 to-transparent blur-3xl animate-pulse" />
-          <div className="absolute bottom-20 right-1/4 w-[300px] h-[300px] rounded-full bg-gradient-to-bl from-primary/10 via-secondary/5 to-transparent blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        </div>
+  const benefits = [
+    t('Yangi yozuvlar — birinchi qo\'lda', 'Новые записи — из первых рук', 'New entries — first hand'),
+    t('Faqat obunachilar uchun maydon yozuvlari', 'Полевые заметки только для подписчиков', 'Field notes for subscribers only'),
+    t('Hafta yakuni — 5 ta tanlangan o\'qish', 'Итоги недели — 5 избранных материалов', 'Weekly digest — 5 curated reads'),
+  ];
 
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-xl mx-auto">
+  return (
+    <div className="min-h-screen bg-[hsl(var(--ink))] text-[hsl(var(--paper))] selection:bg-[#4f46e5] selection:text-white" style={{ fontFamily: '"DM Sans", system-ui, sans-serif' }}>
+      <SEOHead
+        title={t('Obuna | The Grit Dispatch', 'Подписка | The Grit Dispatch', 'Subscribe | The Grit Dispatch')}
+        description={t('Haftalik dispatch — marketing, ma\'lumotlar va chidamlilik haqida.', 'Еженедельный дайджест — маркетинг, данные и выносливость.', 'Weekly dispatch — marketing, data, endurance.')}
+        url={typeof window !== 'undefined' ? window.location.href : ''}
+      />
+      <BreadcrumbJsonLd items={[{ name: t('Obuna', 'Подписка', 'Subscribe'), url: '/subscribe' }]} />
+      <Header />
+
+      <main className="max-w-screen-2xl mx-auto">
+        <PublicPageHero
+          eyebrow={t('Haftalik dispatch', 'Еженедельный выпуск', 'Weekly Dispatch')}
+          title={<>The <span className="text-[#4f46e5]">Grit</span> <br /> Dispatch</>}
+          meta={t('Har yakshanba', 'Каждое воскресенье', 'Every Sunday')}
+          lede={t('Ortiqcha gap yo\'q. Faqat xom ma\'lumot, mental modellar va o\'sha hafta nima ishlagani.', 'Без воды. Только сырые данные, ментальные модели и что сработало за неделю.', 'No fluff. Just raw data, mental models, and what shipped this week.')}
+        />
+
+        <section className="px-6 md:px-8 py-16 md:py-20 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+          <div className="lg:col-span-5">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#4f46e5] mb-6">
+              {t('Obuna nima beradi', 'Что вы получите', 'What you get')}
+            </p>
+            <ul className="space-y-6 border-t border-[hsl(var(--rule))] pt-8">
+              {benefits.map((b, i) => (
+                <li key={i} className="flex items-start gap-5 pb-6 border-b border-[hsl(var(--rule))] last:border-b-0">
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 mt-1.5 shrink-0">
+                    №{String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span className="text-xl md:text-2xl font-bold uppercase tracking-tight leading-tight" style={editorial}>
+                    {b}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="lg:col-span-7">
             {isSubscribed ? (
-              /* Success State - Liquid Glass */
-              <div className="rounded-2xl bg-white/10 dark:bg-white/5 backdrop-blur-xl border border-green-500/30 shadow-xl p-8 md:p-12 text-center">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-green-500/30 to-green-500/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-6">
-                  <CheckCircle className="w-10 h-10 text-green-500" />
-                </div>
-                <h1 className="font-display text-3xl font-bold mb-3">{t.success}</h1>
-                <p className="text-muted-foreground text-lg">{t.successSubtitle}</p>
+              <div className="border border-[hsl(var(--rule))] p-10 md:p-14 text-center">
+                <CheckCircle className="w-12 h-12 text-[#4f46e5] mx-auto mb-6" strokeWidth={1.5} />
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#4f46e5] mb-4">
+                  {t('Tasdiqlandi', 'Подтверждено', 'Confirmed')}
+                </p>
+                <h2 className="text-3xl md:text-5xl font-bold uppercase tracking-tighter leading-tight mb-6" style={editorial}>
+                  {t('Birinchi son — yakshanbada', 'Первый выпуск — в воскресенье', 'First issue — Sunday')}
+                </h2>
+                <p className="text-zinc-400 text-lg">
+                  {t('Pochtangizni tasdiqlash xati uchun tekshirib turing.', 'Проверьте почту — придёт письмо подтверждения.', 'Check your inbox for the confirmation letter.')}
+                </p>
               </div>
             ) : (
-              <>
-                {/* Header */}
-                <div className="text-center mb-8">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-secondary/30 to-secondary/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-5 shadow-lg shadow-secondary/20">
-                    <Bell className="w-8 h-8 text-secondary" />
-                  </div>
-                  <h1 className="font-display text-3xl md:text-4xl font-bold mb-3">{t.title}</h1>
-                  <p className="text-muted-foreground text-lg max-w-md mx-auto">{t.subtitle}</p>
+              <form onSubmit={handleSubmit} className="border border-[hsl(var(--rule))] p-8 md:p-12">
+                <div className="flex items-baseline justify-between mb-10 pb-6 border-b border-[hsl(var(--rule))]">
+                  <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-tight" style={editorial}>
+                    {t('Ro\'yxatdan o\'tish', 'Регистрация', 'Sign-up')}
+                  </h2>
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">Form / 02</span>
                 </div>
 
-                {/* Main Card - Liquid Glass */}
-                <div className="rounded-2xl bg-white/10 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-xl p-6 md:p-8">
-                  {/* Benefits */}
-                  <div className="space-y-4 mb-8">
-                    {t.benefits.map((benefit, index) => (
-                      <div 
-                        key={index} 
-                        className="flex items-center gap-4 p-3 rounded-xl bg-white/5 dark:bg-white/[0.02] border border-white/10"
-                      >
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-secondary/20 to-secondary/5 flex items-center justify-center flex-shrink-0">
-                          <benefit.icon className="w-5 h-5 text-secondary" />
-                        </div>
-                        <span className="text-foreground/90">{benefit.text}</span>
-                      </div>
-                    ))}
-                  </div>
+                <label htmlFor="email" className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 block mb-3">
+                  {t('Email manzili', 'Email', 'Email address')}
+                </label>
+                <input
+                  id="email" type="email" required
+                  value={email} onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  className="w-full bg-transparent border-b border-[hsl(var(--rule))] focus:border-[#4f46e5] py-4 text-xl md:text-2xl text-[hsl(var(--paper))] focus:outline-none placeholder:text-zinc-700 transition-colors"
+                />
 
-                  {/* Form */}
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                      <Input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder={t.placeholder}
-                        className="pl-12 h-12 rounded-xl bg-white/10 dark:bg-white/5 border-white/20 dark:border-white/10 backdrop-blur-sm focus:border-secondary/50"
-                        required
-                      />
-                    </div>
-                    <Button 
-                      type="submit" 
-                      disabled={isLoading}
-                      className="w-full h-12 rounded-xl bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold shadow-lg shadow-secondary/20 transition-all duration-300 hover:shadow-xl hover:shadow-secondary/30"
-                    >
-                      {isLoading ? t.loading : t.button}
-                    </Button>
-                  </form>
-
-                  {/* Note */}
-                  <p className="text-center text-sm text-muted-foreground mt-4">{t.note}</p>
+                <div className="mt-10 pt-6 border-t border-[hsl(var(--rule))] flex items-center justify-between gap-4">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 max-w-[14rem]">
+                    {t('Spam yo\'q. Istalgan vaqt bekor qilish.', 'Без спама. Отписка в любой момент.', 'Zero spam. Opt-out anytime.')}
+                  </p>
+                  <button type="submit" disabled={isLoading}
+                    className="inline-flex items-center gap-2 px-6 py-4 border border-[#4f46e5] text-[#4f46e5] text-[10px] font-black uppercase tracking-[0.3em] hover:bg-[#4f46e5] hover:text-white transition-all disabled:opacity-50">
+                    {isLoading ? t('Yuborilmoqda', 'Отправка', 'Sending') : t('Obuna', 'Подписаться', 'Subscribe')}
+                    <ArrowUpRight className="w-3 h-3" />
+                  </button>
                 </div>
-              </>
+              </form>
             )}
           </div>
-        </div>
+        </section>
       </main>
-      
+
       <Footer />
     </div>
   );
