@@ -65,6 +65,14 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 0 0% 8%;
     --sidebar-border: 0 0% 92%;
     --sidebar-ring: 0 0% 8%;
+
+    /* Midnight Journal palette - light mode (editorial paper) */
+    --ink: 40 30% 97%;
+    --ink-2: 40 15% 92%;
+    --rule: 240 15% 85%;
+    --paper: 240 47% 7%;
+    --paper-muted: 240 10% 35%;
+    --indigo: 243 75% 59%;
   }
 
   .dark {
