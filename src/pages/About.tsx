@@ -8,6 +8,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import SEOHead from '@/components/SEOHead';
 import BreadcrumbJsonLd from '@/components/BreadcrumbJsonLd';
+import authorPortrait from '@/assets/author-shohruxbek.png';
 
 const editorial = { fontFamily: '"Space Grotesk", system-ui, sans-serif' };
 
@@ -50,10 +51,10 @@ const About = () => {
     return s[language] || s.uz || '';
   };
 
-  const authorName = getSetting('author_name') || 'Shohruxbek Fayzullayev';
+  const authorName = getSetting('author_name') || 'Shohruxbek Foziljonov';
   const authorRole = getSetting('author_role') || 'Digital Marketing Strategist';
   const authorBio = getSetting('author_bio') || '';
-  const authorAvatar = getSetting('author_avatar_url') || '';
+  const authorAvatar = getSetting('author_avatar_url') || authorPortrait;
   const missionTitle = getSetting('mission_title');
   const missionDesc = getSetting('mission_description');
 
