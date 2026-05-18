@@ -115,14 +115,14 @@ const Index = () => {
     : <>Digital <br/> Marketing <span className="text-zinc-700 italic font-light">&</span> <br/> Performance</>;
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a] text-white selection:bg-[#4f46e5] selection:text-white" style={{ fontFamily: '"DM Sans", system-ui, sans-serif' }}>
+    <div className="min-h-screen bg-[hsl(var(--ink))] text-[hsl(var(--paper))] selection:bg-[#4f46e5] selection:text-white" style={{ fontFamily: '"DM Sans", system-ui, sans-serif' }}>
       <SEOHead title={seoTitle} description={seoDescription} keywords={[]} url={siteUrl} type="website" image={`${siteUrl}/og-image.png`} siteName="ShohruxDigital" />
       <HomeStructuredData siteName="ShohruxDigital" siteUrl={siteUrl} description={seoDescription} socialLinks={socialLinks} />
       <Header />
 
       <main className="max-w-screen-2xl mx-auto">
         {/* HERO */}
-        <section className="px-6 md:px-8 pt-16 md:pt-24 pb-12 md:pb-16 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 border-b border-[#1e1e5a]">
+        <section className="px-6 md:px-8 pt-16 md:pt-24 pb-12 md:pb-16 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 border-b border-[hsl(var(--rule))]">
           <div className="lg:col-span-9">
             <p className="text-[#4f46e5] font-bold uppercase tracking-[0.4em] mb-6 text-[10px]">
               {language === 'uz' ? 'Strateg va chidamlilik atleti' : language === 'ru' ? 'Стратег и атлет на выносливость' : 'Strategist & Endurance Athlete'}
@@ -135,7 +135,7 @@ const Index = () => {
             </p>
           </div>
           <div className="lg:col-span-3 flex flex-col justify-end">
-            <Link to="/fitness" className="block border-t border-[#1e1e5a] pt-8 group">
+            <Link to="/fitness" className="block border-t border-[hsl(var(--rule))] pt-8 group">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-10 h-10 rounded-full border border-orange-500/50 flex items-center justify-center">
                   <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
@@ -153,8 +153,8 @@ const Index = () => {
                   </p>
                 </div>
                 {lastActivity && (
-                  <div className="pt-4 border-t border-[#1e1e5a]">
-                    <p className="text-base font-medium text-white">{lastActivity.name}</p>
+                  <div className="pt-4 border-t border-[hsl(var(--rule))]">
+                    <p className="text-base font-medium text-[hsl(var(--paper))]">{lastActivity.name}</p>
                     <p className="text-[10px] uppercase tracking-widest text-zinc-500 mt-1">
                       {fmtKm(lastActivity.distance)} km • {fmtPace(lastActivity.distance, lastActivity.moving_time)}
                     </p>
@@ -173,8 +173,8 @@ const Index = () => {
 
         {/* MAGAZINE GRID */}
         {featured && (
-          <section className="grid grid-cols-1 lg:grid-cols-12 gap-px bg-[#1e1e5a]">
-            <Link to={`/blog/${featured.slug}`} className="lg:col-span-8 bg-[#0a0a1a] group cursor-pointer relative block">
+          <section className="grid grid-cols-1 lg:grid-cols-12 gap-px bg-[hsl(var(--rule))]">
+            <Link to={`/blog/${featured.slug}`} className="lg:col-span-8 bg-[hsl(var(--ink))] group cursor-pointer relative block">
               <div className="relative overflow-hidden aspect-[16/10]">
                 <img
                   src={featured.featured_image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1600'}
@@ -183,7 +183,7 @@ const Index = () => {
                   fetchPriority="high"
                   className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 scale-105 group-hover:scale-100"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a] via-[#0a0a1a]/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[hsl(var(--ink))] via-[hsl(var(--ink))]/40 to-transparent" />
               </div>
               <div className="p-6 md:p-10 lg:p-12 absolute bottom-0 left-0 w-full">
                 <span className="inline-block px-3 py-1 bg-[#4f46e5] text-[10px] font-bold uppercase tracking-widest mb-4 md:mb-6">
@@ -201,13 +201,13 @@ const Index = () => {
               </div>
             </Link>
 
-            <div className="lg:col-span-4 grid grid-cols-1 bg-[#1e1e5a] gap-px">
+            <div className="lg:col-span-4 grid grid-cols-1 bg-[hsl(var(--rule))] gap-px">
               {secondary.map((post) => (
-                <Link key={post.id} to={`/blog/${post.slug}`} className="bg-[#0a0a1a] p-8 lg:p-10 hover:bg-[#141432] transition-colors group cursor-pointer block">
+                <Link key={post.id} to={`/blog/${post.slug}`} className="bg-[hsl(var(--ink))] p-8 lg:p-10 hover:bg-[hsl(var(--ink-2))] transition-colors group cursor-pointer block">
                   <p className="text-[#4f46e5] text-[10px] font-black uppercase tracking-[0.2em] mb-3">
                     {post.categories ? getField(post.categories, 'name') : '—'}
                   </p>
-                  <h3 className="text-xl lg:text-2xl font-bold uppercase tracking-tight mb-3 leading-tight group-hover:text-white" style={{ fontFamily: '"Space Grotesk", system-ui, sans-serif' }}>
+                  <h3 className="text-xl lg:text-2xl font-bold uppercase tracking-tight mb-3 leading-tight group-hover:text-[hsl(var(--paper))]" style={{ fontFamily: '"Space Grotesk", system-ui, sans-serif' }}>
                     {getField(post, 'title')}
                   </h3>
                   <p className="text-zinc-500 text-sm leading-relaxed mb-5 line-clamp-2">{getField(post, 'excerpt')}</p>
@@ -222,18 +222,18 @@ const Index = () => {
 
         {/* ARCHIVE STRIP */}
         {rest.length > 0 && (
-          <section className="px-6 md:px-8 py-16 md:py-24 border-t border-[#1e1e5a]">
+          <section className="px-6 md:px-8 py-16 md:py-24 border-t border-[hsl(var(--rule))]">
             <div className="flex items-end justify-between mb-10 md:mb-14">
               <h2 className="text-3xl md:text-5xl font-bold tracking-tighter uppercase" style={{ fontFamily: '"Space Grotesk", system-ui, sans-serif' }}>
                 {language === 'uz' ? 'Arxiv' : language === 'ru' ? 'Архив' : 'The Archive'}
               </h2>
-              <Link to="/blog" className="text-[10px] font-black uppercase tracking-[0.3em] text-[#4f46e5] hover:text-white transition-colors flex items-center gap-2">
+              <Link to="/blog" className="text-[10px] font-black uppercase tracking-[0.3em] text-[#4f46e5] hover:text-[hsl(var(--paper))] transition-colors flex items-center gap-2">
                 {language === 'uz' ? 'Barchasi' : language === 'ru' ? 'Все' : 'View All'} <ArrowUpRight className="w-3 h-3" />
               </Link>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#1e1e5a] border border-[#1e1e5a]">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[hsl(var(--rule))] border border-[hsl(var(--rule))]">
               {rest.map((post, i) => (
-                <Link key={post.id} to={`/blog/${post.slug}`} className="bg-[#0a0a1a] p-8 hover:bg-[#141432] transition-colors group">
+                <Link key={post.id} to={`/blog/${post.slug}`} className="bg-[hsl(var(--ink))] p-8 hover:bg-[hsl(var(--ink-2))] transition-colors group">
                   <p className="text-zinc-600 text-[10px] font-black uppercase tracking-[0.3em] mb-6">
                     №&nbsp;{String(i + 4).padStart(2, '0')}
                   </p>
@@ -251,7 +251,7 @@ const Index = () => {
         )}
 
         {/* FITNESS CTA STRIP */}
-        <section className="px-6 md:px-8 py-12 md:py-16 border-t border-[#1e1e5a] flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <section className="px-6 md:px-8 py-12 md:py-16 border-t border-[hsl(var(--rule))] flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <Activity className="w-6 h-6 text-orange-500" />
             <div>
@@ -269,7 +269,7 @@ const Index = () => {
         </section>
 
         {/* NEWSLETTER */}
-        <section className="px-6 md:px-8 py-20 md:py-32 grid grid-cols-1 lg:grid-cols-12 items-center gap-10 lg:gap-16 border-t border-[#1e1e5a]">
+        <section className="px-6 md:px-8 py-20 md:py-32 grid grid-cols-1 lg:grid-cols-12 items-center gap-10 lg:gap-16 border-t border-[hsl(var(--rule))]">
           <div className="lg:col-span-6">
             <h2 className="text-4xl md:text-5xl font-bold tracking-tighter uppercase mb-4 md:mb-6" style={{ fontFamily: '"Space Grotesk", system-ui, sans-serif' }}>
               {language === 'uz' ? <>The <span className="text-[#4f46e5]">Grit</span> Dispatch</> : language === 'ru' ? <>The <span className="text-[#4f46e5]">Grit</span> Dispatch</> : <>The <span className="text-[#4f46e5]">Grit</span> Dispatch</>}
@@ -279,14 +279,14 @@ const Index = () => {
             </p>
           </div>
           <form onSubmit={handleSubscribe} className="lg:col-span-6 w-full">
-            <div className="flex border-b border-[#1e1e5a] focus-within:border-[#4f46e5] transition-colors">
+            <div className="flex border-b border-[hsl(var(--rule))] focus-within:border-[#4f46e5] transition-colors">
               <input
                 type="email" required
                 value={email} onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
-                className="bg-transparent w-full py-5 md:py-6 text-lg md:text-xl focus:outline-none placeholder:text-zinc-800 text-white"
+                className="bg-transparent w-full py-5 md:py-6 text-lg md:text-xl focus:outline-none placeholder:text-zinc-800 text-[hsl(var(--paper))]"
               />
-              <button type="submit" disabled={submitting} className="px-6 md:px-8 text-[10px] font-black uppercase tracking-[0.3em] text-[#4f46e5] hover:text-white transition-colors disabled:opacity-50">
+              <button type="submit" disabled={submitting} className="px-6 md:px-8 text-[10px] font-black uppercase tracking-[0.3em] text-[#4f46e5] hover:text-[hsl(var(--paper))] transition-colors disabled:opacity-50">
                 {submitting ? '...' : (language === 'uz' ? 'Obuna' : language === 'ru' ? 'Подписаться' : 'Subscribe')}
               </button>
             </div>
