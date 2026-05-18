@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
-import { Activity, MapPin, Timer, TrendingUp, Heart, Zap } from "lucide-react";
+import { MapPin, Heart, ArrowUpRight } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+
+const editorial = { fontFamily: '"Space Grotesk", system-ui, sans-serif' };
 
 interface StravaSummary {
   firstname: string; lastname: string; profile_url: string;
@@ -38,7 +39,7 @@ const Fitness = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.title = "Fitness & Strava — Shohrux Foziljonov";
+    document.title = "Fitness — Shohruxbek Foziljonov";
     const load = async () => {
       const [s, a] = await Promise.all([
         supabase.from("strava_summary").select("*").maybeSingle(),
@@ -51,7 +52,6 @@ const Fitness = () => {
     load();
   }, []);
 
-  // Weekly aggregation for chart (last 12 weeks)
   const weeklyData = (() => {
     const map = new Map<string, number>();
     const now = new Date();
@@ -73,97 +73,116 @@ const Fitness = () => {
   })();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[hsl(var(--ink))] text-[hsl(var(--paper))]">
       <Header />
-      <main className="container max-w-6xl mx-auto px-4 py-12">
-        <div className="mb-10 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-500/10 text-orange-500 text-sm font-medium mb-4">
-            <Activity className="w-4 h-4" /> Strava bilan jonli sinxron
+      <main className="max-w-screen-2xl mx-auto px-6 md:px-8 py-16 md:py-24">
+        {/* Masthead */}
+        <div className="border-b border-[hsl(var(--rule))] pb-10 mb-12">
+          <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.4em] text-[#4f46e5] mb-6">
+            <span className="w-8 h-px bg-[#4f46e5]" />
+            Field Notes / Strava
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-3">Mening fitness yo'lim</h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Marketing — bu marafon. Har kuni o'zimni jismonan ham, miyamni ham trening qilaman.
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter uppercase leading-[0.9] mb-6" style={editorial}>
+            Fitness<br/><span className="text-zinc-600">Ledger</span>
+          </h1>
+          <p className="text-zinc-400 text-lg max-w-2xl leading-relaxed">
+            Shaxsiy mashg'ulot daftari — raqamlar, kilometrlar va tempolar. Strava bilan jonli sinxronlanadi.
           </p>
         </div>
 
         {loading ? (
-          <div className="text-center py-20 text-muted-foreground">Yuklanmoqda...</div>
+          <div className="text-center py-32 text-zinc-500 text-[10px] uppercase tracking-[0.4em]">Yuklanmoqda…</div>
         ) : !summary ? (
-          <div className="text-center py-20 text-muted-foreground">Ma'lumot topilmadi</div>
+          <div className="text-center py-32 text-zinc-500 text-[10px] uppercase tracking-[0.4em]">Ma'lumot topilmadi</div>
         ) : (
           <>
-            {/* Athlete card */}
-            <Card className="p-6 mb-8 flex items-center gap-5 bg-gradient-to-br from-orange-500/5 to-transparent border-orange-500/20">
+            {/* Athlete bar */}
+            <div className="border-y border-[hsl(var(--rule))] py-6 mb-12 flex flex-wrap items-center gap-6">
               {summary.profile_url && (
-                <img src={summary.profile_url} alt={summary.firstname} className="w-20 h-20 rounded-full border-2 border-orange-500/30" />
+                <img src={summary.profile_url} alt={summary.firstname} className="w-14 h-14 grayscale border border-[hsl(var(--rule))]" />
               )}
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold">{summary.firstname} {summary.lastname}</h2>
-                <p className="text-muted-foreground flex items-center gap-1.5 text-sm mt-1">
-                  <MapPin className="w-4 h-4" /> {summary.city}, {summary.country}
-                </p>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Oxirgi yangilanish: {new Date(summary.last_synced_at).toLocaleString("uz-UZ")}
-                </p>
+              <div className="flex-1 min-w-[200px]">
+                <div className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-1">Athlete</div>
+                <div className="text-xl font-bold tracking-tight" style={editorial}>
+                  {summary.firstname} {summary.lastname}
+                </div>
+                <div className="text-xs text-zinc-500 flex items-center gap-1.5 mt-1">
+                  <MapPin className="w-3 h-3" /> {summary.city}, {summary.country}
+                </div>
               </div>
-              <a href="https://www.strava.com/athletes/172531720" target="_blank" rel="noopener noreferrer"
-                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium transition">
-                Strava'da kuzating
+              <div className="text-right">
+                <div className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-1">Last Sync</div>
+                <div className="text-xs text-zinc-400">{new Date(summary.last_synced_at).toLocaleString("uz-UZ")}</div>
+              </div>
+              <a
+                href="https://www.strava.com/athletes/172531720"
+                target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 border border-[#4f46e5] text-[#4f46e5] text-[10px] font-black uppercase tracking-[0.3em] hover:bg-[#4f46e5] hover:text-white transition-all"
+              >
+                Strava'da kuzating <ArrowUpRight className="w-3 h-3" />
               </a>
-            </Card>
-
-            {/* Stats grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-              <StatCard icon={<Zap />} label="Oxirgi 4 hafta" value={`${fmtKm(summary.recent_run_distance)} km`} sub={`${summary.recent_run_count} ta yugurish`} accent />
-              <StatCard icon={<TrendingUp />} label="Yil boshidan" value={`${fmtKm(summary.ytd_run_distance)} km`} sub={`${summary.ytd_run_count} ta yugurish`} />
-              <StatCard icon={<Timer />} label="Oxirgi oydagi vaqt" value={fmtTime(summary.recent_run_moving_time)} sub="harakat vaqti" />
-              <StatCard icon={<Activity />} label="Jami yugurish" value={`${fmtKm(summary.all_run_distance)} km`} sub={`${summary.all_run_count} marta`} />
             </div>
 
-            {/* Weekly chart */}
-            <Card className="p-6 mb-10">
-              <h3 className="text-lg font-semibold mb-1">Oxirgi 12 hafta — yugurish (km)</h3>
-              <p className="text-xs text-muted-foreground mb-4">Har hafta uchun jami masofa</p>
-              <div className="h-64">
+            {/* Stats grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 border-t border-l border-[hsl(var(--rule))] mb-16">
+              <Stat label="Oxirgi 4 hafta" value={`${fmtKm(summary.recent_run_distance)}`} unit="km" sub={`${summary.recent_run_count} sessiya`} accent />
+              <Stat label="Yil boshidan" value={`${fmtKm(summary.ytd_run_distance)}`} unit="km" sub={`${summary.ytd_run_count} sessiya`} />
+              <Stat label="Oydagi vaqt" value={fmtTime(summary.recent_run_moving_time)} unit="" sub="harakat vaqti" />
+              <Stat label="Jami masofa" value={`${fmtKm(summary.all_run_distance)}`} unit="km" sub={`${summary.all_run_count} marta`} />
+            </div>
+
+            {/* Chart */}
+            <div className="border border-[hsl(var(--rule))] p-6 md:p-8 mb-16">
+              <div className="flex items-baseline justify-between mb-6 border-b border-[hsl(var(--rule))] pb-4">
+                <div>
+                  <div className="text-[10px] font-black uppercase tracking-[0.4em] text-[#4f46e5] mb-2">Fig. 01</div>
+                  <h3 className="text-2xl font-bold tracking-tight uppercase" style={editorial}>Haftalik Hajm</h3>
+                </div>
+                <div className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500">12 hafta / km</div>
+              </div>
+              <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={weeklyData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="week" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <CartesianGrid strokeDasharray="2 4" stroke="hsl(var(--rule))" vertical={false} />
+                    <XAxis dataKey="week" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsl(var(--rule))" }} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={false} />
                     <Tooltip
-                      contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }}
+                      contentStyle={{ background: "hsl(var(--ink))", border: "1px solid hsl(var(--rule))", borderRadius: 0, fontSize: 11 }}
+                      labelStyle={{ color: "hsl(var(--paper))", textTransform: "uppercase", letterSpacing: "0.2em", fontSize: 10 }}
                       formatter={(v: any) => [`${v} km`, "Masofa"]}
+                      cursor={{ fill: "hsl(var(--rule) / 0.3)" }}
                     />
-                    <Bar dataKey="km" fill="#fc4c02" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="km" fill="#4f46e5" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-            </Card>
+            </div>
 
-            {/* Recent activities list */}
-            <h3 className="text-2xl font-bold mb-4">So'nggi faolliklar</h3>
-            <div className="space-y-3">
-              {activities.slice(0, 20).map(a => (
-                <Card key={a.id} className="p-4 flex items-center gap-4 hover:border-orange-500/40 transition">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl ${
-                    a.type === "Run" ? "bg-orange-500/10 text-orange-500" :
-                    a.type === "Walk" ? "bg-blue-500/10 text-blue-500" : "bg-green-500/10 text-green-500"
-                  }`}>
-                    {a.type === "Run" ? "🏃" : a.type === "Walk" ? "🚶" : "🥾"}
+            {/* Recent activities */}
+            <div className="flex items-baseline justify-between mb-6 border-b border-[hsl(var(--rule))] pb-4">
+              <h3 className="text-3xl md:text-4xl font-bold tracking-tighter uppercase" style={editorial}>So'nggi Sessiyalar</h3>
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500">{activities.length} entry</span>
+            </div>
+            <div className="divide-y divide-[hsl(var(--rule))] border-b border-[hsl(var(--rule))]">
+              {activities.slice(0, 20).map((a, i) => (
+                <div key={a.id} className="grid grid-cols-12 gap-4 py-5 items-center hover:bg-[hsl(var(--rule)/0.15)] transition-colors px-2">
+                  <div className="col-span-1 text-[10px] font-black tracking-[0.2em] text-zinc-600">
+                    {String(i + 1).padStart(2, "0")}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-medium truncate">{a.name}</h4>
-                    <p className="text-xs text-muted-foreground">
+                  <div className="col-span-12 sm:col-span-5">
+                    <div className="text-[10px] font-black uppercase tracking-[0.3em] text-[#4f46e5] mb-1">{a.type}</div>
+                    <h4 className="font-bold tracking-tight truncate text-[hsl(var(--paper))]" style={editorial}>{a.name}</h4>
+                    <p className="text-[11px] text-zinc-500 mt-0.5">
                       {new Date(a.start_date_local).toLocaleDateString("uz-UZ", { day: "numeric", month: "long", year: "numeric" })}
                     </p>
                   </div>
-                  <div className="hidden sm:flex items-center gap-5 text-sm">
-                    <Metric label="Masofa" value={`${fmtKm(a.distance)} km`} />
-                    <Metric label="Vaqt" value={fmtTime(a.moving_time)} />
-                    {a.type === "Run" && <Metric label="Tempo" value={fmtPace(a.average_speed)} />}
-                    {a.average_heartrate && <Metric label="HR" value={`${Math.round(a.average_heartrate)} bpm`} icon={<Heart className="w-3 h-3" />} />}
+                  <div className="hidden sm:contents text-xs">
+                    <Cell label="Masofa" value={`${fmtKm(a.distance)} km`} />
+                    <Cell label="Vaqt" value={fmtTime(a.moving_time)} />
+                    <Cell label="Tempo" value={a.type === "Run" ? fmtPace(a.average_speed) : "—"} />
+                    <Cell label="HR" value={a.average_heartrate ? `${Math.round(a.average_heartrate)}` : "—"} icon={a.average_heartrate ? <Heart className="w-3 h-3" /> : null} />
                   </div>
-                </Card>
+                </div>
               ))}
             </div>
           </>
@@ -174,21 +193,23 @@ const Fitness = () => {
   );
 };
 
-const StatCard = ({ icon, label, value, sub, accent }: any) => (
-  <Card className={`p-5 ${accent ? "bg-gradient-to-br from-orange-500/10 to-transparent border-orange-500/30" : ""}`}>
-    <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${accent ? "bg-orange-500/20 text-orange-500" : "bg-muted text-muted-foreground"}`}>
-      {icon}
+const Stat = ({ label, value, unit, sub, accent }: any) => (
+  <div className={`border-r border-b border-[hsl(var(--rule))] p-6 md:p-8 ${accent ? "bg-[#4f46e5]/5" : ""}`}>
+    <div className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-4">{label}</div>
+    <div className="flex items-baseline gap-2">
+      <div className={`text-4xl md:text-5xl font-bold tracking-tighter ${accent ? "text-[#4f46e5]" : "text-[hsl(var(--paper))]"}`} style={{ fontFamily: '"Space Grotesk", system-ui, sans-serif' }}>
+        {value}
+      </div>
+      {unit && <div className="text-sm font-bold uppercase tracking-widest text-zinc-500">{unit}</div>}
     </div>
-    <div className="text-2xl font-bold">{value}</div>
-    <div className="text-xs text-muted-foreground mt-1">{label}</div>
-    {sub && <div className="text-xs text-muted-foreground/70 mt-0.5">{sub}</div>}
-  </Card>
+    {sub && <div className="text-[11px] text-zinc-500 mt-2">{sub}</div>}
+  </div>
 );
 
-const Metric = ({ label, value, icon }: any) => (
-  <div className="text-right">
-    <div className="font-semibold flex items-center gap-1 justify-end">{icon}{value}</div>
-    <div className="text-[10px] text-muted-foreground uppercase tracking-wide">{label}</div>
+const Cell = ({ label, value, icon }: any) => (
+  <div className="col-span-2 sm:col-span-1 md:col-span-1 text-right md:text-left">
+    <div className="text-[9px] font-black uppercase tracking-[0.3em] text-zinc-600 mb-1">{label}</div>
+    <div className="font-bold text-[hsl(var(--paper))] flex items-center gap-1 md:justify-start justify-end">{icon}{value}</div>
   </div>
 );
 
