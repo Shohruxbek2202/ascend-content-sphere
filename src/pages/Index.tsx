@@ -115,7 +115,7 @@ const Index = () => {
     : <>Digital <br/> Marketing <span className="text-zinc-700 italic font-light">&</span> <br/> Performance</>;
 
   return (
-    <div className="min-h-screen bg-[hsl(var(--ink))] text-white selection:bg-[#4f46e5] selection:text-white" style={{ fontFamily: '"DM Sans", system-ui, sans-serif' }}>
+    <div className="min-h-screen bg-[hsl(var(--ink))] text-[hsl(var(--paper))] selection:bg-[#4f46e5] selection:text-white" style={{ fontFamily: '"DM Sans", system-ui, sans-serif' }}>
       <SEOHead title={seoTitle} description={seoDescription} keywords={[]} url={siteUrl} type="website" image={`${siteUrl}/og-image.png`} siteName="ShohruxDigital" />
       <HomeStructuredData siteName="ShohruxDigital" siteUrl={siteUrl} description={seoDescription} socialLinks={socialLinks} />
       <Header />
@@ -154,7 +154,7 @@ const Index = () => {
                 </div>
                 {lastActivity && (
                   <div className="pt-4 border-t border-[hsl(var(--rule))]">
-                    <p className="text-base font-medium text-white">{lastActivity.name}</p>
+                    <p className="text-base font-medium text-[hsl(var(--paper))]">{lastActivity.name}</p>
                     <p className="text-[10px] uppercase tracking-widest text-zinc-500 mt-1">
                       {fmtKm(lastActivity.distance)} km • {fmtPace(lastActivity.distance, lastActivity.moving_time)}
                     </p>
@@ -207,7 +207,7 @@ const Index = () => {
                   <p className="text-[#4f46e5] text-[10px] font-black uppercase tracking-[0.2em] mb-3">
                     {post.categories ? getField(post.categories, 'name') : '—'}
                   </p>
-                  <h3 className="text-xl lg:text-2xl font-bold uppercase tracking-tight mb-3 leading-tight group-hover:text-white" style={{ fontFamily: '"Space Grotesk", system-ui, sans-serif' }}>
+                  <h3 className="text-xl lg:text-2xl font-bold uppercase tracking-tight mb-3 leading-tight group-hover:text-[hsl(var(--paper))]" style={{ fontFamily: '"Space Grotesk", system-ui, sans-serif' }}>
                     {getField(post, 'title')}
                   </h3>
                   <p className="text-zinc-500 text-sm leading-relaxed mb-5 line-clamp-2">{getField(post, 'excerpt')}</p>
@@ -227,7 +227,7 @@ const Index = () => {
               <h2 className="text-3xl md:text-5xl font-bold tracking-tighter uppercase" style={{ fontFamily: '"Space Grotesk", system-ui, sans-serif' }}>
                 {language === 'uz' ? 'Arxiv' : language === 'ru' ? 'Архив' : 'The Archive'}
               </h2>
-              <Link to="/blog" className="text-[10px] font-black uppercase tracking-[0.3em] text-[#4f46e5] hover:text-white transition-colors flex items-center gap-2">
+              <Link to="/blog" className="text-[10px] font-black uppercase tracking-[0.3em] text-[#4f46e5] hover:text-[hsl(var(--paper))] transition-colors flex items-center gap-2">
                 {language === 'uz' ? 'Barchasi' : language === 'ru' ? 'Все' : 'View All'} <ArrowUpRight className="w-3 h-3" />
               </Link>
             </div>
@@ -284,9 +284,9 @@ const Index = () => {
                 type="email" required
                 value={email} onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
-                className="bg-transparent w-full py-5 md:py-6 text-lg md:text-xl focus:outline-none placeholder:text-zinc-800 text-white"
+                className="bg-transparent w-full py-5 md:py-6 text-lg md:text-xl focus:outline-none placeholder:text-zinc-800 text-[hsl(var(--paper))]"
               />
-              <button type="submit" disabled={submitting} className="px-6 md:px-8 text-[10px] font-black uppercase tracking-[0.3em] text-[#4f46e5] hover:text-white transition-colors disabled:opacity-50">
+              <button type="submit" disabled={submitting} className="px-6 md:px-8 text-[10px] font-black uppercase tracking-[0.3em] text-[#4f46e5] hover:text-[hsl(var(--paper))] transition-colors disabled:opacity-50">
                 {submitting ? '...' : (language === 'uz' ? 'Obuna' : language === 'ru' ? 'Подписаться' : 'Subscribe')}
               </button>
             </div>

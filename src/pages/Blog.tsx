@@ -137,7 +137,7 @@ const Blog = () => {
     : 'Weekly dispatches on strategy, data, and endurance. Filed from Tashkent.';
 
   return (
-    <div className="min-h-screen bg-[hsl(var(--ink))] text-white" style={{ fontFamily: '"DM Sans", system-ui, sans-serif' }}>
+    <div className="min-h-screen bg-[hsl(var(--ink))] text-[hsl(var(--paper))]" style={{ fontFamily: '"DM Sans", system-ui, sans-serif' }}>
       <SEOHead title={seoTitle} description={seoDescription} url={typeof window !== 'undefined' ? window.location.href : ''} type="website" image={`${typeof window !== 'undefined' ? window.location.origin : ''}/og-image.png`} />
       <BreadcrumbJsonLd items={[{ name: language === 'uz' ? 'Jurnal' : language === 'ru' ? 'Журнал' : 'Journal', url: '/blog' }]} />
       <Header />
@@ -159,21 +159,21 @@ const Blog = () => {
               placeholder={t.blog.search}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-11 pr-10 h-12 bg-[hsl(var(--ink-2))]/40 border-[hsl(var(--rule))] rounded-none text-white placeholder:text-zinc-600 focus-visible:ring-0 focus-visible:border-[#4f46e5]"
+              className="pl-11 pr-10 h-12 bg-[hsl(var(--ink-2))]/40 border-[hsl(var(--rule))] rounded-none text-[hsl(var(--paper))] placeholder:text-zinc-600 focus-visible:ring-0 focus-visible:border-[#4f46e5]"
             />
             {searchQuery && (
-              <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-zinc-500 hover:text-white">
+              <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-zinc-500 hover:text-[hsl(var(--paper))]">
                 <X className="w-4 h-4" />
               </button>
             )}
           </div>
 
           <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-            <SelectTrigger className="md:w-64 h-12 bg-[hsl(var(--ink-2))]/40 border-[hsl(var(--rule))] rounded-none text-white">
+            <SelectTrigger className="md:w-64 h-12 bg-[hsl(var(--ink-2))]/40 border-[hsl(var(--rule))] rounded-none text-[hsl(var(--paper))]">
               <Filter className="w-3 h-3 mr-2 shrink-0 text-[#4f46e5]" />
               <SelectValue placeholder={t.blog.filterByCategory} />
             </SelectTrigger>
-            <SelectContent className="bg-[hsl(var(--ink))] border-[hsl(var(--rule))] text-white z-50">
+            <SelectContent className="bg-[hsl(var(--ink))] border-[hsl(var(--rule))] text-[hsl(var(--paper))] z-50">
               <SelectItem value="all">{t.blog.allCategories}</SelectItem>
               {categories.map((category) => (
                 <SelectItem key={category.id} value={category.slug}>
@@ -266,7 +266,7 @@ const Blog = () => {
         ) : (
           <div className="text-center py-20 border border-[hsl(var(--rule))]">
             <Search className="w-8 h-8 text-zinc-600 mx-auto mb-6" />
-            <p className="text-xl font-bold uppercase tracking-tight text-white mb-2" style={{ fontFamily: '"Space Grotesk", sans-serif' }}>{t.blog.noResults}</p>
+            <p className="text-xl font-bold uppercase tracking-tight text-[hsl(var(--paper))] mb-2" style={{ fontFamily: '"Space Grotesk", sans-serif' }}>{t.blog.noResults}</p>
             <p className="text-sm text-zinc-500 mb-6">
               {language === 'uz' ? 'Filtrlarni qayta sozlab ko\'ring' : language === 'ru' ? 'Попробуйте изменить фильтры' : 'Try adjusting your filters'}
             </p>

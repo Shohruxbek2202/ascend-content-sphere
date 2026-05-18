@@ -19,7 +19,7 @@ export const PublicPageHero = ({ eyebrow, title, lede, meta }: Props) => (
       <div className="lg:col-span-9">
         <p className="text-[#4f46e5] font-bold uppercase tracking-[0.4em] text-[10px] mb-5">{eyebrow}</p>
         <h1
-          className="text-[clamp(2.5rem,8vw,6.5rem)] font-bold leading-[0.88] tracking-tighter uppercase text-white"
+          className="text-[clamp(2.5rem,8vw,6.5rem)] font-bold leading-[0.88] tracking-tighter uppercase text-[hsl(var(--paper))]"
           style={editorial}
         >
           {title}

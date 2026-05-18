@@ -38,7 +38,7 @@ export const Header = () => {
       <header className="sticky top-0 z-50 bg-[hsl(var(--ink))]/85 backdrop-blur-xl border-b border-[hsl(var(--rule))]">
         <div className="max-w-screen-2xl mx-auto px-6 md:px-8 py-5 flex items-center justify-between gap-6">
           {/* Logo */}
-          <Link to="/" className="text-xl md:text-2xl font-bold tracking-tighter uppercase leading-none text-white shrink-0" style={editorial}>
+          <Link to="/" className="text-xl md:text-2xl font-bold tracking-tighter uppercase leading-none text-[hsl(var(--paper))] shrink-0" style={editorial}>
             Shohrux<span className="text-[#4f46e5]">Digital</span>
           </Link>
 
@@ -48,7 +48,7 @@ export const Header = () => {
               <Link
                 key={link.to}
                 to={link.to}
-                className={`transition-colors ${isActive(link.to) ? 'text-white' : 'text-zinc-500 hover:text-[#4f46e5]'}`}
+                className={`transition-colors ${isActive(link.to) ? 'text-[hsl(var(--paper))]' : 'text-zinc-500 hover:text-[#4f46e5]'}`}
               >
                 {link.label}
               </Link>
@@ -67,7 +67,7 @@ export const Header = () => {
               {t.hero.subscribe} <ArrowUpRight className="w-3 h-3" />
             </Link>
             <button
-              className="lg:hidden w-10 h-10 flex items-center justify-center border border-[hsl(var(--rule))] text-white"
+              className="lg:hidden w-10 h-10 flex items-center justify-center border border-[hsl(var(--rule))] text-[hsl(var(--paper))]"
               onClick={() => setOpen(!open)}
               aria-label="Menu"
             >
@@ -90,7 +90,7 @@ export const Header = () => {
               key={link.to}
               to={link.to}
               onClick={() => setOpen(false)}
-              className="py-5 border-b border-[hsl(var(--rule))] flex items-center justify-between text-2xl font-bold uppercase tracking-tight text-white hover:text-[#4f46e5] transition-colors"
+              className="py-5 border-b border-[hsl(var(--rule))] flex items-center justify-between text-2xl font-bold uppercase tracking-tight text-[hsl(var(--paper))] hover:text-[#4f46e5] transition-colors"
               style={editorial}
             >
               <span>

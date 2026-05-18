@@ -54,7 +54,7 @@ export const Footer = () => {
   ];
 
   return (
-    <footer className="bg-[hsl(var(--ink))] text-white border-t border-[hsl(var(--rule))]" style={{ fontFamily: '"DM Sans", system-ui, sans-serif' }}>
+    <footer className="bg-[hsl(var(--ink))] text-[hsl(var(--paper))] border-t border-[hsl(var(--rule))]" style={{ fontFamily: '"DM Sans", system-ui, sans-serif' }}>
       <div className="max-w-screen-2xl mx-auto px-6 md:px-8 pt-20 md:pt-28 pb-12">
         <div className="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-12 gap-10 lg:gap-12 mb-20">
           <div className="col-span-2 lg:col-span-5">
@@ -70,7 +70,7 @@ export const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={s.label}
-                  className="w-10 h-10 border border-[hsl(var(--rule))] flex items-center justify-center text-zinc-400 hover:bg-[#4f46e5] hover:border-[#4f46e5] hover:text-white transition-all"
+                  className="w-10 h-10 border border-[hsl(var(--rule))] flex items-center justify-center text-zinc-400 hover:bg-[#4f46e5] hover:border-[#4f46e5] hover:text-[hsl(var(--paper))] transition-all"
                 >
                   <s.icon className="w-4 h-4" />
                 </a>
