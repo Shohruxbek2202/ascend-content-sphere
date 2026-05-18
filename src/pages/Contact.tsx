@@ -47,7 +47,12 @@ const Contact = () => {
     }
     setIsLoading(true);
     try {
-      const { error } = await supabase.from('contact_messages').insert(result.data);
+      const { error } = await supabase.from('contact_messages').insert({
+        name: result.data.name,
+        email: result.data.email,
+        subject: result.data.subject,
+        message: result.data.message,
+      });
       if (error) throw error;
       toast.success(t('Xabaringiz yuborildi', 'Сообщение отправлено', 'Message dispatched'));
       setFormData({ name: '', email: '', subject: '', message: '' });
