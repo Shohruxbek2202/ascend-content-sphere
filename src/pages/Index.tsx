@@ -2,12 +2,7 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { Hero } from '@/components/Hero';
-import { BlogCard } from '@/components/BlogCard';
-import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
 
-const SubscribeSection = lazy(() => import('@/components/SubscribeSection').then(m => ({ default: m.SubscribeSection })));
 const NewsletterPopup = lazy(() => import('@/components/NewsletterPopup').then(m => ({ default: m.NewsletterPopup })));
 const CTABanner = lazy(() => import('@/components/CTABanner').then(m => ({ default: m.CTABanner })));
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -16,185 +11,292 @@ import SEOHead from '@/components/SEOHead';
 import HomeStructuredData from '@/components/HomeStructuredData';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
 import { useLocalized } from '@/hooks/useLocalized';
-import type { Post } from '@/types/post';
+import { Activity, ArrowUpRight } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
-interface Stats {
-  posts: number;
-  categories: number;
-  subscribers: number;
+interface StravaSummary {
+  recent_run_distance: number | null;
+  all_run_distance: number | null;
 }
+interface StravaActivity {
+  name: string; type: string; distance: number;
+  moving_time: number; start_date_local: string;
+}
+
+const fmtKm = (m: number | null | undefined) => ((m || 0) / 1000).toFixed(1);
+const fmtPace = (distance: number, time: number) => {
+  if (!distance || !time) return '—';
+  const paceSec = time / (distance / 1000);
+  const min = Math.floor(paceSec / 60);
+  const sec = Math.floor(paceSec % 60);
+  return `${min}'${sec.toString().padStart(2, '0')}"/km`;
+};
 
 const Index = () => {
   const { t, language } = useLanguage();
   const { settings } = useSiteSettings();
   const { getField } = useLocalized();
-  const [featuredPosts, setFeaturedPosts] = useState<any[]>([]);
-  const [latestPosts, setLatestPosts] = useState<any[]>([]);
-  const [stats, setStats] = useState<Stats>({ posts: 0, categories: 0, subscribers: 0 });
-  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+  const [posts, setPosts] = useState<any[]>([]);
+  const [summary, setSummary] = useState<StravaSummary | null>(null);
+  const [lastActivity, setLastActivity] = useState<StravaActivity | null>(null);
+  const [email, setEmail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      const [latestResult, postsCount, categoriesCount, subscribersCount] = await Promise.all([
+      const [postsRes, summaryRes, activityRes] = await Promise.all([
         supabase
           .from('posts')
           .select('*, categories(name_uz, name_ru, name_en)')
           .eq('published', true)
           .order('published_at', { ascending: false })
-          .limit(6),
-        supabase.from('posts').select('id', { count: 'exact', head: true }).eq('published', true),
-        supabase.from('categories').select('id', { count: 'exact', head: true }),
-        supabase.from('subscribers').select('id', { count: 'exact', head: true }).eq('active', true),
+          .limit(7),
+        supabase.from('strava_summary').select('recent_run_distance, all_run_distance').maybeSingle(),
+        supabase.from('strava_activities').select('name, type, distance, moving_time, start_date_local')
+          .eq('type', 'Run').order('start_date', { ascending: false }).limit(1).maybeSingle(),
       ]);
+      const list = postsRes.data || [];
+      setPosts(list);
+      setSummary(summaryRes.data as any);
+      setLastActivity(activityRes.data as any);
 
-      const latest = latestResult.data || [];
-      setLatestPosts(latest);
-      setFeaturedPosts(latest.filter((p) => p.featured).slice(0, 2));
-      setStats({
-        posts: postsCount.count || 0,
-        categories: categoriesCount.count || 0,
-        subscribers: subscribersCount.count || 0,
-      });
-      setIsLoading(false);
-
-      const lcpPost = latest[0];
-      if (lcpPost?.featured_image) {
+      const lcp = list[0];
+      if (lcp?.featured_image) {
         const link = document.createElement('link');
-        link.rel = 'preload';
-        link.as = 'image';
-        link.href = lcpPost.featured_image;
-        link.fetchPriority = 'high';
+        link.rel = 'preload'; link.as = 'image';
+        link.href = lcp.featured_image; (link as any).fetchPriority = 'high';
         document.head.appendChild(link);
       }
     };
-
     fetchData();
   }, []);
 
-  const seoTitle = language === 'uz' 
-    ? 'ShohruxDigital - Digital Marketing, SMM, SEO va Shaxsiy Rivojlanish Blogi | Shohruxbek Foziljonov'
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    setSubmitting(true);
+    const { error } = await supabase.from('subscribers').insert({ email, active: true });
+    setSubmitting(false);
+    if (error && !error.message.includes('duplicate')) {
+      toast({ title: language === 'uz' ? 'Xato' : 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: language === 'uz' ? 'Obuna bo\'ldingiz' : language === 'ru' ? 'Подписка оформлена' : 'Subscribed', description: language === 'uz' ? 'Rahmat!' : language === 'ru' ? 'Спасибо!' : 'Thank you!' });
+      setEmail('');
+    }
+  };
+
+  const seoTitle = language === 'uz'
+    ? 'ShohruxDigital — Digital Marketing, SEO va Shaxsiy Rivojlanish'
     : language === 'ru'
-    ? 'ShohruxDigital - Блог о Цифровом Маркетинге, SMM, SEO и Личностном Развитии | Шохрухбек Фозилжонов'
-    : 'ShohruxDigital - Digital Marketing, SMM, SEO and Personal Development Blog | Shohruxbek Foziljonov';
+    ? 'ShohruxDigital — Цифровой Маркетинг, SEO и Личностное Развитие'
+    : 'ShohruxDigital — Digital Marketing, SEO & Personal Performance';
 
   const seoDescription = language === 'uz'
-    ? 'Shohruxbek Foziljonov tomonidan digital marketing, SMM, SEO, kontekstli reklama va shaxsiy rivojlanish bo\'yicha professional maqolalar, amaliy maslahatlar va zamonaviy strategiyalar. Bepul o\'quv materiallari.'
+    ? 'Shohruxbek Foziljonov — kunduzi digital marketolog, tongda yuguruvchi. Marketing strategiyalari, ma\'lumotlar va chidamlilik haqida insightlar.'
     : language === 'ru'
-    ? 'Профессиональные статьи, практические советы и современные стратегии по цифровому маркетингу, SMM, SEO, контекстной рекламе и личностному развитию от Шохрухбека Фозилжонова. Бесплатные учебные материалы.'
-    : 'Professional articles, practical tips and modern strategies on digital marketing, SMM, SEO, PPC advertising and personal development by Shohruxbek Foziljonov. Free learning materials.';
-
-  const seoKeywords = language === 'uz'
-    ? ['digital marketing', 'SMM', 'SEO', 'shaxsiy rivojlanish', 'marketing strategiya', 'Shohruxbek Foziljonov']
-    : language === 'ru'
-    ? ['цифровой маркетинг', 'SMM', 'SEO', 'личностное развитие', 'маркетинговая стратегия', 'Шохрухбек Фозилжонов']
-    : ['digital marketing', 'SMM', 'SEO', 'personal development', 'marketing strategy', 'Shohruxbek Foziljonov'];
+    ? 'Шохрухбек Фозилжонов — днём digital-маркетолог, на рассвете бегун. Маркетинговые стратегии, данные и выносливость.'
+    : 'Shohruxbek Foziljonov — digital marketer by day, endurance runner by dawn. Insights at the intersection of growth and grit.';
 
   const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://shohruxdigital.uz';
-
   const socialLinks = [
     settings.instagram_url, settings.telegram_url, settings.twitter_url,
     settings.youtube_url, settings.facebook_url, settings.linkedin_url,
   ].filter(Boolean) as string[];
 
+  const featured = posts[0];
+  const secondary = posts.slice(1, 4);
+  const rest = posts.slice(4, 7);
+
+  const heroTitle = language === 'uz'
+    ? <>Digital <br/> Marketing <span className="text-zinc-700 italic font-light">va</span> <br/> Performance</>
+    : language === 'ru'
+    ? <>Digital <br/> Marketing <span className="text-zinc-700 italic font-light">и</span> <br/> Performance</>
+    : <>Digital <br/> Marketing <span className="text-zinc-700 italic font-light">&</span> <br/> Performance</>;
+
   return (
-    <div className="min-h-screen bg-background">
-      <SEOHead title={seoTitle} description={seoDescription} keywords={seoKeywords} url={siteUrl} type="website" image={`${siteUrl}/og-image.png`} siteName="ShohruxDigital" />
+    <div className="min-h-screen bg-[#0a0a1a] text-white selection:bg-[#4f46e5] selection:text-white" style={{ fontFamily: '"DM Sans", system-ui, sans-serif' }}>
+      <SEOHead title={seoTitle} description={seoDescription} keywords={[]} url={siteUrl} type="website" image={`${siteUrl}/og-image.png`} siteName="ShohruxDigital" />
       <HomeStructuredData siteName="ShohruxDigital" siteUrl={siteUrl} description={seoDescription} socialLinks={socialLinks} />
       <Header />
-      
-      <main>
-        <Hero />
 
-        {featuredPosts.length > 0 && (
-          <section className="container mx-auto px-4 py-10 md:py-16 lg:py-20" aria-labelledby="featured-heading">
-            <h2 id="featured-heading" className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-6 md:mb-10">
-              {t.blog.featured}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-              {featuredPosts.map((post, index) => (
-                <BlogCard
-                  key={post.id}
-                  id={post.slug}
-                  title={getField(post, 'title')}
-                  excerpt={getField(post, 'excerpt')}
-                  image={post.featured_image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'}
-                  category={post.categories ? getField(post.categories, 'name') : ''}
-                  readTime={post.reading_time || 5}
-                  likes={post.likes || 0}
-                  comments={0}
-                  publishedAt={post.published_at || ''}
-                  featured
-                  isLCP={index === 0}
-                  tags={post.tags || []}
+      <main className="max-w-screen-2xl mx-auto">
+        {/* HERO */}
+        <section className="px-6 md:px-8 pt-16 md:pt-24 pb-12 md:pb-16 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 border-b border-[#1e1e5a]">
+          <div className="lg:col-span-9">
+            <p className="text-[#4f46e5] font-bold uppercase tracking-[0.4em] mb-6 text-[10px]">
+              {language === 'uz' ? 'Strateg va chidamlilik atleti' : language === 'ru' ? 'Стратег и атлет на выносливость' : 'Strategist & Endurance Athlete'}
+            </p>
+            <h1 className="text-[clamp(3rem,10vw,8.5rem)] font-bold leading-[0.85] tracking-tighter uppercase mb-10 md:mb-12" style={{ fontFamily: '"Space Grotesk", system-ui, sans-serif' }}>
+              {heroTitle}
+            </h1>
+            <p className="max-w-xl text-lg md:text-xl text-zinc-400 leading-relaxed font-light">
+              {seoDescription}
+            </p>
+          </div>
+          <div className="lg:col-span-3 flex flex-col justify-end">
+            <Link to="/fitness" className="block border-t border-[#1e1e5a] pt-8 group">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-10 h-10 rounded-full border border-orange-500/50 flex items-center justify-center">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+                </div>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-zinc-500">Strava Live Feed</span>
+                <ArrowUpRight className="w-4 h-4 ml-auto text-zinc-600 group-hover:text-[#4f46e5] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-all" />
+              </div>
+              <div className="space-y-5">
+                <div>
+                  <p className="text-3xl md:text-4xl font-bold tracking-tight" style={{ fontFamily: '"Space Grotesk", system-ui, sans-serif' }}>
+                    {fmtKm(summary?.recent_run_distance)} KM
+                  </p>
+                  <p className="text-[10px] uppercase tracking-widest text-zinc-500 mt-1">
+                    {language === 'uz' ? 'So\'nggi 4 hafta yugurish' : language === 'ru' ? 'Бег за 4 недели' : 'Last 4 weeks running'}
+                  </p>
+                </div>
+                {lastActivity && (
+                  <div className="pt-4 border-t border-[#1e1e5a]">
+                    <p className="text-base font-medium text-white">{lastActivity.name}</p>
+                    <p className="text-[10px] uppercase tracking-widest text-zinc-500 mt-1">
+                      {fmtKm(lastActivity.distance)} km • {fmtPace(lastActivity.distance, lastActivity.moving_time)}
+                    </p>
+                  </div>
+                )}
+                <div>
+                  <p className="text-sm font-medium text-zinc-300">{fmtKm(summary?.all_run_distance)} km</p>
+                  <p className="text-[10px] uppercase tracking-widest text-zinc-500">
+                    {language === 'uz' ? 'Umumiy masofa' : language === 'ru' ? 'Общая дистанция' : 'All-time distance'}
+                  </p>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </section>
+
+        {/* MAGAZINE GRID */}
+        {featured && (
+          <section className="grid grid-cols-1 lg:grid-cols-12 gap-px bg-[#1e1e5a]">
+            <Link to={`/blog/${featured.slug}`} className="lg:col-span-8 bg-[#0a0a1a] group cursor-pointer relative block">
+              <div className="relative overflow-hidden aspect-[16/10]">
+                <img
+                  src={featured.featured_image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1600'}
+                  alt={getField(featured, 'title')}
+                  loading="eager"
+                  fetchPriority="high"
+                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 scale-105 group-hover:scale-100"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a] via-[#0a0a1a]/40 to-transparent" />
+              </div>
+              <div className="p-6 md:p-10 lg:p-12 absolute bottom-0 left-0 w-full">
+                <span className="inline-block px-3 py-1 bg-[#4f46e5] text-[10px] font-bold uppercase tracking-widest mb-4 md:mb-6">
+                  {featured.categories ? getField(featured.categories, 'name') : (language === 'uz' ? 'Maqola' : 'Featured')}
+                </span>
+                <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold tracking-tight uppercase max-w-3xl group-hover:underline decoration-[#4f46e5] underline-offset-8" style={{ fontFamily: '"Space Grotesk", system-ui, sans-serif' }}>
+                  {getField(featured, 'title')}
+                </h2>
+                <div className="mt-4 md:mt-6 flex gap-6 md:gap-8 text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+                  <span>{featured.reading_time || 5} {language === 'uz' ? 'Daq O\'qish' : language === 'ru' ? 'Мин Чтения' : 'Min Read'}</span>
+                  {featured.published_at && (
+                    <span>{new Date(featured.published_at).toLocaleDateString(language === 'uz' ? 'uz-UZ' : language === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                  )}
+                </div>
+              </div>
+            </Link>
+
+            <div className="lg:col-span-4 grid grid-cols-1 bg-[#1e1e5a] gap-px">
+              {secondary.map((post) => (
+                <Link key={post.id} to={`/blog/${post.slug}`} className="bg-[#0a0a1a] p-8 lg:p-10 hover:bg-[#141432] transition-colors group cursor-pointer block">
+                  <p className="text-[#4f46e5] text-[10px] font-black uppercase tracking-[0.2em] mb-3">
+                    {post.categories ? getField(post.categories, 'name') : '—'}
+                  </p>
+                  <h3 className="text-xl lg:text-2xl font-bold uppercase tracking-tight mb-3 leading-tight group-hover:text-white" style={{ fontFamily: '"Space Grotesk", system-ui, sans-serif' }}>
+                    {getField(post, 'title')}
+                  </h3>
+                  <p className="text-zinc-500 text-sm leading-relaxed mb-5 line-clamp-2">{getField(post, 'excerpt')}</p>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                    {post.reading_time || 5} {language === 'uz' ? 'Daq O\'qish' : language === 'ru' ? 'Мин' : 'Min Read'}
+                  </span>
+                </Link>
               ))}
             </div>
           </section>
         )}
 
-        <section className="container mx-auto px-4 py-10 md:py-16 lg:py-20" aria-labelledby="latest-heading">
-          <div className="flex items-center justify-between mb-6 md:mb-10">
-            <h2 id="latest-heading" className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
-              {t.blog.latest}
-            </h2>
-            <Button variant="outline" size="sm" className="rounded-full text-xs md:text-sm" asChild>
-              <Link to="/blog" aria-label={language === 'uz' ? 'Barcha maqolalarni ko\'rish' : language === 'ru' ? 'Просмотреть все статьи' : 'View all articles'}>
-                {language === 'uz' ? 'Barchasi' : language === 'ru' ? 'Все' : 'View all'}
-                <ArrowRight className="w-3 h-3 md:w-4 md:h-4 ml-1 md:ml-2" aria-hidden="true" />
+        {/* ARCHIVE STRIP */}
+        {rest.length > 0 && (
+          <section className="px-6 md:px-8 py-16 md:py-24 border-t border-[#1e1e5a]">
+            <div className="flex items-end justify-between mb-10 md:mb-14">
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tighter uppercase" style={{ fontFamily: '"Space Grotesk", system-ui, sans-serif' }}>
+                {language === 'uz' ? 'Arxiv' : language === 'ru' ? 'Архив' : 'The Archive'}
+              </h2>
+              <Link to="/blog" className="text-[10px] font-black uppercase tracking-[0.3em] text-[#4f46e5] hover:text-white transition-colors flex items-center gap-2">
+                {language === 'uz' ? 'Barchasi' : language === 'ru' ? 'Все' : 'View All'} <ArrowUpRight className="w-3 h-3" />
               </Link>
-            </Button>
-          </div>
-          
-          {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="space-y-3 md:space-y-4">
-                  <div className="aspect-[16/10] bg-muted animate-pulse rounded-lg" />
-                  <div className="h-3 md:h-4 bg-muted animate-pulse rounded w-1/4" />
-                  <div className="h-5 md:h-6 bg-muted animate-pulse rounded w-3/4" />
-                  <div className="h-3 md:h-4 bg-muted animate-pulse rounded w-full" />
-                </div>
-              ))}
             </div>
-          ) : latestPosts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
-              {latestPosts.map((post, index) => (
-                <BlogCard
-                  key={post.id}
-                  id={post.slug}
-                  title={getField(post, 'title')}
-                  excerpt={getField(post, 'excerpt')}
-                  image={post.featured_image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'}
-                  category={post.categories ? getField(post.categories, 'name') : ''}
-                  readTime={post.reading_time || 5}
-                  likes={post.likes || 0}
-                  comments={0}
-                  publishedAt={post.published_at || ''}
-                  isLCP={featuredPosts.length === 0 && index === 0}
-                  tags={post.tags || []}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 md:py-20">
-              <div className="text-4xl md:text-6xl mb-3 md:mb-4">📝</div>
-              <h3 className="text-lg md:text-xl font-semibold text-foreground mb-2">
-                {language === 'uz' ? 'Hali maqolalar yo\'q' : language === 'ru' ? 'Статей пока нет' : 'No articles yet'}
-              </h3>
-              <p className="text-sm md:text-base text-muted-foreground mb-4 md:mb-6">
-                {language === 'uz' ? 'Tez orada yangi maqolalar qo\'shiladi!' : language === 'ru' ? 'Скоро добавятся новые статьи!' : 'New articles coming soon!'}
-              </p>
-              <Button asChild>
-                <Link to="/subscribe">
-                  {language === 'uz' ? 'Obuna bo\'ling' : language === 'ru' ? 'Подписаться' : 'Subscribe'}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#1e1e5a] border border-[#1e1e5a]">
+              {rest.map((post, i) => (
+                <Link key={post.id} to={`/blog/${post.slug}`} className="bg-[#0a0a1a] p-8 hover:bg-[#141432] transition-colors group">
+                  <p className="text-zinc-600 text-[10px] font-black uppercase tracking-[0.3em] mb-6">
+                    №&nbsp;{String(i + 4).padStart(2, '0')}
+                  </p>
+                  <p className="text-[#4f46e5] text-[10px] font-black uppercase tracking-[0.2em] mb-3">
+                    {post.categories ? getField(post.categories, 'name') : '—'}
+                  </p>
+                  <h3 className="text-xl md:text-2xl font-bold uppercase tracking-tight mb-4 leading-tight" style={{ fontFamily: '"Space Grotesk", system-ui, sans-serif' }}>
+                    {getField(post, 'title')}
+                  </h3>
+                  <p className="text-zinc-500 text-sm leading-relaxed line-clamp-2">{getField(post, 'excerpt')}</p>
                 </Link>
-              </Button>
+              ))}
             </div>
-          )}
+          </section>
+        )}
+
+        {/* FITNESS CTA STRIP */}
+        <section className="px-6 md:px-8 py-12 md:py-16 border-t border-[#1e1e5a] flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <Activity className="w-6 h-6 text-orange-500" />
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 mb-1">
+                {language === 'uz' ? 'Fitness sahifasi' : language === 'ru' ? 'Страница фитнеса' : 'Fitness page'}
+              </p>
+              <h3 className="text-xl md:text-2xl font-bold tracking-tight uppercase" style={{ fontFamily: '"Space Grotesk", system-ui, sans-serif' }}>
+                {language === 'uz' ? 'Marketing — bu marafon' : language === 'ru' ? 'Маркетинг — это марафон' : 'Marketing is a marathon'}
+              </h3>
+            </div>
+          </div>
+          <Link to="/fitness" className="px-6 py-3 border border-[#4f46e5] text-[#4f46e5] text-[10px] font-black uppercase tracking-widest hover:bg-[#4f46e5] hover:text-white transition-all flex items-center gap-2">
+            {language === 'uz' ? 'Strava ko\'rsatkichlari' : language === 'ru' ? 'Метрики Strava' : 'View Strava metrics'} <ArrowUpRight className="w-3 h-3" />
+          </Link>
+        </section>
+
+        {/* NEWSLETTER */}
+        <section className="px-6 md:px-8 py-20 md:py-32 grid grid-cols-1 lg:grid-cols-12 items-center gap-10 lg:gap-16 border-t border-[#1e1e5a]">
+          <div className="lg:col-span-6">
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tighter uppercase mb-4 md:mb-6" style={{ fontFamily: '"Space Grotesk", system-ui, sans-serif' }}>
+              {language === 'uz' ? <>The <span className="text-[#4f46e5]">Grit</span> Dispatch</> : language === 'ru' ? <>The <span className="text-[#4f46e5]">Grit</span> Dispatch</> : <>The <span className="text-[#4f46e5]">Grit</span> Dispatch</>}
+            </h2>
+            <p className="text-lg md:text-xl text-zinc-400">
+              {language === 'uz' ? 'Ortiqcha gap yo\'q. Faqat xom marketing ma\'lumotlar va chidamlilik mental modellari. Har yakshanba kechqurun.' : language === 'ru' ? 'Без воды. Только сырые маркетинговые данные и ментальные модели выносливости. Каждое воскресенье вечером.' : 'No fluff. Just raw marketing data and endurance mental models. Every Sunday evening.'}
+            </p>
+          </div>
+          <form onSubmit={handleSubscribe} className="lg:col-span-6 w-full">
+            <div className="flex border-b border-[#1e1e5a] focus-within:border-[#4f46e5] transition-colors">
+              <input
+                type="email" required
+                value={email} onChange={(e) => setEmail(e.target.value)}
+                placeholder="your@email.com"
+                className="bg-transparent w-full py-5 md:py-6 text-lg md:text-xl focus:outline-none placeholder:text-zinc-800 text-white"
+              />
+              <button type="submit" disabled={submitting} className="px-6 md:px-8 text-[10px] font-black uppercase tracking-[0.3em] text-[#4f46e5] hover:text-white transition-colors disabled:opacity-50">
+                {submitting ? '...' : (language === 'uz' ? 'Obuna' : language === 'ru' ? 'Подписаться' : 'Subscribe')}
+              </button>
+            </div>
+            <p className="text-[10px] text-zinc-600 mt-4 uppercase tracking-widest">
+              {language === 'uz' ? 'Spam yo\'q. Istalgan vaqt bekor qilish' : language === 'ru' ? 'Без спама. Отписка в любой момент' : 'Zero spam. Opt-out anytime.'}
+            </p>
+          </form>
         </section>
 
         <Suspense fallback={null}><CTABanner /></Suspense>
-        <Suspense fallback={null}><SubscribeSection /></Suspense>
       </main>
 
       <Suspense fallback={null}><NewsletterPopup /></Suspense>
