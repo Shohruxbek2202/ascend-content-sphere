@@ -183,7 +183,7 @@ const Index = () => {
                   fetchPriority="high"
                   className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 scale-105 group-hover:scale-100"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a] via-[#0a0a1a]/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[hsl(var(--ink))] via-[hsl(var(--ink))]/40 to-transparent" />
               </div>
               <div className="p-6 md:p-10 lg:p-12 absolute bottom-0 left-0 w-full">
                 <span className="inline-block px-3 py-1 bg-[#4f46e5] text-[10px] font-bold uppercase tracking-widest mb-4 md:mb-6">

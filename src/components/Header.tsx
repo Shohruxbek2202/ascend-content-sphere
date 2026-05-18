@@ -103,7 +103,7 @@ export const Header = () => {
           <Link
             to="/subscribe"
             onClick={() => setOpen(false)}
-            className="mt-10 px-6 py-4 bg-[#4f46e5] text-white text-xs font-black uppercase tracking-[0.3em] text-center hover:bg-white hover:text-[#0a0a1a] transition-colors"
+            className="mt-10 px-6 py-4 bg-[#4f46e5] text-white text-xs font-black uppercase tracking-[0.3em] text-center hover:bg-[hsl(var(--paper))] hover:text-[hsl(var(--ink))] transition-colors"
           >
             {t.hero.subscribe} →
           </Link>
