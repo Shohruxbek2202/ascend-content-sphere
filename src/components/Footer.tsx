@@ -1,143 +1,117 @@
 import { Link } from 'react-router-dom';
-import { Instagram, Send, Youtube, Facebook, Twitter, Linkedin } from 'lucide-react';
+import { Instagram, Send, Youtube, Facebook, Twitter, Linkedin, ArrowUpRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
 
+const editorial = { fontFamily: '"Space Grotesk", system-ui, sans-serif' };
 
 export const Footer = () => {
   const { t, language } = useLanguage();
   const { settings } = useSiteSettings();
-  const currentYear = new Date().getFullYear();
+  const year = new Date().getFullYear();
 
-  const socialLinks = [
+  const socials = [
     { url: settings.instagram_url, icon: Instagram, label: 'Instagram' },
     { url: settings.telegram_url, icon: Send, label: 'Telegram' },
     { url: settings.youtube_url, icon: Youtube, label: 'YouTube' },
     { url: settings.facebook_url, icon: Facebook, label: 'Facebook' },
     { url: settings.twitter_url, icon: Twitter, label: 'Twitter' },
     { url: settings.linkedin_url, icon: Linkedin, label: 'LinkedIn' },
-  ].filter(link => link.url);
+  ].filter(s => s.url);
+
+  const tagline = language === 'uz'
+    ? 'Marketing strategiyasi, ma\'lumotlar va chidamlilik haqida shaxsiy jurnal. Toshkentdan, global o\'ylab.'
+    : language === 'ru'
+    ? 'Личный журнал о маркетинговой стратегии, данных и выносливости. Из Ташкента, мыслим глобально.'
+    : 'A personal journal on marketing strategy, data, and endurance. From Tashkent, thinking global.';
+
+  const navColumns = [
+    {
+      title: language === 'uz' ? 'Jurnal' : language === 'ru' ? 'Журнал' : 'Journal',
+      links: [
+        { to: '/blog', label: t.nav.blog },
+        { to: '/categories', label: t.nav.categories },
+        { to: '/case-studies', label: t.nav.caseStudies },
+        { to: '/fitness', label: 'Fitness' },
+      ],
+    },
+    {
+      title: language === 'uz' ? 'Muallif' : language === 'ru' ? 'Автор' : 'Author',
+      links: [
+        { to: '/about', label: t.nav.about },
+        { to: '/contact', label: t.nav.contact },
+        { to: '/faq', label: t.nav.faq },
+      ],
+    },
+    {
+      title: language === 'uz' ? 'Huquqiy' : language === 'ru' ? 'Правовое' : 'Legal',
+      links: [
+        { to: '/subscribe', label: t.hero.subscribe },
+        { to: '/privacy', label: t.footer.privacy },
+        { to: '/terms', label: t.footer.terms },
+      ],
+    },
+  ];
 
   return (
-    <footer className="relative bg-foreground/95 dark:bg-background/95 backdrop-blur-xl text-background dark:text-foreground overflow-hidden">
-      {/* Liquid Glass Background Effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -left-20 w-[400px] h-[400px] rounded-full bg-secondary/10 blur-3xl" />
-        <div className="absolute -bottom-20 -right-20 w-[300px] h-[300px] rounded-full bg-primary/10 blur-3xl" />
-      </div>
-
-      {/* Main Footer */}
-      <div className="container mx-auto px-4 py-12 md:py-16 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
-          {/* Left Side - Brand & Social */}
-          <div className="space-y-6">
-            <Link to="/" className="inline-block">
-              <span className="font-display text-2xl md:text-3xl font-bold text-background dark:text-foreground">
-                ShohruxDigital
-              </span>
+    <footer className="bg-[#0a0a1a] text-white border-t border-[#1e1e5a]" style={{ fontFamily: '"DM Sans", system-ui, sans-serif' }}>
+      <div className="max-w-screen-2xl mx-auto px-6 md:px-8 pt-20 md:pt-28 pb-12">
+        <div className="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-12 gap-10 lg:gap-12 mb-20">
+          <div className="col-span-2 lg:col-span-5">
+            <Link to="/" className="text-2xl md:text-3xl font-bold tracking-tighter uppercase block mb-6" style={editorial}>
+              Shohrux<span className="text-[#4f46e5]">Digital</span>
             </Link>
-            <p className="text-background/70 dark:text-foreground/70 text-base leading-relaxed max-w-md">
-              {language === 'uz' 
-                ? 'Digital marketing va shaxsiy rivojlanish bo\'yicha professional blog platformasi.'
-                : language === 'ru'
-                ? 'Профессиональная блог-платформа о цифровом маркетинге и личностном развитии.'
-                : 'Professional blog platform about digital marketing and personal development.'}
-            </p>
-
-            {/* Social Links - Liquid Glass */}
+            <p className="text-zinc-400 text-sm md:text-base leading-relaxed max-w-md mb-8">{tagline}</p>
             <div className="flex gap-2">
-              {socialLinks.map((social) => (
+              {socials.map(s => (
                 <a
-                  key={social.label}
-                  href={social.url}
+                  key={s.label}
+                  href={s.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-background/10 dark:bg-foreground/10 backdrop-blur-sm border border-background/20 dark:border-foreground/20 hover:bg-secondary hover:border-secondary hover:text-secondary-foreground transition-all duration-300 flex items-center justify-center hover:scale-110"
-                  aria-label={social.label}
+                  aria-label={s.label}
+                  className="w-10 h-10 border border-[#1e1e5a] flex items-center justify-center text-zinc-400 hover:bg-[#4f46e5] hover:border-[#4f46e5] hover:text-white transition-all"
                 >
-                  <social.icon className="w-4 h-4" />
+                  <s.icon className="w-4 h-4" />
                 </a>
               ))}
             </div>
           </div>
 
-          {/* Right Side - Links */}
-          <div className="grid grid-cols-3 gap-4 md:gap-8">
-            {/* Navigation */}
-            <div>
-              <h3 className="font-semibold text-background dark:text-foreground text-sm mb-4">
-                {language === 'uz' ? 'Navigatsiya' : language === 'ru' ? 'Навигация' : 'Navigation'}
-              </h3>
-              <ul className="space-y-2">
-                {[
-                  { to: '/', label: t.nav.home },
-                  { to: '/blog', label: t.nav.blog },
-                  { to: '/categories', label: t.nav.categories },
-                  { to: '/faq', label: t.nav.faq },
-                  { to: '/case-studies', label: t.nav.caseStudies },
-                  { to: '/about', label: t.nav.about },
-                ].map(link => (
+          {navColumns.map((col) => (
+            <div key={col.title} className="col-span-1 lg:col-span-2">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 mb-6">{col.title}</h4>
+              <ul className="space-y-3">
+                {col.links.map(link => (
                   <li key={link.to}>
-                    <Link to={link.to} className="text-background/70 dark:text-foreground/70 hover:text-background dark:hover:text-foreground transition-colors text-sm">
+                    <Link
+                      to={link.to}
+                      className="text-sm font-medium text-zinc-300 hover:text-[#4f46e5] transition-colors flex items-center gap-1.5 group"
+                    >
                       {link.label}
+                      <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </Link>
                   </li>
                 ))}
               </ul>
             </div>
+          ))}
 
-            {/* Resources */}
-            <div>
-              <h3 className="font-semibold text-background dark:text-foreground text-sm mb-4">
-                {language === 'uz' ? 'Resurslar' : language === 'ru' ? 'Ресурсы' : 'Resources'}
-              </h3>
-              <ul className="space-y-2">
-                {[
-                  { to: '/subscribe', label: t.hero.subscribe },
-                  { to: '/contact', label: t.footer.contact },
-                ].map(link => (
-                  <li key={link.to}>
-                    <Link to={link.to} className="text-background/70 dark:text-foreground/70 hover:text-background dark:hover:text-foreground transition-colors text-sm">
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Legal */}
-            <div>
-              <h3 className="font-semibold text-background dark:text-foreground text-sm mb-4">
-                {language === 'uz' ? 'Huquqiy' : language === 'ru' ? 'Правовое' : 'Legal'}
-              </h3>
-              <ul className="space-y-2">
-                {[
-                  { to: '/privacy', label: t.footer.privacy },
-                  { to: '/terms', label: t.footer.terms },
-                ].map(link => (
-                  <li key={link.to}>
-                    <Link to={link.to} className="text-background/70 dark:text-foreground/70 hover:text-background dark:hover:text-foreground transition-colors text-sm">
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+          <div className="col-span-2 lg:col-span-1 flex flex-col items-start lg:items-end">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 mb-6">Status</h4>
+            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest border border-[#1e1e5a] px-3 py-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)] animate-pulse" />
+              {language === 'uz' ? 'Bo\'sh' : language === 'ru' ? 'Открыт' : 'Available'}
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Bottom Bar - Liquid Glass */}
-      <div className="border-t border-background/10 dark:border-foreground/10 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center gap-4 relative z-10">
-          <p className="text-background/60 dark:text-foreground/60 text-sm">
-            © {currentYear} ShohruxDigital. {t.footer.rights}
+        <div className="border-t border-[#1e1e5a]/40 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-600">
+          <p>© {year} ShohruxDigital — {t.footer.rights}</p>
+          <p className="hidden md:block">Midnight Indigo — Vol. 02</p>
+          <p>
+            {language === 'uz' ? 'Toshkentdan, sevgi bilan' : language === 'ru' ? 'С любовью из Ташкента' : 'Made with care in Tashkent'}
           </p>
-          <div className="flex items-center gap-3">
-            <p className="text-background/40 dark:text-foreground/40 text-sm">
-              Made with ❤️ in Uzbekistan
-            </p>
-          </div>
         </div>
       </div>
     </footer>
