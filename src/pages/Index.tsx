@@ -93,10 +93,10 @@ const Index = () => {
     : 'ShohruxDigital — Digital Marketing, SEO & Personal Performance';
 
   const seoDescription = language === 'uz'
-    ? 'Shohruxbek Foziljonov — kunduzi digital marketolog, tongda yuguruvchi. Marketing strategiyalari, ma\'lumotlar va chidamlilik haqida insightlar.'
+    ? 'Shohruxbek Foziljonov — brendlarni o\'stiruvchi digital marketolog va uzoq masofa yuguruvchisi. Marketing strategiyasi, real raqamlar va chidamlilik mental modellari — bitta tahririyatda.'
     : language === 'ru'
-    ? 'Шохрухбек Фозилжонов — днём digital-маркетолог, на рассвете бегун. Маркетинговые стратегии, данные и выносливость.'
-    : 'Shohruxbek Foziljonov — digital marketer by day, endurance runner by dawn. Insights at the intersection of growth and grit.';
+    ? 'Шохрухбек Фозилжонов — digital-маркетолог, который растит бренды, и бегун на длинные дистанции. Стратегия, живые цифры и ментальные модели выносливости — в одной редакции.'
+    : 'Shohruxbek Foziljonov — a digital marketer who grows brands and a long-distance runner who studies pace. Strategy, real numbers, and endurance mental models — under one masthead.';
 
   const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://shohruxdigital.uz';
   const socialLinks = [
@@ -275,7 +275,7 @@ const Index = () => {
               {language === 'uz' ? <>The <span className="text-[#4f46e5]">Grit</span> Dispatch</> : language === 'ru' ? <>The <span className="text-[#4f46e5]">Grit</span> Dispatch</> : <>The <span className="text-[#4f46e5]">Grit</span> Dispatch</>}
             </h2>
             <p className="text-lg md:text-xl text-zinc-400">
-              {language === 'uz' ? 'Ortiqcha gap yo\'q. Faqat xom marketing ma\'lumotlar va chidamlilik mental modellari. Har yakshanba kechqurun.' : language === 'ru' ? 'Без воды. Только сырые маркетинговые данные и ментальные модели выносливости. Каждое воскресенье вечером.' : 'No fluff. Just raw marketing data and endurance mental models. Every Sunday evening.'}
+              {language === 'uz' ? 'Bir email, bir g\'oya, bitta ishlatsa bo\'ladigan xulosa. Real kampaniyalardan olingan raqamlar va chidamlilik mental modellari — har yakshanba kechqurun, pochta qutingizda.' : language === 'ru' ? 'Одно письмо, одна идея, один применимый вывод. Цифры из живых кампаний и ментальные модели выносливости — каждое воскресенье вечером в вашем ящике.' : 'One email, one idea, one takeaway you can use on Monday. Numbers from live campaigns and endurance mental models — every Sunday evening, in your inbox.'}
             </p>
           </div>
           <form onSubmit={handleSubscribe} className="lg:col-span-6 w-full">
