@@ -68,9 +68,9 @@ const About = () => {
       <SEOHead
         title={t('Muallif | ShohruxDigital', 'Автор | ShohruxDigital', 'Masthead | ShohruxDigital')}
         description={t(
-          'Jurnal kim tomonidan yoziladi — marketing strategiyasi, brending va chidamlilik sport ortidagi kishi.',
-          'Кто стоит за журналом — стратег по маркетингу, бренду и атлет на выносливость.',
-          'The person behind the journal — marketing strategist, brand operator, endurance athlete.'
+          'Jurnal kim tomonidan yoziladi — marketing strategiyasi va brending bo\'yicha amaliyotchi.',
+          'Кто стоит за журналом — практик по маркетинговой стратегии и брендингу.',
+          'The person behind the journal — marketing strategist and brand operator.'
         )}
         url={typeof window !== 'undefined' ? window.location.href : ''}
         type="website"
@@ -84,9 +84,9 @@ const About = () => {
           title={<>{t('Muallif', 'Автор', 'The Author')}</>}
           meta={t('Editor-in-chief', 'Главный редактор', 'Editor-in-chief')}
           lede={t(
-            'Bir kishilik tahririyat. Strategiya, ma\'lumotlar va chidamlilik haqida yoziladi, chunki amaliyotda shu uchtasi natija beradi.',
-            'Редакция из одного человека. Пишу про стратегию, данные и выносливость — потому что в работе именно это даёт результат.',
-            'A one-person desk. I write about strategy, data, and endurance — because in the field, those three are what move the needle.'
+            'Bir kishilik tahririyat. Strategiya, ma\'lumotlar va ishlaydigan playbook\'lar haqida yoziladi — amaliyotda natija beradigani shu.',
+            'Редакция из одного человека. Пишу про стратегию, данные и рабочие плейбуки — то, что реально двигает результат.',
+            'A one-person desk. I write about strategy, data, and playbooks that actually ship — because in the field, that is what moves the needle.'
           )}
         />
 
