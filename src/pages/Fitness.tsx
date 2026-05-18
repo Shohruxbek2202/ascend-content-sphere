@@ -38,6 +38,7 @@ const Fitness = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    document.title = "Fitness & Strava — Shohrux Foziljonov";
     const load = async () => {
       const [s, a] = await Promise.all([
         supabase.from("strava_summary").select("*").maybeSingle(),
