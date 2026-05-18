@@ -1,8 +1,11 @@
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { PublicPageHero } from '@/components/PublicPageHero';
 import { useLanguage } from '@/contexts/LanguageContext';
 import SEOHead from '@/components/SEOHead';
 import BreadcrumbJsonLd from '@/components/BreadcrumbJsonLd';
+
+const editorial = { fontFamily: '"Space Grotesk", system-ui, sans-serif' };
 
 const Privacy = () => {
   const { language } = useLanguage();
@@ -119,7 +122,10 @@ const Privacy = () => {
   const t = content[language];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div
+      className="min-h-screen bg-[hsl(var(--ink))] text-[hsl(var(--paper))] selection:bg-[#4f46e5] selection:text-white"
+      style={{ fontFamily: '"DM Sans", system-ui, sans-serif' }}
+    >
       <SEOHead
         title={language === 'uz' ? 'Maxfiylik Siyosati | ShohruxDigital' : language === 'ru' ? 'Политика Конфиденциальности | ShohruxDigital' : 'Privacy Policy | ShohruxDigital'}
         description={language === 'uz' ? 'ShohruxDigital maxfiylik siyosati — ma\'lumotlaringiz qanday himoyalanadi' : language === 'ru' ? 'Политика конфиденциальности ShohruxDigital — как защищены ваши данные' : 'ShohruxDigital privacy policy — learn how your data is collected, used, and protected'}
@@ -128,20 +134,39 @@ const Privacy = () => {
       />
       <BreadcrumbJsonLd items={[{ name: language === 'uz' ? 'Maxfiylik Siyosati' : language === 'ru' ? 'Конфиденциальность' : 'Privacy Policy', url: '/privacy' }]} />
       <Header />
-      <main className="container mx-auto px-4 py-20">
-        <div className="max-w-3xl mx-auto">
-          <h1 className="font-display text-4xl font-bold mb-4">{t.title}</h1>
-          <p className="text-muted-foreground mb-8">{t.lastUpdated}</p>
-          
-          <div className="space-y-8">
+      <main className="max-w-screen-2xl mx-auto">
+        <PublicPageHero
+          eyebrow={language === 'uz' ? 'Huquqiy hujjat' : language === 'ru' ? 'Юридический документ' : 'Legal Notice'}
+          title={<>{t.title}</>}
+          meta={t.lastUpdated}
+          lede={language === 'uz'
+            ? "Sizning ma'lumotlaringiz — sizniki. Ushbu hujjat qanday yig'ishimiz, nimaga ishlatishimiz va qanday himoya qilishimizni ortiqcha so'zsiz tushuntiradi."
+            : language === 'ru'
+              ? 'Ваши данные — ваши. Этот документ без лишних слов объясняет, что мы собираем, для чего и как защищаем.'
+              : 'Your data is yours. This document explains — without filler — what we collect, why, and how we keep it safe.'}
+        />
+
+        <section className="px-6 md:px-8 py-16 md:py-20 border-b border-[hsl(var(--rule))]">
+          <div className="max-w-3xl mx-auto space-y-14">
             {t.sections.map((section, index) => (
-              <section key={index}>
-                <h2 className="font-display text-2xl font-semibold mb-3">{section.title}</h2>
-                <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{section.content}</p>
-              </section>
+              <article key={index} className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10">
+                <div className="md:col-span-2">
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#4f46e5]" style={editorial}>
+                    §{String(index + 1).padStart(2, '0')}
+                  </p>
+                </div>
+                <div className="md:col-span-10">
+                  <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-tight leading-[1.05] mb-4" style={editorial}>
+                    {section.title}
+                  </h2>
+                  <p className="text-base md:text-lg text-zinc-400 leading-relaxed whitespace-pre-line">
+                    {section.content}
+                  </p>
+                </div>
+              </article>
             ))}
           </div>
-        </div>
+        </section>
       </main>
       <Footer />
     </div>

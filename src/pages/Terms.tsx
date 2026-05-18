@@ -1,8 +1,11 @@
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { PublicPageHero } from '@/components/PublicPageHero';
 import { useLanguage } from '@/contexts/LanguageContext';
 import SEOHead from '@/components/SEOHead';
 import BreadcrumbJsonLd from '@/components/BreadcrumbJsonLd';
+
+const editorial = { fontFamily: '"Space Grotesk", system-ui, sans-serif' };
 
 const Terms = () => {
   const { language } = useLanguage();
@@ -119,7 +122,10 @@ const Terms = () => {
   const t = content[language];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div
+      className="min-h-screen bg-[hsl(var(--ink))] text-[hsl(var(--paper))] selection:bg-[#4f46e5] selection:text-white"
+      style={{ fontFamily: '"DM Sans", system-ui, sans-serif' }}
+    >
       <SEOHead
         title={language === 'uz' ? 'Foydalanish Shartlari | ShohruxDigital' : language === 'ru' ? 'Условия Использования | ShohruxDigital' : 'Terms of Service | ShohruxDigital'}
         description={language === 'uz' ? 'ShohruxDigital foydalanish shartlari va qoidalari' : language === 'ru' ? 'Условия использования и правила ShohruxDigital' : 'ShohruxDigital terms of service — user responsibilities, copyright, advertising policies, and limitation of liability'}
@@ -128,20 +134,39 @@ const Terms = () => {
       />
       <BreadcrumbJsonLd items={[{ name: language === 'uz' ? 'Foydalanish Shartlari' : language === 'ru' ? 'Условия' : 'Terms of Service', url: '/terms' }]} />
       <Header />
-      <main className="container mx-auto px-4 py-20">
-        <div className="max-w-3xl mx-auto">
-          <h1 className="font-display text-4xl font-bold mb-4">{t.title}</h1>
-          <p className="text-muted-foreground mb-8">{t.lastUpdated}</p>
-          
-          <div className="space-y-8">
+      <main className="max-w-screen-2xl mx-auto">
+        <PublicPageHero
+          eyebrow={language === 'uz' ? 'Qoidalar to\'plami' : language === 'ru' ? 'Свод правил' : 'House Rules'}
+          title={<>{t.title}</>}
+          meta={t.lastUpdated}
+          lede={language === 'uz'
+            ? "Bu yerda hammasi sodda: nimaga ruxsat berilgan, nimaga yo'q, va qaysi chiziqdan o'tib bo'lmaydi. Hech qanday yashirin ma'no yo'q."
+            : language === 'ru'
+              ? 'Здесь всё просто: что можно, чего нельзя и где проходит черта. Без двойных смыслов.'
+              : 'Plain and simple: what\'s allowed, what isn\'t, and where the line is drawn. No hidden clauses.'}
+        />
+
+        <section className="px-6 md:px-8 py-16 md:py-20 border-b border-[hsl(var(--rule))]">
+          <div className="max-w-3xl mx-auto space-y-14">
             {t.sections.map((section, index) => (
-              <section key={index}>
-                <h2 className="font-display text-2xl font-semibold mb-3">{section.title}</h2>
-                <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{section.content}</p>
-              </section>
+              <article key={index} className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10">
+                <div className="md:col-span-2">
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#4f46e5]" style={editorial}>
+                    §{String(index + 1).padStart(2, '0')}
+                  </p>
+                </div>
+                <div className="md:col-span-10">
+                  <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-tight leading-[1.05] mb-4" style={editorial}>
+                    {section.title}
+                  </h2>
+                  <p className="text-base md:text-lg text-zinc-400 leading-relaxed whitespace-pre-line">
+                    {section.content}
+                  </p>
+                </div>
+              </article>
             ))}
           </div>
-        </div>
+        </section>
       </main>
       <Footer />
     </div>

@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { BookOpen, Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useNavigate, Link } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff, ArrowLeft, ArrowUpRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { z } from 'zod';
+
+const editorial = { fontFamily: '"Space Grotesk", system-ui, sans-serif' };
 
 const emailSchema = z.string().email('Email manzil noto\'g\'ri formatda');
 const passwordSchema = z.string().min(6, 'Parol kamida 6 ta belgidan iborat bo\'lishi kerak');
@@ -23,7 +21,6 @@ const Auth = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (session?.user) {
-          // [KRITIK-2] Rol DB dan tekshiriladi — email hardcode emas
           const { data: roleData } = await supabase
             .from('user_roles')
             .select('role')
@@ -98,61 +95,126 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iY3VycmVudENvbG9yIiBzdHJva2Utb3BhY2l0eT0iMC4wNSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50" />
+    <div
+      className="min-h-screen bg-[hsl(var(--ink))] text-[hsl(var(--paper))] selection:bg-[#4f46e5] selection:text-white grid grid-cols-1 lg:grid-cols-12"
+      style={{ fontFamily: '"DM Sans", system-ui, sans-serif' }}
+    >
+      {/* Left rail — editorial brand panel */}
+      <aside className="hidden lg:flex lg:col-span-5 xl:col-span-6 border-r border-[hsl(var(--rule))] p-12 xl:p-16 flex-col justify-between">
+        <Link to="/" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 hover:text-[#4f46e5] transition-colors w-fit">
+          <ArrowLeft className="w-3 h-3" strokeWidth={2.5} />
+          Bosh sahifaga qaytish
+        </Link>
 
-      <Card className="w-full max-w-md relative z-10 shadow-xl">
-        <CardHeader className="space-y-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="absolute top-4 left-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Orqaga
-          </Button>
-          <div className="flex justify-center pt-4">
-            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <BookOpen className="w-8 h-8 text-white" />
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#4f46e5] mb-6" style={editorial}>
+            Tahririyat · Xizmat ostonasi
+          </p>
+          <h1 className="text-5xl xl:text-7xl font-bold uppercase tracking-tight leading-[0.9] mb-8" style={editorial}>
+            Press<br/>Room.
+          </h1>
+          <p className="text-lg text-zinc-400 leading-relaxed max-w-md mb-10">
+            Bu yer — jamoatchilik uchun emas. Faqat tahririyat ekipaji uchun yopiq ostona. Materiallar shu yerda yoziladi, tahrirlanadi va e'longa tayyorlanadi.
+          </p>
+          <div className="border-t border-[hsl(var(--rule))] pt-6 grid grid-cols-3 gap-6">
+            <div>
+              <p className="text-3xl font-bold" style={editorial}>01</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 mt-1">Muharrir</p>
+            </div>
+            <div>
+              <p className="text-3xl font-bold" style={editorial}>∞</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 mt-1">Arxiv</p>
+            </div>
+            <div>
+              <p className="text-3xl font-bold" style={editorial}>24/7</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 mt-1">Smena</p>
             </div>
           </div>
-          <div className="text-center">
-            <CardTitle className="text-2xl font-display">Admin Kirish</CardTitle>
-            <CardDescription>Admin paneliga kirish</CardDescription>
-          </div>
-        </CardHeader>
+        </div>
 
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">
+          Toshkent · {new Date().getFullYear()} · Tahririyat
+        </p>
+      </aside>
+
+      {/* Right rail — sign-in form */}
+      <section className="lg:col-span-7 xl:col-span-6 flex items-center justify-center p-6 md:p-12">
+        <div className="w-full max-w-md">
+          <Link to="/" className="lg:hidden inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-10">
+            <ArrowLeft className="w-3 h-3" strokeWidth={2.5} />
+            Orqaga
+          </Link>
+
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#4f46e5] mb-4" style={editorial}>
+            Yopiq kirish · Muharrir
+          </p>
+          <h2 className="text-4xl md:text-5xl font-bold uppercase tracking-tight leading-[0.95] mb-3" style={editorial}>
+            Kirish.
+          </h2>
+          <p className="text-base text-zinc-400 leading-relaxed mb-10 border-l-2 border-[#4f46e5] pl-4">
+            Hisob ma'lumotlaringizni kiriting. Faqat tasdiqlangan muharrirlar tahririyatga kira oladi.
+          </p>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label htmlFor="email" className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 block mb-2" style={editorial}>
+                Email manzili
+              </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="email" type="email" placeholder="admin@example.com"
-                  value={email} onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10" disabled={isLoading}
+                <Mail className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" strokeWidth={2} />
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="muharrir@shohruxdigital.uz"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                  className="w-full bg-transparent border-0 border-b border-[hsl(var(--rule))] pl-8 pr-2 py-3 text-base text-[hsl(var(--paper))] placeholder:text-zinc-600 focus:outline-none focus:border-[#4f46e5] transition-colors"
                 />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Parol</Label>
+
+            <div>
+              <label htmlFor="password" className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 block mb-2" style={editorial}>
+                Parol
+              </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="password" type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••" value={password}
+                <Lock className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" strokeWidth={2} />
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10" disabled={isLoading}
+                  disabled={isLoading}
+                  className="w-full bg-transparent border-0 border-b border-[hsl(var(--rule))] pl-8 pr-10 py-3 text-base text-[hsl(var(--paper))] placeholder:text-zinc-600 focus:outline-none focus:border-[#4f46e5] transition-colors"
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-[#4f46e5] transition-colors"
+                >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Kutilmoqda...' : 'Kirish'}
-            </Button>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-[#4f46e5] text-white px-6 py-4 font-bold uppercase tracking-wider text-xs hover:bg-[#3d34d1] transition-colors flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={editorial}
+            >
+              {isLoading ? 'Tekshirilmoqda…' : 'Tahririyatga kirish'}
+              {!isLoading && <ArrowUpRight className="w-4 h-4" strokeWidth={2.5} />}
+            </button>
           </form>
-        </CardContent>
-      </Card>
+
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 mt-10 leading-relaxed">
+            Bu sahifa ommaviy ro'yxatdan o'tish uchun emas. Faqat tasdiqlangan muharrirlar uchun.
+          </p>
+        </div>
+      </section>
     </div>
   );
 };
