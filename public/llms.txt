@@ -1,0 +1,21 @@
+# ShohruxDigital
+
+> Digital marketing, SEO and AI playbooks for Central Asia. Real campaigns, real numbers, by Shohruxbek Foziljonov.
+
+ShohruxDigital is a multilingual (English, Uzbek, Russian) editorial journal covering digital marketing strategy, SEO, AI search optimization, paid media, and content systems — with a focus on Uzbekistan and Central Asian markets.
+
+## Pages
+
+- [Home](/): Featured editorial, latest posts and the newsletter.
+- [Blog](/blog): All articles on marketing, SEO and AI.
+- [Categories](/categories): Topic sections of the journal.
+- [Case Studies](/case-studies): Real campaign breakdowns with numbers.
+- [FAQ](/faq): Common questions about digital marketing and SEO.
+- [About](/about): About Shohruxbek Foziljonov and the journal.
+- [Contact](/contact): Get in touch.
+- [Subscribe](/subscribe): Weekly newsletter signup.
+
+## Optional
+
+- [Privacy](/privacy): Privacy policy.
+- [Terms](/terms): Terms of use.

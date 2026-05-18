@@ -87,10 +87,10 @@ const Index = () => {
   };
 
   const seoTitle = language === 'uz'
-    ? 'ShohruxDigital — Digital Marketing, SEO va Shaxsiy Rivojlanish'
+    ? 'ShohruxDigital — Digital Marketing va SEO Jurnali'
     : language === 'ru'
-    ? 'ShohruxDigital — Цифровой Маркетинг, SEO и Личностное Развитие'
-    : 'ShohruxDigital — Digital Marketing, SEO & Personal Performance';
+    ? 'ShohruxDigital — журнал о digital-маркетинге и SEO'
+    : 'ShohruxDigital — Digital Marketing & SEO Journal';
 
   const seoDescription = language === 'uz'
     ? 'Shohruxbek Foziljonov — brendlarni o\'stiruvchi digital marketolog. Marketing strategiyasi, real raqamlar va ishlaydigan playbook\'lar — bitta tahririyatda.'
