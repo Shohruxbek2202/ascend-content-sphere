@@ -14,8 +14,6 @@ async function getAccessToken(): Promise<string> {
   if (!clientId || !clientSecret || !refreshToken) {
     throw new Error("Missing Strava credentials");
   }
-    throw new Error("Missing Strava credentials");
-  }
 
   const res = await fetch("https://www.strava.com/oauth/token", {
     method: "POST",
