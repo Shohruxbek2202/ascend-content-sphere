@@ -110,7 +110,7 @@ export const Footer = () => {
           <p>© {year} ShohruxDigital — {t.footer.rights}</p>
           <p className="hidden md:block">Midnight Indigo — Vol. 02</p>
           <p>
-            {language === 'uz' ? 'Toshkentdan, sevgi bilan' : language === 'ru' ? 'С любовью из Ташкента' : 'Made with care in Tashkent'}
+            {language === 'uz' ? 'Toshkent — Markaziy Osiyo' : language === 'ru' ? 'Ташкент — Центральная Азия' : 'Tashkent — Central Asia'}
           </p>
         </div>
       </div>
