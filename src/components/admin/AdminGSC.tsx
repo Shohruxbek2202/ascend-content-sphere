@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
-import { RefreshCw, MousePointerClick, Eye, Percent, TrendingUp, Search, FileText } from 'lucide-react';
+import { RefreshCw, MousePointerClick, Eye, Percent, TrendingUp, Search, FileText, Sparkles, Zap, Target, Lightbulb, Wrench } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
 
 type Dimension = 'query' | 'page' | 'country' | 'device';
 
@@ -26,6 +28,14 @@ interface GSCData {
   totals: { clicks: number; impressions: number; ctr: number; position: number };
 }
 
+interface AISuggestions {
+  summary?: string;
+  quick_wins?: Array<{ keyword: string; current_position: number; action: string; priority: string }>;
+  ctr_fixes?: Array<{ keyword: string; impressions: number; ctr_percent: number; new_title_suggestion: string }>;
+  new_content_ideas?: Array<{ topic: string; target_keyword: string; why: string }>;
+  top_page_improvements?: Array<{ page: string; action: string }>;
+}
+
 const RANGES = [
   { label: '7 kun', days: 7 },
   { label: '28 kun', days: 28 },
@@ -43,6 +53,40 @@ const AdminGSC = () => {
   const [days, setDays] = useState(28);
   const [data, setData] = useState<GSCData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiData, setAiData] = useState<AISuggestions | null>(null);
+
+  const generateAI = async () => {
+    setAiLoading(true);
+    setAiOpen(true);
+    setAiData(null);
+    try {
+      // Fetch fresh queries + pages in parallel
+      const [qRes, pRes] = await Promise.all([
+        supabase.functions.invoke('gsc-analytics', {
+          body: { startDate: daysAgo(days), endDate: daysAgo(1), dimension: 'query', rowLimit: 30 },
+        }),
+        supabase.functions.invoke('gsc-analytics', {
+          body: { startDate: daysAgo(days), endDate: daysAgo(1), dimension: 'page', rowLimit: 15 },
+        }),
+      ]);
+      if (qRes.error) throw qRes.error;
+      if (pRes.error) throw pRes.error;
+
+      const { data: ai, error } = await supabase.functions.invoke('gsc-ai-suggestions', {
+        body: { queries: qRes.data?.rows || [], pages: pRes.data?.rows || [] },
+      });
+      if (error) throw error;
+      if (ai?.error) throw new Error(ai.error);
+      setAiData(ai);
+    } catch (e: any) {
+      toast.error(e.message || 'AI tahlilda xato');
+      setAiOpen(false);
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
