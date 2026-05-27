@@ -285,6 +285,116 @@ const AdminGSC = () => {
           )}
         </TabsContent>
       </Tabs>
+
+      <Dialog open={aiOpen} onOpenChange={setAiOpen}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-primary" />
+              AI Tavsiyalar — GSC ma'lumotlari asosida
+            </DialogTitle>
+          </DialogHeader>
+
+          {aiLoading && (
+            <div className="py-12 text-center space-y-3">
+              <div className="w-10 h-10 mx-auto border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              <p className="text-sm text-muted-foreground">AI 28 kunlik ma'lumotlarni tahlil qilmoqda...</p>
+            </div>
+          )}
+
+          {!aiLoading && aiData && (
+            <div className="space-y-6">
+              {aiData.summary && (
+                <Card className="p-4 bg-primary/5 border-primary/20">
+                  <p className="text-sm leading-relaxed">{aiData.summary}</p>
+                </Card>
+              )}
+
+              {aiData.quick_wins && aiData.quick_wins.length > 0 && (
+                <section>
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-yellow-500" /> Tez g'alabalar
+                  </h3>
+                  <div className="space-y-2">
+                    {aiData.quick_wins.map((w, i) => (
+                      <Card key={i} className="p-3">
+                        <div className="flex items-start justify-between gap-3 mb-1">
+                          <div className="font-medium text-sm">{w.keyword}</div>
+                          <div className="flex gap-2 shrink-0">
+                            <Badge variant="outline">pos. {w.current_position}</Badge>
+                            <Badge variant={w.priority === 'high' ? 'destructive' : 'secondary'}>{w.priority}</Badge>
+                          </div>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{w.action}</p>
+                      </Card>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {aiData.ctr_fixes && aiData.ctr_fixes.length > 0 && (
+                <section>
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
+                    <Target className="w-4 h-4 text-blue-500" /> CTR ni oshirish
+                  </h3>
+                  <div className="space-y-2">
+                    {aiData.ctr_fixes.map((c, i) => (
+                      <Card key={i} className="p-3">
+                        <div className="flex items-center gap-2 mb-2 text-xs text-muted-foreground">
+                          <span className="font-medium text-foreground">{c.keyword}</span>
+                          <span>•</span>
+                          <span>{c.impressions} ko'rinish</span>
+                          <span>•</span>
+                          <span>CTR {c.ctr_percent}%</span>
+                        </div>
+                        <div className="text-sm">
+                          <span className="text-muted-foreground">Yangi title: </span>
+                          <span className="font-medium">"{c.new_title_suggestion}"</span>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {aiData.new_content_ideas && aiData.new_content_ideas.length > 0 && (
+                <section>
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
+                    <Lightbulb className="w-4 h-4 text-green-500" /> Yangi post g'oyalari
+                  </h3>
+                  <div className="space-y-2">
+                    {aiData.new_content_ideas.map((idea, i) => (
+                      <Card key={i} className="p-3">
+                        <div className="font-medium text-sm mb-1">{idea.topic}</div>
+                        <div className="text-xs text-muted-foreground mb-1">
+                          Target: <code className="bg-muted px-1.5 py-0.5 rounded">{idea.target_keyword}</code>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{idea.why}</p>
+                      </Card>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {aiData.top_page_improvements && aiData.top_page_improvements.length > 0 && (
+                <section>
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
+                    <Wrench className="w-4 h-4 text-orange-500" /> Mavjud sahifalarni yaxshilash
+                  </h3>
+                  <div className="space-y-2">
+                    {aiData.top_page_improvements.map((p, i) => (
+                      <Card key={i} className="p-3">
+                        <code className="text-xs text-primary">{p.page}</code>
+                        <p className="text-sm mt-1">{p.action}</p>
+                      </Card>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
