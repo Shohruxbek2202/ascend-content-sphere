@@ -153,6 +153,10 @@ const AdminGSC = () => {
           <Button size="sm" variant="outline" onClick={fetchData} disabled={loading}>
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </Button>
+          <Button size="sm" onClick={generateAI} disabled={aiLoading || !data} className="bg-gradient-to-r from-primary to-accent">
+            <Sparkles className={`w-4 h-4 mr-2 ${aiLoading ? 'animate-pulse' : ''}`} />
+            AI Tavsiyalar
+          </Button>
         </div>
       </div>
 
