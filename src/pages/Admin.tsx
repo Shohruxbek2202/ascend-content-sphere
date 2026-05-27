@@ -4,7 +4,7 @@ import {
   LayoutDashboard, FileText, Folder, MessageSquare, Users,
   BarChart3, Settings, LogOut, BookOpen, Menu, X, Mail,
   Search, Send, Megaphone, HelpCircle, Briefcase, Network,
-  Newspaper, UserCircle,
+  Newspaper, UserCircle, Activity,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -30,6 +30,7 @@ const AdminTopicClusters = lazy(() => import('@/components/admin/AdminTopicClust
 const AdminAutoNews = lazy(() => import('@/components/admin/AdminAutoNews'));
 const AdminAbout = lazy(() => import('@/components/admin/AdminAbout'));
 const PostWritingGuide = lazy(() => import('@/components/admin/PostWritingGuide'));
+const AdminGSC = lazy(() => import('@/components/admin/AdminGSC'));
 
 const AdminLoader = () => (
   <div className="flex items-center justify-center py-20">
@@ -52,6 +53,7 @@ const menuItems = [
   { icon: Users, label: 'Obunchilar', path: '/admin/subscribers' },
   { icon: Send, label: 'Newsletter', path: '/admin/newsletter' },
   { icon: Megaphone, label: 'Broadcast', path: '/admin/broadcast' },
+  { icon: Activity, label: 'Google Search', path: '/admin/gsc' },
   { icon: Search, label: 'SEO Audit', path: '/admin/seo-audit' },
   { icon: Search, label: 'SEO Keywords', path: '/admin/seo' },
   { icon: Search, label: 'Sitemap', path: '/admin/sitemap' },
@@ -230,6 +232,7 @@ const Admin = () => {
               <Route path="/subscribers" element={<AdminSubscribers />} />
               <Route path="/newsletter" element={<AdminNewsletterLogs />} />
               <Route path="/broadcast" element={<AdminBroadcast />} />
+              <Route path="/gsc" element={<AdminGSC />} />
               <Route path="/seo-audit" element={<AdminSEOAudit />} />
               <Route path="/seo" element={<AdminSEO />} />
               <Route path="/sitemap" element={<AdminSitemapRobots />} />
