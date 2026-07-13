@@ -27,7 +27,7 @@ const AdminBroadcast = lazy(() => import('@/components/admin/AdminBroadcast'));
 const AdminFAQ = lazy(() => import('@/components/admin/AdminFAQ'));
 const AdminCaseStudies = lazy(() => import('@/components/admin/AdminCaseStudies'));
 const AdminTopicClusters = lazy(() => import('@/components/admin/AdminTopicClusters'));
-const AdminAutoNews = lazy(() => import('@/components/admin/AdminAutoNews'));
+
 const AdminAbout = lazy(() => import('@/components/admin/AdminAbout'));
 const PostWritingGuide = lazy(() => import('@/components/admin/PostWritingGuide'));
 const AdminGSC = lazy(() => import('@/components/admin/AdminGSC'));
@@ -40,7 +40,7 @@ const AdminLoader = () => (
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
-  { icon: Newspaper, label: 'Avto Yangiliklar', path: '/admin/auto-news' },
+  
   { icon: FileText, label: 'Postlar', path: '/admin/posts' },
   { icon: BookOpen, label: 'Post Qo\'llanma', path: '/admin/writing-guide' },
   { icon: Folder, label: 'Kategoriyalar', path: '/admin/categories' },
@@ -219,7 +219,7 @@ const Admin = () => {
           <Suspense fallback={<AdminLoader />}>
             <Routes>
               <Route path="/" element={<AdminDashboard />} />
-              <Route path="/auto-news" element={<AdminAutoNews />} />
+              
               <Route path="/posts/*" element={<AdminPosts />} />
               <Route path="/writing-guide" element={<PostWritingGuide />} />
               <Route path="/categories" element={<AdminCategories />} />
