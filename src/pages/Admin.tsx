@@ -4,7 +4,7 @@ import {
   LayoutDashboard, FileText, Folder, MessageSquare, Users,
   BarChart3, Settings, LogOut, BookOpen, Menu, X, Mail,
   Search, Send, Megaphone, HelpCircle, Briefcase, Network,
-  Newspaper, UserCircle, Activity,
+  UserCircle, Activity,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
