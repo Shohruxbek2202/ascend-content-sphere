@@ -31,8 +31,15 @@ export const Header = () => {
     { to: '/contact', label: t.nav.contact },
   ];
 
-  const isActive = (to: string) =>
-    to === '/' ? location.pathname === '/' : location.pathname.startsWith(to);
+  const stripLang = (p: string) => {
+    const seg = p.split('/')[1];
+    if (seg === 'uz' || seg === 'ru') return '/' + p.split('/').slice(2).join('/');
+    return p;
+  };
+  const isActive = (to: string) => {
+    const current = stripLang(location.pathname) || '/';
+    return to === '/' ? current === '/' : current.startsWith(to);
+  };
 
   return (
     <>
