@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
+import { Link } from '@/i18n/LocalizedLink';
 import { CheckCircle, XCircle, Loader2, Mail, ArrowUpRight } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
