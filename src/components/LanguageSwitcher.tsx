@@ -10,7 +10,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Language } from '@/i18n/translations';
 
 const languages = [
-  { code: 'uz' as Language, name: 'O\'zbekcha', flag: '🇺🇿' },
+  { code: 'uz' as Language, name: "O'zbekcha", flag: '🇺🇿' },
   { code: 'ru' as Language, name: 'Русский', flag: '🇷🇺' },
   { code: 'en' as Language, name: 'English', flag: '🇬🇧' },
 ];
@@ -21,9 +21,9 @@ export const LanguageSwitcher = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="gap-2"
           aria-label={language === 'uz' ? 'Tilni tanlash' : language === 'ru' ? 'Выбрать язык' : 'Select language'}
         >

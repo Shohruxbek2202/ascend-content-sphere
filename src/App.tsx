@@ -26,8 +26,9 @@ const FAQ = lazy(() => import("./pages/FAQ"));
 const Fitness = lazy(() => import("./pages/Fitness"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-// Lazy load analytics - not needed for initial render
-const AnalyticsScripts = lazy(() => import("./components/AnalyticsScripts").then(m => ({ default: m.AnalyticsScripts })));
+const AnalyticsScripts = lazy(() =>
+  import("./components/AnalyticsScripts").then(m => ({ default: m.AnalyticsScripts }))
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,42 +45,54 @@ const PageLoader = () => (
   </div>
 );
 
+// Public routes shared across all languages (mounted at /, /uz/*, /ru/*)
+const LocalizedRoutes = () => (
+  <Routes>
+    <Route index element={<Index />} />
+    <Route path="home" element={<Index />} />
+    <Route path="blog" element={<Blog />} />
+    <Route path="blog/:slug" element={<Post />} />
+    <Route path="categories" element={<Categories />} />
+    <Route path="about" element={<About />} />
+    <Route path="privacy" element={<Privacy />} />
+    <Route path="terms" element={<Terms />} />
+    <Route path="contact" element={<Contact />} />
+    <Route path="subscribe" element={<Subscribe />} />
+    <Route path="unsubscribe" element={<Unsubscribe />} />
+    <Route path="case-studies" element={<CaseStudies />} />
+    <Route path="faq" element={<FAQ />} />
+    <Route path="fitness" element={<Fitness />} />
+    <Route path="*" element={<NotFound />} />
+  </Routes>
+);
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-        <LanguageProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <Suspense fallback={null}>
-              <AnalyticsScripts />
-            </Suspense>
-            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <LanguageProvider>
+              <Suspense fallback={null}>
+                <AnalyticsScripts />
+              </Suspense>
               <Suspense fallback={<PageLoader />}>
                 <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/home" element={<Index />} />
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/blog/:slug" element={<Post />} />
-                <Route path="/categories" element={<Categories />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/subscribe" element={<Subscribe />} />
-                <Route path="/unsubscribe" element={<Unsubscribe />} />
-                <Route path="/case-studies" element={<CaseStudies />} />
-                <Route path="/faq" element={<FAQ />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/fitness" element={<Fitness />} />
-                <Route path="/admin/*" element={<Admin />} />
-                <Route path="*" element={<NotFound />} />
+                  {/* Admin & auth stay prefix-free */}
+                  <Route path="/admin/*" element={<Admin />} />
+                  <Route path="/auth" element={<Auth />} />
+                  {/* Language-prefixed public routes */}
+                  <Route path="/uz/*" element={<LocalizedRoutes />} />
+                  <Route path="/ru/*" element={<LocalizedRoutes />} />
+                  {/* Default (English) — no prefix */}
+                  <Route path="/*" element={<LocalizedRoutes />} />
                 </Routes>
               </Suspense>
-            </BrowserRouter>
-          </TooltipProvider>
-        </LanguageProvider>
+            </LanguageProvider>
+          </BrowserRouter>
+        </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
   </ErrorBoundary>
