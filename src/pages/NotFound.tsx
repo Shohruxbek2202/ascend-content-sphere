@@ -1,4 +1,5 @@
-import { useLocation, Link } from "react-router-dom";
+import { useLocation } from 'react-router-dom';
+import { Link } from '@/i18n/LocalizedLink';
 import { useEffect } from "react";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Header } from '@/components/Header';

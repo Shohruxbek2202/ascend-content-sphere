@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { Link } from '@/i18n/LocalizedLink';
 import { Menu, X, ArrowUpRight } from 'lucide-react';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { ThemeToggle } from './ThemeToggle';
@@ -30,8 +31,15 @@ export const Header = () => {
     { to: '/contact', label: t.nav.contact },
   ];
 
-  const isActive = (to: string) =>
-    to === '/' ? location.pathname === '/' : location.pathname.startsWith(to);
+  const stripLang = (p: string) => {
+    const seg = p.split('/')[1];
+    if (seg === 'uz' || seg === 'ru') return '/' + p.split('/').slice(2).join('/');
+    return p;
+  };
+  const isActive = (to: string) => {
+    const current = stripLang(location.pathname) || '/';
+    return to === '/' ? current === '/' : current.startsWith(to);
+  };
 
   return (
     <>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from '@/i18n/LocalizedLink';
 import { TrendingUp, Search, FileText, Share2, Users, Tag, ArrowUpRight } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
