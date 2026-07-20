@@ -88,55 +88,67 @@ serve(async (req) => {
 
 `;
 
-    // Add static pages
-    for (const page of staticPages) {
-      xml += `  <url>
-    <loc>${escapeXml(baseUrl + page.loc)}</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>${page.changefreq}</changefreq>
-    <priority>${page.priority}</priority>
-  </url>
-`;
-    }
+    const LANGS: Array<{ code: string; prefix: string }> = [
+      { code: 'en', prefix: '' },
+      { code: 'uz', prefix: '/uz' },
+      { code: 'ru', prefix: '/ru' },
+    ];
 
-    // Add categories with dynamic lastmod
-    for (const category of (categories || [])) {
-      const lastmod = category.updated_at 
-        ? new Date(category.updated_at).toISOString().split('T')[0] 
-        : today;
-      xml += `  <url>
-    <loc>${escapeXml(baseUrl + '/blog?category=' + category.slug)}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-`;
-    }
-
-    // Add posts with image support
-    for (const post of (posts || [])) {
-      const lastmod = post.updated_at 
-        ? new Date(post.updated_at).toISOString().split('T')[0] 
-        : today;
-      
-    xml += `  <url>
-    <loc>${escapeXml(baseUrl + '/blog/' + post.slug)}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>`;
-      
-      // Add image if available
-      if (post.featured_image) {
-        xml += `
+    const emitUrl = (
+      path: string,
+      opts: { lastmod: string; changefreq: string; priority: string; imageLoc?: string; imageTitle?: string },
+    ) => {
+      const alternates = LANGS.map(
+        (l) => `    <xhtml:link rel="alternate" hreflang="${l.code}" href="${escapeXml(baseUrl + l.prefix + path)}"/>`,
+      ).join('\n');
+      const xDefault = `    <xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(baseUrl + path)}"/>`;
+      for (const l of LANGS) {
+        let block = `  <url>
+    <loc>${escapeXml(baseUrl + l.prefix + path)}</loc>
+    <lastmod>${opts.lastmod}</lastmod>
+    <changefreq>${opts.changefreq}</changefreq>
+    <priority>${opts.priority}</priority>
+${alternates}
+${xDefault}`;
+        if (opts.imageLoc) {
+          block += `
     <image:image>
-      <image:loc>${escapeXml(post.featured_image)}</image:loc>
-      <image:title>${escapeXml(post.title_uz || '')}</image:title>
+      <image:loc>${escapeXml(opts.imageLoc)}</image:loc>
+      <image:title>${escapeXml(opts.imageTitle || '')}</image:title>
     </image:image>`;
-      }
-      
-      xml += `
+        }
+        block += `
   </url>
 `;
+        xml += block;
+      }
+    };
+
+    // Static pages
+    for (const page of staticPages) {
+      emitUrl(page.loc, { lastmod: today, changefreq: page.changefreq, priority: page.priority });
+    }
+
+    // Categories
+    for (const category of (categories || [])) {
+      const lastmod = category.updated_at
+        ? new Date(category.updated_at).toISOString().split('T')[0]
+        : today;
+      emitUrl('/blog?category=' + category.slug, { lastmod, changefreq: 'weekly', priority: '0.7' });
+    }
+
+    // Posts (with image)
+    for (const post of (posts || [])) {
+      const lastmod = post.updated_at
+        ? new Date(post.updated_at).toISOString().split('T')[0]
+        : today;
+      emitUrl('/blog/' + post.slug, {
+        lastmod,
+        changefreq: 'weekly',
+        priority: '0.8',
+        imageLoc: post.featured_image || undefined,
+        imageTitle: post.title_uz || '',
+      });
     }
 
     xml += `</urlset>`;
