@@ -500,6 +500,54 @@ export type Database = {
           },
         ]
       }
+      podcasts: {
+        Row: {
+          cover_image: string | null
+          created_at: string
+          description: string | null
+          duration: string | null
+          episode_number: number | null
+          guest_name: string | null
+          html_embed: string
+          id: string
+          published: boolean
+          published_at: string
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          cover_image?: string | null
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          episode_number?: number | null
+          guest_name?: string | null
+          html_embed: string
+          id?: string
+          published?: boolean
+          published_at?: string
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          cover_image?: string | null
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          episode_number?: number | null
+          guest_name?: string | null
+          html_embed?: string
+          id?: string
+          published?: boolean
+          published_at?: string
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       posts: {
         Row: {
           author_id: string | null

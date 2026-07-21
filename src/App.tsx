@@ -24,6 +24,8 @@ const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const CaseStudies = lazy(() => import("./pages/CaseStudies"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const Fitness = lazy(() => import("./pages/Fitness"));
+const Podcast = lazy(() => import("./pages/Podcast"));
+const PodcastEpisode = lazy(() => import("./pages/PodcastEpisode"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const AnalyticsScripts = lazy(() =>
@@ -62,6 +64,8 @@ const LocalizedRoutes = () => (
     <Route path="case-studies" element={<CaseStudies />} />
     <Route path="faq" element={<FAQ />} />
     <Route path="fitness" element={<Fitness />} />
+    <Route path="podcast" element={<Podcast />} />
+    <Route path="podcast/:slug" element={<PodcastEpisode />} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );
