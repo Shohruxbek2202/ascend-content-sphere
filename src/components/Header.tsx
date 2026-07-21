@@ -26,6 +26,7 @@ export const Header = () => {
     { to: '/categories', label: t.nav.categories },
     { to: '/case-studies', label: t.nav.caseStudies },
     { to: '/fitness', label: 'Fitness' },
+    { to: '/podcast', label: 'Podcast' },
     { to: '/about', label: t.nav.about },
     { to: '/faq', label: t.nav.faq },
     { to: '/contact', label: t.nav.contact },

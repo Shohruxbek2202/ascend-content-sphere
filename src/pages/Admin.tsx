@@ -4,7 +4,7 @@ import {
   LayoutDashboard, FileText, Folder, MessageSquare, Users,
   BarChart3, Settings, LogOut, BookOpen, Menu, X, Mail,
   Search, Send, Megaphone, HelpCircle, Briefcase, Network,
-  UserCircle, Activity,
+  UserCircle, Activity, Mic,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -29,6 +29,7 @@ const AdminCaseStudies = lazy(() => import('@/components/admin/AdminCaseStudies'
 const AdminTopicClusters = lazy(() => import('@/components/admin/AdminTopicClusters'));
 
 const AdminAbout = lazy(() => import('@/components/admin/AdminAbout'));
+const AdminPodcasts = lazy(() => import('@/components/admin/AdminPodcasts'));
 const PostWritingGuide = lazy(() => import('@/components/admin/PostWritingGuide'));
 const AdminGSC = lazy(() => import('@/components/admin/AdminGSC'));
 
@@ -47,6 +48,7 @@ const menuItems = [
   { icon: HelpCircle, label: 'FAQ', path: '/admin/faq' },
   { icon: Briefcase, label: 'Case Studies', path: '/admin/case-studies' },
   { icon: Network, label: 'Topic Clusters', path: '/admin/topic-clusters' },
+  { icon: Mic, label: 'Podcast', path: '/admin/podcasts' },
   { icon: UserCircle, label: 'About Sahifa', path: '/admin/about' },
   { icon: MessageSquare, label: 'Izohlar', path: '/admin/comments' },
   { icon: Mail, label: 'Xabarlar', path: '/admin/messages' },
@@ -226,6 +228,7 @@ const Admin = () => {
               <Route path="/faq" element={<AdminFAQ />} />
               <Route path="/case-studies" element={<AdminCaseStudies />} />
               <Route path="/topic-clusters" element={<AdminTopicClusters />} />
+              <Route path="/podcasts" element={<AdminPodcasts />} />
               <Route path="/about" element={<AdminAbout />} />
               <Route path="/comments" element={<AdminComments />} />
               <Route path="/messages" element={<AdminMessages />} />
