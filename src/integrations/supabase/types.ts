@@ -459,6 +459,98 @@ export type Database = {
         }
         Relationships: []
       }
+      landing_pages: {
+        Row: {
+          config: Json
+          created_at: string
+          id: string
+          is_published: boolean
+          language: string
+          service: string | null
+          slug: string
+          template: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          language?: string
+          service?: string | null
+          slug: string
+          template?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          language?: string
+          service?: string | null
+          slug?: string
+          template?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      leads: {
+        Row: {
+          created_at: string
+          email: string | null
+          extra: Json
+          id: string
+          landing_id: string | null
+          landing_slug: string | null
+          message: string | null
+          name: string | null
+          page_url: string | null
+          phone: string | null
+          service: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          extra?: Json
+          id?: string
+          landing_id?: string | null
+          landing_slug?: string | null
+          message?: string | null
+          name?: string | null
+          page_url?: string | null
+          phone?: string | null
+          service?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          extra?: Json
+          id?: string
+          landing_id?: string | null
+          landing_slug?: string | null
+          message?: string | null
+          name?: string | null
+          page_url?: string | null
+          phone?: string | null
+          service?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_landing_id_fkey"
+            columns: ["landing_id"]
+            isOneToOne: false
+            referencedRelation: "landing_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       newsletter_logs: {
         Row: {
           created_at: string

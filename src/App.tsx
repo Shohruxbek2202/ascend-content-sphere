@@ -26,6 +26,7 @@ const FAQ = lazy(() => import("./pages/FAQ"));
 const Fitness = lazy(() => import("./pages/Fitness"));
 const Podcast = lazy(() => import("./pages/Podcast"));
 const PodcastEpisode = lazy(() => import("./pages/PodcastEpisode"));
+const LandingPage = lazy(() => import("./pages/LandingPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const AnalyticsScripts = lazy(() =>
@@ -87,6 +88,8 @@ const App = () => (
                   {/* Admin & auth stay prefix-free */}
                   <Route path="/admin/*" element={<Admin />} />
                   <Route path="/auth" element={<Auth />} />
+                  {/* Standalone lead landing pages */}
+                  <Route path="/lp/:slug" element={<LandingPage />} />
                   {/* Language-prefixed public routes */}
                   <Route path="/uz/*" element={<LocalizedRoutes />} />
                   <Route path="/ru/*" element={<LocalizedRoutes />} />
