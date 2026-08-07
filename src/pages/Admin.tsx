@@ -4,7 +4,7 @@ import {
   LayoutDashboard, FileText, Folder, MessageSquare, Users,
   BarChart3, Settings, LogOut, BookOpen, Menu, X, Mail,
   Search, Send, Megaphone, HelpCircle, Briefcase, Network,
-  UserCircle, Activity, Mic,
+  UserCircle, Activity, Mic, Rocket, Target,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -30,6 +30,8 @@ const AdminTopicClusters = lazy(() => import('@/components/admin/AdminTopicClust
 
 const AdminAbout = lazy(() => import('@/components/admin/AdminAbout'));
 const AdminPodcasts = lazy(() => import('@/components/admin/AdminPodcasts'));
+const AdminLandings = lazy(() => import('@/components/admin/AdminLandings'));
+const AdminLeads = lazy(() => import('@/components/admin/AdminLeads'));
 const PostWritingGuide = lazy(() => import('@/components/admin/PostWritingGuide'));
 const AdminGSC = lazy(() => import('@/components/admin/AdminGSC'));
 
@@ -49,6 +51,8 @@ const menuItems = [
   { icon: Briefcase, label: 'Case Studies', path: '/admin/case-studies' },
   { icon: Network, label: 'Topic Clusters', path: '/admin/topic-clusters' },
   { icon: Mic, label: 'Podcast', path: '/admin/podcasts' },
+  { icon: Rocket, label: 'Landinglar', path: '/admin/landings' },
+  { icon: Target, label: 'Leadlar', path: '/admin/leads' },
   { icon: UserCircle, label: 'About Sahifa', path: '/admin/about' },
   { icon: MessageSquare, label: 'Izohlar', path: '/admin/comments' },
   { icon: Mail, label: 'Xabarlar', path: '/admin/messages' },
@@ -229,6 +233,8 @@ const Admin = () => {
               <Route path="/case-studies" element={<AdminCaseStudies />} />
               <Route path="/topic-clusters" element={<AdminTopicClusters />} />
               <Route path="/podcasts" element={<AdminPodcasts />} />
+              <Route path="/landings" element={<AdminLandings />} />
+              <Route path="/leads" element={<AdminLeads />} />
               <Route path="/about" element={<AdminAbout />} />
               <Route path="/comments" element={<AdminComments />} />
               <Route path="/messages" element={<AdminMessages />} />
